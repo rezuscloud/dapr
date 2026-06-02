@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag to build (e.g., v1.17.9-rezus.1)"
+        description: "Tag to build (e.g., v1.18.0-rezus.1)"
         required: true
 
 permissions:
@@ -18,8 +18,29 @@ env:
   DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
+  tidy:
+    name: go mod tidy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+      - name: Go mod tidy
+        run: go mod tidy
+      - name: Commit go.sum fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add go.sum go.mod
+          git diff --cached --quiet || git commit -m "chore: go mod tidy"
+          git push
+
   build:
     name: Build and push daprd
+    needs: tidy
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,7 +50,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ github.ref_name }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -62,16 +83,14 @@ jobs:
         env:
           GOOS: ${{ matrix.target_os }}
           GOARCH: ${{ matrix.target_arch }}
-        run: |
-          make build-linux
+        run: make build-linux
 
       - name: Build and push Docker images
         env:
           TARGET_OS: ${{ matrix.target_os }}
           TARGET_ARCH: ${{ matrix.target_arch }}
           DAPR_TAG: ${{ steps.tag.outputs.version }}
-        run: |
-          make docker-push
+        run: make docker-push
 
   publish:
     name: Create multi-arch manifest
@@ -101,8 +120,7 @@ jobs:
         env:
           DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
           DAPR_TAG: ${{ steps.tag.outputs.version }}
-        run: |
-          make docker-publish
+        run: make docker-publish
 
   release:
     name: Create GitHub Release
