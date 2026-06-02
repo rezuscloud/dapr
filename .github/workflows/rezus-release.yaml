@@ -72,6 +72,7 @@ jobs:
           TARGET_OS: ${{ matrix.target_os }}
           TARGET_ARCH: ${{ matrix.target_arch }}
           DAPR_TAG: ${{ steps.tag.outputs.version }}
+          DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
         run: make docker-push
 
   publish:
@@ -99,6 +100,7 @@ jobs:
         env:
           DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
           DAPR_TAG: ${{ steps.tag.outputs.version }}
+          DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
         run: |
           # dapr (system image)
           docker manifest create \
