@@ -14,17 +14,17 @@ permissions:
   contents: write
   packages: write
 
-env:
-  DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
-
 jobs:
   build:
-    name: Build and push daprd
+    name: Build and push (${{ matrix.target_os }}/${{ matrix.target_arch }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target_os: [linux]
-        target_arch: [amd64, arm64]
+        include:
+          - target_os: linux
+            target_arch: amd64
+          - target_os: linux
+            target_arch: arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,9 +79,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -98,11 +95,24 @@ jobs:
             echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create and push multi-arch manifests
+      - name: Create multi-arch manifests
         env:
           DAPR_REGISTRY: ghcr.io/${{ github.repository_owner }}
           DAPR_TAG: ${{ steps.tag.outputs.version }}
-        run: make docker-publish
+        run: |
+          # dapr (system image)
+          docker manifest create \
+            ${DAPR_REGISTRY}/dapr:${DAPR_TAG} \
+            --amend ${DAPR_REGISTRY}/dapr:${DAPR_TAG}-linux-amd64 \
+            --amend ${DAPR_REGISTRY}/dapr:${DAPR_TAG}-linux-arm64
+          docker manifest push --purge ${DAPR_REGISTRY}/dapr:${DAPR_TAG}
+
+          # daprd (sidecar image)
+          docker manifest create \
+            ${DAPR_REGISTRY}/daprd:${DAPR_TAG} \
+            --amend ${DAPR_REGISTRY}/daprd:${DAPR_TAG}-linux-amd64 \
+            --amend ${DAPR_REGISTRY}/daprd:${DAPR_TAG}-linux-arm64
+          docker manifest push --purge ${DAPR_REGISTRY}/daprd:${DAPR_TAG}
 
   release:
     name: Create GitHub Release
