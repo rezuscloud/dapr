@@ -1,0 +1,132 @@
+name: rezus-sync
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Weekly on Monday at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Sync upstream
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout rezus/main
+        uses: actions/checkout@v4
+        with:
+          ref: rezus/main
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/dapr/dapr.git
+          git fetch upstream master
+
+      - name: Check for new commits
+        id: check
+        run: |
+          BEHIND=$(git log --oneline rezus/main --not upstream/master | wc -l)
+          AHEAD=$(git log --oneline upstream/master --not rezus/main | wc -l)
+          echo "behind=$BEHIND" >> $GITHUB_OUTPUT
+          echo "ahead=$AHEAD" >> $GITHUB_OUTPUT
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No new upstream commits. Skipping."
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "$AHEAD new upstream commits found."
+          fi
+
+      - name: Create sync branch
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          BRANCH="rezus/sync-$(date +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Merge upstream
+        if: steps.check.outputs.has_changes == 'true'
+        id: merge
+        run: |
+          git merge upstream/master --no-commit --no-ff 2>&1 || true
+          CONFLICTS=$(git diff --name-only --diff-filter=U | wc -l)
+          echo "conflicts=$CONFLICTS" >> $GITHUB_OUTPUT
+          if [ "$CONFLICTS" -gt 0 ]; then
+            echo "⚠️ $CONFLICTS conflict(s):"
+            git diff --name-only --diff-filter=U
+          fi
+
+      - name: Resolve go.sum conflicts
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          if git diff --name-only --diff-filter=U | grep -q 'go.sum'; then
+            git checkout --theirs go.sum
+            git add go.sum
+          fi
+
+      - name: Commit merge
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git add -A
+          git commit -m "sync: merge upstream/master" || true
+
+      - name: Regenerate manifest
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          chmod +x scripts/generate-manifest.sh
+          ./scripts/generate-manifest.sh rezus/main upstream/master > rezus-manifest.yaml
+          git add rezus-manifest.yaml
+          git commit -m "chore: regenerate manifest after upstream sync" || true
+
+      - name: Verify patches
+        if: steps.check.outputs.has_changes == 'true'
+        id: verify
+        run: |
+          PASSED=0
+          FAILED=0
+          while IFS= read -r line; do
+            file=$(echo "$line" | grep 'file:' | sed 's/.*file: //')
+            sig=$(echo "$line" | grep 'signature:' | sed "s/.*signature: '//;s/'$//")
+            occ=$(echo "$line" | grep 'occurrences:' | sed 's/.*occurrences: //')
+          done < <(grep -A2 'file:' rezus-manifest.yaml | grep -v '^$')
+          
+          # Simple verification: check each patch file exists
+          echo "Patch verification results:"
+          grep 'file:' rezus-manifest.yaml | while read -r fline; do
+            file=$(echo "$fline" | sed "s/.*file: //;s/ //g")
+            if [ -f "$file" ]; then
+              echo "  ✅ $file exists"
+            else
+              echo "  ❌ $file MISSING"
+            fi
+          done
+
+      - name: Push sync branch
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          BRANCH=$(git branch --show-current)
+          git push origin "$BRANCH"
+
+      - name: Create Pull Request
+        if: steps.check.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: rezus/sync-${{ github.run_number }}
+          base: rezus/main
+          title: "sync: merge upstream dapr/dapr master → rezus/main"
+          body: |
+            ## Upstream Sync
+
+            **New commits**: ${{ steps.check.outputs.ahead }}
+            **Conflicts**: ${{ steps.merge.outputs.conflicts }}
+
+            ### Manifest Verification
+            See workflow log for patch verification results.
+
+            ### Next Steps
+            ${{ steps.merge.outputs.conflicts > 0 && '⚠️ Resolve conflicts, then merge and tag.' || '✅ Auto-mergeable. Merge and tag v*-rezus.N.' }}
+          labels: |
+            sync
