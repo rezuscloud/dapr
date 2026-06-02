@@ -1,5 +1,5 @@
 # Fork Divergence Manifest
-# Generated: 2026-06-01
+# Generated: 2026-06-02
 # Source: git diff rezus/main upstream/master
 #
 # REGENERATE: ./scripts/generate-manifest.sh > rezus-manifest.yaml
@@ -7,24 +7,12 @@
 deletions:
 
 patches:
-  - file: .github/workflows/dapr.yml
-    signature: 'target_arch: amd64'
-    occurrences: 11
-
   - file: charts/dapr/crds/configuration.yaml
     signature: 'otel:'
     occurrences: 5
 
   - file: go.mod
     signature: 'github.com/dapr/components-contrib v1.16.2-0.20260506133641-7f3e09dbb8dc'
-    occurrences: 1
-
-  - file: pkg/actors/targets/workflow/orchestrator/add.go
-    signature: 'if err := o.assertNewEventReminder(ctx, e, state); err != nil {'
-    occurrences: 1
-
-  - file: pkg/api/http/server.go
-    signature: '"golang.org/x/net/http2/h2c"'
     occurrences: 1
 
   - file: pkg/apis/configuration/v1alpha1/types.go
@@ -55,82 +43,6 @@ patches:
     signature: '"github.com/sirupsen/logrus"'
     occurrences: 1
 
-  - file: tests/apps/healthapp/app.go
-    signature: '"golang.org/x/net/http2/h2c"'
-    occurrences: 1
-
-  - file: tests/apps/resiliencyapp/go.mod
-    signature: 'golang.org/x/net v0.53.0 // indirect'
-    occurrences: 1
-
-  - file: tests/apps/resiliencyapp_grpc/go.mod
-    signature: 'golang.org/x/net v0.53.0 // indirect'
-    occurrences: 1
-
-  - file: tests/apps/service_invocation_grpc_proxy_client/go.mod
-    signature: 'golang.org/x/net v0.53.0 // indirect'
-    occurrences: 1
-
-  - file: tests/apps/utils/http-server.go
-    signature: '"golang.org/x/net/http2/h2c"'
-    occurrences: 1
-
-  - file: tests/config/workflow_retention_config.yaml
-    signature: 'anyTerminal: "1s"'
-    occurrences: 1
-
-  - file: tests/e2e/workflow_retention/workflow_retention_test.go
-    signature: '}, 60*time.Second, time.Second)'
-    occurrences: 1
-
-  - file: tests/integration/framework/process/statestore/fault/fault.go
-    signature: 'var notify chan struct{}'
-    occurrences: 1
-
-  - file: tests/integration/suite/actors/call/h2c/dissemination.go
-    signature: '"golang.org/x/net/http2/h2c"'
-    occurrences: 1
-
-  - file: tests/integration/suite/actors/call/h2c/resiliency.go
-    signature: '"golang.org/x/net/http2/h2c"'
-    occurrences: 1
-
-  - file: tests/integration/suite/actors/call/h2c/responsebody.go
-    signature: '"golang.org/x/net/http2/h2c"'
-    occurrences: 1
-
-  - file: tests/integration/suite/actors/metadata/host_grpc_stream_rejected_on_http.go
-    signature: 'require.NoError(t, stream.Send(&rtv1.SubscribeActorEventsRequestAlpha1{'
-    occurrences: 1
-
-  - file: tests/integration/suite/daprd/hotreload/selfhosted/resiliency.go
-    signature: 'require.NoError(t, os.Remove(filepath.Join(r.resDir, "resiliency.yaml")))'
-    occurrences: 1
-
-  - file: tests/integration/suite/daprd/httpendpoints/pki.go
-    signature: 'assert.Len(c, p.daprd.GetMetaHTTPEndpoints(t, ctx), 1)'
-    occurrences: 1
-
-  - file: tests/integration/suite/daprd/shutdown/block/app/invocation/callee.go
-    signature: 'app.WithOnInvokeFn(func(context.Context, *commonv1.InvokeRequest) (*commonv1.InvokeResponse, error) {'
-    occurrences: 1
-
-  - file: tests/integration/suite/daprd/workflow/chaos/canfail.go
-    signature: 'return "done", nil'
-    occurrences: 1
-
-  - file: tests/integration/suite/daprd/workflow/globalmaxconcurrent/combined.go
-    signature: 'assert.Equal(c, int64(1), limitedInside.Load())'
-    occurrences: 1
-
-  - file: tests/integration/suite/daprd/workflow/scheduler/raise.go
-    signature: '}, time.Second*3, time.Millisecond*10)'
-    occurrences: 4
-
-  - file: tests/integration/suite/daprd/workflow/versioning/stalled/amenderror.go
-    signature: 'require.NoError(t, client.RaiseEvent(ctx, id, "Continue"))'
-    occurrences: 1
-
 additive:
   - pkg/logs/otlp_bridge.go/
   - pkg/logs/otlp_bridge_test.go/
@@ -138,3 +50,4 @@ additive:
   - pkg/metrics/otlp_bridge_test.go/
   - pkg/otel/helpers.go/
   - pkg/otel/helpers_test.go/
+  - scripts/generate-manifest.sh
