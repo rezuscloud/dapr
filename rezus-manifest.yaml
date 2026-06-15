@@ -1,5 +1,5 @@
 # Fork Divergence Manifest
-# Generated: 2026-06-02
+# Generated: 2026-06-15
 # Source: git diff rezus/main upstream/master
 #
 # REGENERATE: ./scripts/generate-manifest.sh > rezus-manifest.yaml
@@ -7,12 +7,36 @@
 deletions:
 
 patches:
+  - file: .build-tools/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
   - file: charts/dapr/crds/configuration.yaml
     signature: 'otel:'
     occurrences: 5
 
   - file: go.mod
-    signature: 'github.com/dapr/components-contrib v1.16.2-0.20260506133641-7f3e09dbb8dc'
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: pkg/actors/targets/workflow/orchestrator/reminder.go
+    signature: 'return o.createWorkflowReminder(ctx, reminderName, nil, dueTime, o.appID, &wfName)'
+    occurrences: 1
+
+  - file: pkg/actors/targets/workflow/orchestrator/run.go
+    signature: 'return todo.RunCompletedTrue, fmt.Errorf("error loading internal state: %w", err)'
+    occurrences: 1
+
+  - file: pkg/actors/targets/workflow/orchestrator/timer.go
+    signature: 'firedTimerIDs := make(map[int32]bool)'
+    occurrences: 1
+
+  - file: pkg/api/grpc/grpc.go
+    signature: 'err := a.pubsubAdapter.Publish(ctx, &req)'
+    occurrences: 1
+
+  - file: pkg/api/http/http.go
+    signature: 'err := a.pubsubAdapter.Publish(r.Context(), &req)'
     occurrences: 1
 
   - file: pkg/apis/configuration/v1alpha1/types.go
@@ -39,11 +63,162 @@ patches:
     signature: '"time"'
     occurrences: 1
 
+  - file: pkg/operator/cache/cache.go
+    signature: 'func GetFilteredCache(namespace string, podSelector labels.Selector) cache.NewCacheFunc {'
+    occurrences: 1
+
+  - file: pkg/operator/operator.go
+    signature: 'NewCache:                      operatorcache.GetFilteredCache(opts.WatchNamespace, watchdogPodSelector),'
+    occurrences: 1
+
   - file: pkg/runtime/config.go
     signature: '"github.com/sirupsen/logrus"'
     occurrences: 1
 
+  - file: pkg/runtime/pubsub/adapter.go
+    signature: 'Publish(context.Context, *contribPubsub.PublishRequest) error'
+    occurrences: 1
+
+  - file: pkg/runtime/pubsub/bulkpublish_resiliency.go
+    signature: 'return bulkPublisher.BulkPublish(ctx, newReq)'
+    occurrences: 1
+
+  - file: pkg/runtime/pubsub/bulkpublish_resiliency_test.go
+    signature: 'res, err := ApplyBulkPublishResiliency(ctx, req, policyDef, bulkPublisher)'
+    occurrences: 11
+
+  - file: pkg/runtime/pubsub/outbox.go
+    signature: '})'
+    occurrences: 5
+
+  - file: pkg/runtime/pubsub/publisher/fake/fake.go
+    signature: 'func (f *Fake) Publish(ctx context.Context, req *contribPubsub.PublishRequest) error {'
+    occurrences: 1
+
+  - file: pkg/runtime/pubsub/publisher/publisher.go
+    signature: 'func (p *publisher) Publish(ctx context.Context, req *contribpubsub.PublishRequest) error {'
+    occurrences: 1
+
+  - file: pkg/runtime/pubsub/publisher/publisher_test.go
+    signature: '})'
+    occurrences: 62
+
+  - file: pkg/runtime/subscription/bulksubscription.go
+    signature: '_, err := s.adapter.BulkPublish(pubCtx, req)'
+    occurrences: 1
+
+  - file: pkg/runtime/subscription/postman/grpc/grpc.go
+    signature: 'err := g.adapter.Publish(pubCtx, req)'
+    occurrences: 1
+
+  - file: pkg/runtime/subscription/postman/http/http.go
+    signature: '_, err := h.adapter.BulkPublish(pubCtx, req)'
+    occurrences: 1
+
+  - file: pkg/runtime/subscription/subscription.go
+    signature: 'err := s.adapter.Publish(pubCtx, req)'
+    occurrences: 1
+
+  - file: pkg/runtime/wfengine/state/state.go
+    signature: 'wfLogger.Warnf("Failed to load inbox state key '%s': not found", key)'
+    occurrences: 1
+
+  - file: pkg/runtime/wfengine/wfengine.go
+    signature: 'appID:         opts.AppID,'
+    occurrences: 1
+
+  - file: pkg/testing/pubsubadapter_mock.go
+    signature: 'func (a *MockPubSubAdapter) Publish(ctx context.Context, req *pubsub.PublishRequest) error {'
+    occurrences: 1
+
+  - file: tests/apps/actorload/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/crypto/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/perf/actor-activation-locker/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/perf/actorfeatures/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/perf/jobs/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/perf/service_invocation_grpc/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/perf/service_invocation_http/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/perf/tester/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/pluggable_kafka-bindings/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/pluggable_redis-pubsub/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/pluggable_redis-statestore/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/pubsub-publisher-streaming/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/pubsub-subscriber-streaming/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/resiliencyapp/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/resiliencyapp_grpc/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/service_invocation_grpc_proxy_client/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/apps/service_invocation_grpc_proxy_server/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/e2e/actor_reentrancy/actor_reentrancy_test.go
+    signature: 'require.NotEmpty(t, u, "external URL for for app must not be empty")'
+    occurrences: 1
+
+  - file: tests/integration/framework/binary/helpers/helmtemplate/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/integration/framework/binary/helpers/mcpstdioserver/go.mod
+    signature: 'go 1.26.3'
+    occurrences: 1
+
+  - file: tests/integration/suite/daprd/workflow/chaos/dedupreassert.go
+    signature: 'return "done", nil'
+    occurrences: 1
+
 additive:
+  - .github/scripts/version-skew-test-patches/integration/release-1.17/dapr-sidecar-master/005-retention-reminder-name.patch
+  - .github/workflows/rezus-release.yaml
+  - .github/workflows/rezus-sync.yaml
   - pkg/logs/otlp_bridge.go/
   - pkg/logs/otlp_bridge_test.go/
   - pkg/metrics/otlp_bridge.go/
