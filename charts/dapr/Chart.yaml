@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: '0.0.0'
+appVersion: '1.18.0-rezus.1'
 description: A Helm chart for Dapr on Kubernetes
 name: dapr
-version: '0.0.0'
+version: "1.18.0-rezus.1"
 dependencies:
   - name: dapr_rbac
     version: '0.0.0'
