@@ -38,6 +38,9 @@ func Run() {
 
 	log.Infof("Starting Dapr Operator -- version %s -- commit %s", buildinfo.Version(), buildinfo.Commit())
 	log.Infof("Log level set to: %s", opts.Logger.OutputLevel)
+	if !opts.DisableLeaderElection {
+		log.Infof("Leader election timings: lease=%s renew=%s retry=%s", opts.LeaderElectionLeaseDuration, opts.LeaderElectionRenewDeadline, opts.LeaderElectionRetryPeriod)
+	}
 
 	healthz := healthz.New()
 	metricsExporter := metrics.New(metrics.Options{
@@ -57,6 +60,9 @@ func Run() {
 		Config:                              opts.Config,
 		TrustAnchorsFile:                    opts.TrustAnchorsFile,
 		LeaderElection:                      !opts.DisableLeaderElection,
+		LeaderElectionLeaseDuration:         opts.LeaderElectionLeaseDuration,
+		LeaderElectionRenewDeadline:         opts.LeaderElectionRenewDeadline,
+		LeaderElectionRetryPeriod:           opts.LeaderElectionRetryPeriod,
 		WatchdogMaxRestartsPerMin:           opts.MaxPodRestartsPerMinute,
 		WatchNamespace:                      opts.WatchNamespace,
 		ServiceReconcilerEnabled:            !opts.DisableServiceReconciler,

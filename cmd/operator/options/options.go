@@ -15,6 +15,7 @@ package options
 
 import (
 	"flag"
+	"fmt"
 	"strings"
 	"time"
 
@@ -34,6 +35,12 @@ const (
 
 	// defaultMaxPodRestartsPerMinute is the default value for max-pod-restarts-per-minute.
 	defaultMaxPodRestartsPerMinute = 20
+
+	// Leader election defaults tuned for self-hosted/single-node clusters where
+	// transient API server latency spikes can exceed controller-runtime defaults.
+	defaultLeaderElectionLeaseDuration = 30 * time.Second
+	defaultLeaderElectionRenewDeadline = 20 * time.Second
+	defaultLeaderElectionRetryPeriod   = 5 * time.Second
 )
 
 var log = logger.NewLogger("dapr.operator.options")
@@ -59,6 +66,9 @@ type Options struct {
 	WebhookServerPort                  int
 	WebhookServerListenAddress         string
 	CacheSyncPeriod                    time.Duration
+	LeaderElectionLeaseDuration        time.Duration
+	LeaderElectionRenewDeadline        time.Duration
+	LeaderElectionRetryPeriod          time.Duration
 }
 
 func New() *Options {
@@ -79,6 +89,9 @@ func New() *Options {
 	flag.StringVar(&opts.WatchNamespace, "watch-namespace", "", "Namespace to watch Dapr annotated resources in")
 	flag.BoolVar(&opts.EnableArgoRolloutServiceReconciler, "enable-argo-rollout-service-reconciler", false, "Enable the service reconciler for Dapr-enabled Argo Rollouts")
 	flag.BoolVar(&opts.WatchdogCanPatchPodLabels, "watchdog-can-patch-pod-labels", false, "Allow watchdog to patch pod labels to set pods with sidecar present")
+	flag.DurationVar(&opts.LeaderElectionLeaseDuration, "leader-election-lease-duration", defaultLeaderElectionLeaseDuration, "Duration the leader lease is valid before it must be renewed")
+	flag.DurationVar(&opts.LeaderElectionRenewDeadline, "leader-election-renew-deadline", defaultLeaderElectionRenewDeadline, "Duration the leader retries lease renewal before giving up")
+	flag.DurationVar(&opts.LeaderElectionRetryPeriod, "leader-election-retry-period", defaultLeaderElectionRetryPeriod, "Duration between leader election lease renewal attempts")
 
 	flag.StringVar(&opts.TrustAnchorsFile, "trust-anchors-file", securityConsts.ControlPlaneDefaultTrustAnchorsPath, "Filepath to the trust anchors for the Dapr control plane")
 
@@ -116,5 +129,29 @@ func New() *Options {
 		}
 	}
 
+	if err := validateLeaderElectionDurations(opts.LeaderElectionLeaseDuration, opts.LeaderElectionRenewDeadline, opts.LeaderElectionRetryPeriod); err != nil {
+		log.Fatal(err)
+	}
+
 	return &opts
+}
+
+func validateLeaderElectionDurations(leaseDuration, renewDeadline, retryPeriod time.Duration) error {
+	if leaseDuration <= 0 {
+		return fmt.Errorf("leader-election-lease-duration must be greater than 0")
+	}
+	if renewDeadline <= 0 {
+		return fmt.Errorf("leader-election-renew-deadline must be greater than 0")
+	}
+	if retryPeriod <= 0 {
+		return fmt.Errorf("leader-election-retry-period must be greater than 0")
+	}
+	if leaseDuration <= renewDeadline {
+		return fmt.Errorf("leader-election-lease-duration (%s) must be greater than leader-election-renew-deadline (%s)", leaseDuration, renewDeadline)
+	}
+	if renewDeadline <= retryPeriod {
+		return fmt.Errorf("leader-election-renew-deadline (%s) must be greater than leader-election-retry-period (%s)", renewDeadline, retryPeriod)
+	}
+
+	return nil
 }
