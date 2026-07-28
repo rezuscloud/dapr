@@ -68,6 +68,9 @@ type Operator interface {
 type Options struct {
 	Config                              string
 	LeaderElection                      bool
+	LeaderElectionLeaseDuration         time.Duration
+	LeaderElectionRenewDeadline         time.Duration
+	LeaderElectionRetryPeriod           time.Duration
 	WatchdogEnabled                     bool
 	WatchdogInterval                    time.Duration
 	WatchdogMaxRestartsPerMin           int
@@ -171,6 +174,9 @@ func NewOperator(ctx context.Context, opts Options) (Operator, error) {
 		},
 		LeaderElection:                opts.LeaderElection,
 		LeaderElectionID:              "operator.dapr.io",
+		LeaseDuration:                 &opts.LeaderElectionLeaseDuration,
+		RenewDeadline:                 &opts.LeaderElectionRenewDeadline,
+		RetryPeriod:                   &opts.LeaderElectionRetryPeriod,
 		NewCache:                      operatorcache.GetFilteredCache(opts.WatchNamespace, watchdogPodSelector, cacheSyncPeriod),
 		LeaderElectionReleaseOnCancel: true,
 	})
