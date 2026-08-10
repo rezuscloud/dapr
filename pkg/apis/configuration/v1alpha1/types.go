@@ -405,6 +405,7 @@ type MetricSpec struct {
 	//    1, 2, 3, 4, 5, 6, 8, 10, 13, 16, 20, 25, 30, 40, 50, 65, 80, 100, 130, 160, 200, 250, 300, 400, 500, 650, 800, 1,000, 2,000, 5,000, 10,000, 20,000, 50,000, 100,000.
 	// +optional
 	LatencyDistributionBuckets *[]int `json:"latencyDistributionBuckets,omitempty"`
+<<<<<<< HEAD
 	// Otel configures native OTLP push export for metrics alongside the existing Prometheus endpoint.
 	// When set, Dapr pushes metrics to the configured OTLP endpoint using the OpenCensus-to-OpenTelemetry bridge.
 	// +optional
@@ -437,6 +438,26 @@ type OtelMetricSpec struct {
 // GetIsSecure returns true if the connection should be secured.
 func (o *OtelMetricSpec) GetIsSecure() bool {
 	return o.IsSecure == nil || *o.IsSecure
+=======
+	// Workflow holds metrics options specific to workflow and activity metrics.
+	// +optional
+	Workflow *WorkflowMetrics `json:"workflow,omitempty"`
+}
+
+// WorkflowMetrics configures metrics options specific to workflows and activities.
+type WorkflowMetrics struct {
+	// LatencyDistributionBuckets specifies the latency distribution buckets used for the
+	// workflow and activity execution latency histograms. Units are defined by
+	// LatencyDistributionUnits (defaults to milliseconds). If not set or left empty,
+	// those histograms fall back to the shared MetricSpec.LatencyDistributionBuckets.
+	// +optional
+	LatencyDistributionBuckets *[]int `json:"latencyDistributionBuckets,omitempty"`
+	// LatencyDistributionUnits is the unit the LatencyDistributionBuckets values are
+	// expressed in (for example "1ms" or "1s"). It scales the configured buckets into
+	// the milliseconds the histograms are recorded in.
+	// +optional
+	LatencyDistributionUnits *metav1.Duration `json:"latencyDistributionUnits,omitempty"`
+>>>>>>> upstream/master
 }
 
 // MetricHTTP defines configuration for metrics for the HTTP server
