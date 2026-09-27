@@ -446,9 +446,10 @@ type MetricSpec struct {
 	RecordErrorCodes *bool       `json:"recordErrorCodes,omitempty"  yaml:"recordErrorCodes,omitempty"`
 	HTTP             *MetricHTTP `json:"http,omitempty" yaml:"http,omitempty"`
 	// Latency distribution buckets. If not set, the default buckets are used.
-<<<<<<< HEAD
-	LatencyDistributionBuckets *[]int        `json:"latencyDistributionBuckets,omitempty" yaml:"latencyDistributionBuckets,omitempty"`
-	Rules                      []MetricsRule `json:"rules,omitempty" yaml:"rules,omitempty"`
+	LatencyDistributionBuckets *[]int `json:"latencyDistributionBuckets,omitempty" yaml:"latencyDistributionBuckets,omitempty"`
+	// Workflow holds metrics options specific to workflow and activity metrics.
+	Workflow *WorkflowMetrics `json:"workflow,omitempty" yaml:"workflow,omitempty"`
+	Rules    []MetricsRule    `json:"rules,omitempty" yaml:"rules,omitempty"`
 	// Otel configures native OTLP push export for metrics.
 	Otel *OtelMetricSpec `json:"otel,omitempty" yaml:"otel,omitempty"`
 }
@@ -501,12 +502,11 @@ func (o *OtelMetricSpec) UnmarshalJSON(data []byte) error {
 	if crd.ExportInterval != nil {
 		d := crd.ExportInterval.Duration
 		o.ExportInterval = &d
-=======
-	LatencyDistributionBuckets *[]int `json:"latencyDistributionBuckets,omitempty" yaml:"latencyDistributionBuckets,omitempty"`
-	// Workflow holds metrics options specific to workflow and activity metrics.
-	Workflow *WorkflowMetrics `json:"workflow,omitempty" yaml:"workflow,omitempty"`
-	Rules    []MetricsRule    `json:"rules,omitempty" yaml:"rules,omitempty"`
+	}
+
+	return nil
 }
+
 
 // WorkflowMetrics configures metrics options specific to workflows and activities.
 type WorkflowMetrics struct {
@@ -542,7 +542,7 @@ func (w *WorkflowMetrics) UnmarshalJSON(data []byte) error {
 	if aux.LatencyDistributionUnits != nil {
 		d := aux.LatencyDistributionUnits.Duration
 		w.LatencyDistributionUnits = &d
->>>>>>> upstream/master
+
 	}
 
 	return nil

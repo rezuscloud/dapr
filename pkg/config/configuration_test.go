@@ -949,7 +949,45 @@ func TestWorkflowStateRetentionPolicyUnmarshalJSON(t *testing.T) {
 	})
 }
 
-<<<<<<< HEAD
+func TestHasSchedulerConcurrencyLimits(t *testing.T) {
+	i32 := func(v int32) *int32 { return &v }
+
+	var nilSpec *WorkflowSpec
+	require.False(t, nilSpec.HasSchedulerConcurrencyLimits())
+	require.False(t, (&WorkflowSpec{}).HasSchedulerConcurrencyLimits())
+	require.False(t, (&WorkflowSpec{
+		MaxConcurrentWorkflowInvocations: 5,
+		MaxConcurrentActivityInvocations: 5,
+	}).HasSchedulerConcurrencyLimits(), "per-host caps are worker-enforced and must not disable the fast path")
+	require.False(t, (&WorkflowSpec{
+		GlobalMaxConcurrentWorkflowInvocations: i32(0),
+	}).HasSchedulerConcurrencyLimits(), "a non-positive global cap means unset")
+
+	require.True(t, (&WorkflowSpec{GlobalMaxConcurrentWorkflowInvocations: i32(2)}).HasSchedulerConcurrencyLimits())
+	require.True(t, (&WorkflowSpec{GlobalMaxConcurrentActivityInvocations: i32(2)}).HasSchedulerConcurrencyLimits())
+	name := "wf"
+	require.True(t, (&WorkflowSpec{
+		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name, MaxConcurrent: i32(1)}},
+	}).HasSchedulerConcurrencyLimits())
+	require.True(t, (&WorkflowSpec{
+		ActivityConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name, MaxConcurrent: i32(1)}},
+	}).HasSchedulerConcurrencyLimits())
+
+	// Entries the scheduler ignores must not disable the fast path.
+	require.False(t, (&WorkflowSpec{
+		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{MaxConcurrent: i32(1)}},
+	}).HasSchedulerConcurrencyLimits(), "nil name is not enforced")
+	require.False(t, (&WorkflowSpec{
+		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name}},
+	}).HasSchedulerConcurrencyLimits(), "nil max is not enforced")
+	require.False(t, (&WorkflowSpec{
+		ActivityConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name, MaxConcurrent: i32(0)}},
+	}).HasSchedulerConcurrencyLimits(), "non-positive max is not enforced")
+	require.True(t, (&WorkflowSpec{
+		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{MaxConcurrent: i32(1)}, {Name: &name, MaxConcurrent: i32(1)}},
+	}).HasSchedulerConcurrencyLimits(), "one enforced entry among ignored ones counts")
+}
+
 func TestSetMetricsSpecFromEnv(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -1329,43 +1367,5 @@ func TestApplyObservabilitySpec(t *testing.T) {
 		assert.Empty(t, c.Spec.TracingSpec.Otel.EndpointAddress)
 		assert.Nil(t, c.Spec.MetricSpec.Otel)
 	})
-=======
-func TestHasSchedulerConcurrencyLimits(t *testing.T) {
-	i32 := func(v int32) *int32 { return &v }
 
-	var nilSpec *WorkflowSpec
-	require.False(t, nilSpec.HasSchedulerConcurrencyLimits())
-	require.False(t, (&WorkflowSpec{}).HasSchedulerConcurrencyLimits())
-	require.False(t, (&WorkflowSpec{
-		MaxConcurrentWorkflowInvocations: 5,
-		MaxConcurrentActivityInvocations: 5,
-	}).HasSchedulerConcurrencyLimits(), "per-host caps are worker-enforced and must not disable the fast path")
-	require.False(t, (&WorkflowSpec{
-		GlobalMaxConcurrentWorkflowInvocations: i32(0),
-	}).HasSchedulerConcurrencyLimits(), "a non-positive global cap means unset")
-
-	require.True(t, (&WorkflowSpec{GlobalMaxConcurrentWorkflowInvocations: i32(2)}).HasSchedulerConcurrencyLimits())
-	require.True(t, (&WorkflowSpec{GlobalMaxConcurrentActivityInvocations: i32(2)}).HasSchedulerConcurrencyLimits())
-	name := "wf"
-	require.True(t, (&WorkflowSpec{
-		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name, MaxConcurrent: i32(1)}},
-	}).HasSchedulerConcurrencyLimits())
-	require.True(t, (&WorkflowSpec{
-		ActivityConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name, MaxConcurrent: i32(1)}},
-	}).HasSchedulerConcurrencyLimits())
-
-	// Entries the scheduler ignores must not disable the fast path.
-	require.False(t, (&WorkflowSpec{
-		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{MaxConcurrent: i32(1)}},
-	}).HasSchedulerConcurrencyLimits(), "nil name is not enforced")
-	require.False(t, (&WorkflowSpec{
-		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name}},
-	}).HasSchedulerConcurrencyLimits(), "nil max is not enforced")
-	require.False(t, (&WorkflowSpec{
-		ActivityConcurrencyLimits: []NamedConcurrencyLimit{{Name: &name, MaxConcurrent: i32(0)}},
-	}).HasSchedulerConcurrencyLimits(), "non-positive max is not enforced")
-	require.True(t, (&WorkflowSpec{
-		WorkflowConcurrencyLimits: []NamedConcurrencyLimit{{MaxConcurrent: i32(1)}, {Name: &name, MaxConcurrent: i32(1)}},
-	}).HasSchedulerConcurrencyLimits(), "one enforced entry among ignored ones counts")
->>>>>>> upstream/master
 }
