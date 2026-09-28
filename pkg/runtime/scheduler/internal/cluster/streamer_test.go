@@ -15,11 +15,17 @@ package cluster
 
 import (
 	"context"
+<<<<<<< HEAD
 	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+=======
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+>>>>>>> upstream/release-1.18
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -137,6 +143,7 @@ func Test_handleJob_ErrReminderCanceled_localSentinel(t *testing.T) {
 		})
 	}
 }
+<<<<<<< HEAD
 
 func Test_handleJob_invalidTargetMetadata(t *testing.T) {
 	t.Parallel()
@@ -219,3 +226,5 @@ func Test_handleJob_invalidTargetMetadata(t *testing.T) {
 		})
 	}
 }
+=======
+>>>>>>> upstream/release-1.18

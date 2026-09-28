@@ -14,6 +14,7 @@ limitations under the License.
 package inmemory
 
 import (
+<<<<<<< HEAD
 	"context"
 	"strconv"
 	"sync"
@@ -28,6 +29,15 @@ import (
 
 	"github.com/dapr/dapr/pkg/actors/api"
 	actorerrors "github.com/dapr/dapr/pkg/actors/errors"
+=======
+	"strconv"
+	"sync"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+>>>>>>> upstream/release-1.18
 	routerfake "github.com/dapr/dapr/pkg/actors/router/fake"
 )
 
@@ -76,6 +86,7 @@ func TestUpdateActiveTimersCountConcurrentSameType(t *testing.T) {
 
 	assert.Equal(t, int64(increments), i.GetActiveTimersCount("actor-type"))
 }
+<<<<<<< HEAD
 
 func TestDeleteFuncRemovesMatchingActors(t *testing.T) {
 	store := New(Options{Router: routerfake.New()})
@@ -283,3 +294,5 @@ func TestGetReturnsCopyOrNil(t *testing.T) {
 	store.Delete(ctx, timer.Key())
 	assert.Nil(t, store.Get(ctx, timer.Key()))
 }
+=======
+>>>>>>> upstream/release-1.18

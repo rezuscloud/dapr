@@ -15,8 +15,11 @@ package inmemory
 
 import (
 	"context"
+<<<<<<< HEAD
 	"errors"
 	"sort"
+=======
+>>>>>>> upstream/release-1.18
 	"sync"
 	"sync/atomic"
 
@@ -267,6 +270,7 @@ func (i *inmemory) executeAndReschedule(ctx context.Context, reminder *api.Remin
 	}
 
 	err := i.router.CallReminder(ctx, reminder)
+<<<<<<< HEAD
 	if errors.Is(err, actorerrors.ErrTimerFireNotLocal) {
 		// The actor is no longer hosted here: the ownership-loss sweep is
 		// deleting this timer, so remove it rather than count a fire or tick
@@ -280,6 +284,8 @@ func (i *inmemory) executeAndReschedule(ctx context.Context, reminder *api.Remin
 		i.queueLock.Unlock()
 		return
 	}
+=======
+>>>>>>> upstream/release-1.18
 	diag.DefaultMonitoring.ActorTimerFired(reminder.ActorType, err == nil)
 	if err != nil {
 		// Successful and non-successful executions are treated as the same in
@@ -321,7 +327,7 @@ func (i *inmemory) executeAndReschedule(ctx context.Context, reminder *api.Remin
 	}
 }
 
-func (i *inmemory) Create(ctx context.Context, reminder *api.Reminder) error {
+func (i *inmemory) Create(_ context.Context, reminder *api.Reminder) error {
 	timerKey := reminder.Key()
 
 	log.Debugf("Create timer: %s", reminder.String())
@@ -333,6 +339,7 @@ func (i *inmemory) Create(ctx context.Context, reminder *api.Reminder) error {
 	i.queueLock.Lock()
 	defer i.queueLock.Unlock()
 
+<<<<<<< HEAD
 	// The caller's placement claim may have been force-cancelled by the
 	// dissemination drain timeout; inserting then would leave a timer the
 	// ownership-loss sweep has already run past.
@@ -348,6 +355,16 @@ func (i *inmemory) Create(ctx context.Context, reminder *api.Reminder) error {
 		replaced = true
 	}
 
+=======
+	// If there's already a timer with the same key, stop it so we can replace it.
+	replaced := false
+	if prev, loaded := i.activeTimers.LoadAndDelete(timerKey); loaded && prev != nil {
+		i.processor.Dequeue(prev.(*api.Reminder).Key())
+		i.updateActiveTimersCount(reminder.ActorType, -1)
+		replaced = true
+	}
+
+>>>>>>> upstream/release-1.18
 	// If the reminder has already expired, leave it removed and don't enqueue.
 	if !active {
 		log.Infof("Timer %s has expired", timerKey)

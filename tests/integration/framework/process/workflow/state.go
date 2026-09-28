@@ -46,12 +46,18 @@ func (w *Workflow) ActivityActorType(index int) string {
 // reminder or a fresh actor activation to make daprd observe the rows.
 func (w *Workflow) WriteWorkflowState(t *testing.T, ctx context.Context, index int, instanceID string, generation uint64, history, inbox []*protos.HistoryEvent) {
 	t.Helper()
+<<<<<<< HEAD
 
 	keyPrefix := w.daprds[index].AppID() + "||" + w.WorkflowActorType(index) + "||" + instanceID + "||"
 
 	w.db.DeleteStateKeys(t, ctx, keyPrefix+"history-%")
 	w.db.DeleteStateKeys(t, ctx, keyPrefix+"inbox-%")
 
+=======
+	keyPrefix := w.daprds[index].AppID() + "||" + w.WorkflowActorType(index) + "||" + instanceID + "||"
+	w.db.DeleteStateKeys(t, ctx, keyPrefix+"history-%")
+	w.db.DeleteStateKeys(t, ctx, keyPrefix+"inbox-%")
+>>>>>>> upstream/release-1.18
 	for i, e := range history {
 		raw, err := proto.Marshal(e)
 		require.NoError(t, err)
@@ -62,7 +68,10 @@ func (w *Workflow) WriteWorkflowState(t *testing.T, ctx context.Context, index i
 		require.NoError(t, err)
 		w.db.WriteStateValue(t, ctx, fmt.Sprintf("%sinbox-%06d", keyPrefix, i), raw)
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/release-1.18
 	meta := &backend.BackendWorkflowStateMetadata{
 		Generation:    generation,
 		HistoryLength: uint64(len(history)),

@@ -45,12 +45,17 @@ const (
 	// needed to load balance requests for target services with multiple endpoints, ie. multiple instances.
 	grpcServiceConfig = `{"loadBalancingPolicy":"round_robin"}`
 	dialTimeout       = 30 * time.Second
+<<<<<<< HEAD
+=======
+	maxConnIdle       = 3 * time.Minute
+>>>>>>> upstream/release-1.18
 
 	// appConnectTimeout is the budget gRPC gives a single connection attempt to
 	// the app, covering the TCP connect and the HTTP/2 handshake. This matches
 	// gRPC's own default; it does not bound how long a request waits, which
 	// remains governed by the caller's context.
 	appConnectTimeout = 20 * time.Second
+<<<<<<< HEAD
 )
 
 var log = logger.NewLogger("dapr.runtime.grpc.manager")
@@ -58,6 +63,8 @@ var log = logger.NewLogger("dapr.runtime.grpc.manager")
 var (
 	maxConnIdle       = durationFromEnv("DAPR_GRPC_MAX_CONN_IDLE", 3*time.Minute)
 	collectorInterval = durationFromEnv("DAPR_GRPC_CONN_COLLECTOR_INTERVAL", 45*time.Second)
+=======
+>>>>>>> upstream/release-1.18
 )
 
 // ConnCreatorFn is a function that returns a gRPC connection

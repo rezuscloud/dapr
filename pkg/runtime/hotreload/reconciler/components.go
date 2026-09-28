@@ -18,8 +18,11 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+<<<<<<< HEAD
 
 	"k8s.io/utils/clock"
+=======
+>>>>>>> upstream/release-1.18
 
 	compapi "github.com/dapr/dapr/pkg/apis/components/v1alpha1"
 	"github.com/dapr/dapr/pkg/runtime/authorizer"
@@ -44,6 +47,7 @@ type components struct {
 	skippedActorStoreLock sync.Mutex
 }
 
+<<<<<<< HEAD
 func NewComponents(opts Options[compapi.Component]) *Reconciler[compapi.Component] {
 	r := &Reconciler[compapi.Component]{
 		kind:     compapi.Kind,
@@ -56,6 +60,20 @@ func NewComponents(opts Options[compapi.Component]) *Reconciler[compapi.Componen
 			proc:   opts.Processor,
 			auth:   opts.Authorizer,
 		},
+=======
+func (c *components) update(ctx context.Context, comp compapi.Component) {
+	// Only a single actor state store may be configured. Skip a component
+	// which would become a second actor state store, rather than failing its
+	// init and exiting daprd. The skipped component is stashed and replayed
+	// if the current actor state store is removed, so a rename delivered as
+	// create-before-delete converges without waiting for the next reconcile.
+	if _, name, ok := c.store.GetStateStoreActor(); ok && name != comp.Name && isMarkedActorStateStore(comp) {
+		log.Errorf("Skipping hot reload of %s: %s is already the actor state store, only one actor state store is allowed. The component will be applied if %s is removed", comp.LogName(), name, name)
+		c.skippedActorStoreLock.Lock()
+		c.skippedActorStore = &comp
+		c.skippedActorStoreLock.Unlock()
+		return
+>>>>>>> upstream/release-1.18
 	}
 	r.loop = loopFactory.NewLoop(r)
 	return r
@@ -74,6 +92,15 @@ func (c *components) update(ctx context.Context, comp compapi.Component) error {
 		c.skippedActorStoreLock.Unlock()
 		return nil
 	}
+
+	// Any other event for the stashed component supersedes the stash.
+	c.dropSkippedActorStore(comp.Name)
+
+	// Notify the actor runtime once the update fully settles, and only if
+	// the actor state store actually changed. Notifying after both the close
+	// and re-init of an updated component means the actor runtime never
+	// observes the transient store-less state in the middle of an update.
+	defer c.notifyActorStateStoreChanged()()
 
 	// Any other event for the stashed component supersedes the stash.
 	c.dropSkippedActorStore(comp.Name)
@@ -120,6 +147,7 @@ func (c *components) update(ctx context.Context, comp compapi.Component) error {
 
 	log.Infof("Adding Component for processing: %s", comp.LogName())
 
+<<<<<<< HEAD
 	res := c.proc.AddPendingComponent(ctx, comp)
 	if res == nil {
 		return nil
@@ -146,6 +174,21 @@ func (c *components) update(ctx context.Context, comp compapi.Component) error {
 
 func (c *components) delete(ctx context.Context, comp compapi.Component) error {
 	c.dropSkippedActorStore(comp.Name)
+=======
+	if c.proc.AddPendingComponent(ctx, comp) {
+		log.Infof("Component updated: %s", comp.LogName())
+		c.proc.WaitForEmptyComponentQueue()
+		// An update which unmarked the actor state store frees the slot for a
+		// previously skipped component.
+		c.replaySkippedActorStore(ctx)
+	}
+}
+
+func (c *components) delete(ctx context.Context, comp compapi.Component) {
+	c.dropSkippedActorStore(comp.Name)
+
+	defer c.notifyActorStateStoreChanged()()
+>>>>>>> upstream/release-1.18
 
 	defer c.notifyActorStateStoreChanged()()
 
@@ -153,7 +196,11 @@ func (c *components) delete(ctx context.Context, comp compapi.Component) error {
 		log.Errorf("error closing deleted component: %s", err)
 	}
 
+<<<<<<< HEAD
 	return c.replaySkippedActorStore(ctx)
+=======
+	c.replaySkippedActorStore(ctx)
+>>>>>>> upstream/release-1.18
 }
 
 // dropSkippedActorStore forgets the stashed skipped actor state store when a
@@ -168,22 +215,38 @@ func (c *components) dropSkippedActorStore(name string) {
 
 // replaySkippedActorStore applies the stashed skipped actor state store if
 // the actor state store slot has become free.
+<<<<<<< HEAD
 func (c *components) replaySkippedActorStore(ctx context.Context) error {
+=======
+func (c *components) replaySkippedActorStore(ctx context.Context) {
+>>>>>>> upstream/release-1.18
 	c.skippedActorStoreLock.Lock()
 	skipped := c.skippedActorStore
 	if skipped == nil {
 		c.skippedActorStoreLock.Unlock()
+<<<<<<< HEAD
 		return nil
 	}
 	if _, _, ok := c.store.GetStateStoreActor(); ok {
 		c.skippedActorStoreLock.Unlock()
 		return nil
+=======
+		return
+	}
+	if _, _, ok := c.store.GetStateStoreActor(); ok {
+		c.skippedActorStoreLock.Unlock()
+		return
+>>>>>>> upstream/release-1.18
 	}
 	c.skippedActorStore = nil
 	c.skippedActorStoreLock.Unlock()
 
 	log.Infof("Applying previously skipped actor state store: %s", skipped.LogName())
+<<<<<<< HEAD
 	return c.update(ctx, *skipped)
+=======
+	c.update(ctx, *skipped)
+>>>>>>> upstream/release-1.18
 }
 
 // notifyActorStateStoreChanged captures the actor state store revision and

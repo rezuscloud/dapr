@@ -71,13 +71,20 @@ func mcpServerSpec(name, url string) mcpserverapi.MCPServer {
 func newTestEngine(t *testing.T, fa actors.Interface) (*engine, *inprocess.Executor) {
 	t.Helper()
 	exec := inprocess.NewExecutor()
+<<<<<<< HEAD
 	abackend, err := backendactors.New(backendactors.Options{
+=======
+	abackend := backendactors.New(backendactors.Options{
+>>>>>>> upstream/release-1.18
 		AppID:          "wfe-test",
 		Namespace:      "default",
 		Actors:         fa,
 		ComponentStore: compstore.New(),
 	})
+<<<<<<< HEAD
 	require.NoError(t, err)
+=======
+>>>>>>> upstream/release-1.18
 	wfe := &engine{
 		appID:         "wfe-test",
 		namespace:     "default",

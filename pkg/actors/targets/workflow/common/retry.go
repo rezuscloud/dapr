@@ -71,10 +71,17 @@ func CreateReminderWithRetry(ctx context.Context, r reminderCreator, req *actora
 	}, backoff.WithContext(bo, ctx))
 }
 
+<<<<<<< HEAD
 // CreateReminderWithRetryForever calls reminders.Create and retries on every
 // error except a context error or a clearly-permanent request error (see
 // IsPermanentCreateError), with no overall time bound: it stops only when ctx
 // is cancelled (i.e. the actor is torn down).
+=======
+// CreateReminderWithRetryForever calls reminders.Create and retries every
+// error except a context error, a clearly-permanent request error (see
+// IsPermanentCreateError), or ResourceExhausted (NOSPACE only clears with
+// compaction or a quota raise): it stops only when ctx is cancelled.
+>>>>>>> upstream/release-1.18
 func CreateReminderWithRetryForever(ctx context.Context, r reminderCreator, req *actorapi.CreateReminderRequest) error {
 	bo := backoff.NewExponentialBackOff()
 	bo.InitialInterval = 100 * time.Millisecond
@@ -86,7 +93,11 @@ func CreateReminderWithRetryForever(ctx context.Context, r reminderCreator, req 
 			return backoff.Permanent(err)
 		}
 		err := r.Create(ctx, req)
+<<<<<<< HEAD
 		if err != nil && IsPermanentCreateError(err) {
+=======
+		if err != nil && (IsPermanentCreateError(err) || status.Code(err) == codes.ResourceExhausted) {
+>>>>>>> upstream/release-1.18
 			return backoff.Permanent(err)
 		}
 		return err
@@ -100,9 +111,14 @@ func CreateReminderWithRetryForever(ctx context.Context, r reminderCreator, req 
 // Internal, Aborted, and notably Unknown (the code carried by the scheduler's
 // plain-error returns, including cron shutdown), is treated as retryable by
 // both retry helpers, because the scheduler may recover and the create is an
+<<<<<<< HEAD
 // idempotent overwrite-by-name. ResourceExhausted (transient etcd pressure)
 // is also retryable for the forever helper; the bounded helper additionally
 // treats it as permanent, see CreateReminderWithRetry.
+=======
+// idempotent overwrite-by-name. ResourceExhausted is permanent in both
+// helpers, see CreateReminderWithRetry.
+>>>>>>> upstream/release-1.18
 func IsPermanentCreateError(err error) bool {
 	s, ok := status.FromError(err)
 	if !ok {

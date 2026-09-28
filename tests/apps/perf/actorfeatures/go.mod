@@ -11,6 +11,10 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
+<<<<<<< HEAD
+=======
+	go.opentelemetry.io/otel/trace v1.43.0 // indirect
+>>>>>>> upstream/release-1.18
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect

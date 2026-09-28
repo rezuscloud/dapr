@@ -15,7 +15,10 @@ package proxy
 
 import (
 	"context"
+<<<<<<< HEAD
 	"crypto/tls"
+=======
+>>>>>>> upstream/release-1.18
 	"errors"
 	"io"
 	"net"
@@ -29,7 +32,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
+<<<<<<< HEAD
 	"google.golang.org/grpc/credentials"
+=======
+>>>>>>> upstream/release-1.18
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
@@ -48,7 +54,10 @@ const (
 	MethodDeleteByMetadata   = "DeleteByMetadata"
 	MethodDeleteByNamePrefix = "DeleteByNamePrefix"
 	MethodWatchHosts         = "WatchHosts"
+<<<<<<< HEAD
 	MethodWatchJobs          = "WatchJobs"
+=======
+>>>>>>> upstream/release-1.18
 )
 
 type Proxy struct {
@@ -62,11 +71,14 @@ type Proxy struct {
 	upstream *grpc.ClientConn
 	client   schedulerv1pb.SchedulerClient
 
+<<<<<<< HEAD
 	// serverCreds and upstreamTLS are set by WithSentry to interpose on an
 	// mTLS control plane; nil means plaintext on both legs.
 	serverCreds credentials.TransportCredentials
 	upstreamTLS *tls.Config
 
+=======
+>>>>>>> upstream/release-1.18
 	runOnce  sync.Once
 	done     chan struct{}
 	serveErr chan error
@@ -89,12 +101,20 @@ type armConfig struct {
 // framework process ordering. daprd should be configured with
 // daprd.WithSchedulerAddresses(proxy.Address()) instead of pointing at the
 // scheduler directly.
+<<<<<<< HEAD
 func New(t *testing.T, sched *scheduler.Scheduler, fopts ...Option) *Proxy {
+=======
+func New(t *testing.T, sched *scheduler.Scheduler) *Proxy {
+>>>>>>> upstream/release-1.18
 	t.Helper()
 	lis := ports.Reserve(t, 1).Listener(t)
 	tcp, ok := lis.Addr().(*net.TCPAddr)
 	require.True(t, ok)
+<<<<<<< HEAD
 	p := &Proxy{
+=======
+	return &Proxy{
+>>>>>>> upstream/release-1.18
 		sched:    sched,
 		port:     tcp.Port,
 		listener: lis,
@@ -102,10 +122,13 @@ func New(t *testing.T, sched *scheduler.Scheduler, fopts ...Option) *Proxy {
 		done:     make(chan struct{}),
 		serveErr: make(chan error, 1),
 	}
+<<<<<<< HEAD
 	for _, fopt := range fopts {
 		fopt(p)
 	}
 	return p
+=======
+>>>>>>> upstream/release-1.18
 }
 
 // waitReady blocks until conn is Ready, returning false if the connection is
@@ -131,12 +154,17 @@ func (p *Proxy) Run(t *testing.T, ctx context.Context) {
 	p.runOnce.Do(func() {
 		p.sched.WaitUntilRunning(t, ctx)
 
+<<<<<<< HEAD
 		upstreamCreds := insecure.NewCredentials()
 		if p.upstreamTLS != nil {
 			upstreamCreds = credentials.NewTLS(p.upstreamTLS.Clone())
 		}
 		conn, err := grpc.NewClient(p.sched.Address(),
 			grpc.WithTransportCredentials(upstreamCreds),
+=======
+		conn, err := grpc.NewClient(p.sched.Address(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+>>>>>>> upstream/release-1.18
 		)
 		require.NoError(t, err)
 		if !waitReady(ctx, conn) {
@@ -150,11 +178,15 @@ func (p *Proxy) Run(t *testing.T, ctx context.Context) {
 		p.upstream = conn
 		p.client = schedulerv1pb.NewSchedulerClient(conn)
 
+<<<<<<< HEAD
 		if p.serverCreds != nil {
 			p.grpcSrv = grpc.NewServer(grpc.Creds(p.serverCreds))
 		} else {
 			p.grpcSrv = grpc.NewServer()
 		}
+=======
+		p.grpcSrv = grpc.NewServer()
+>>>>>>> upstream/release-1.18
 		schedulerv1pb.RegisterSchedulerServer(p.grpcSrv, p)
 
 		go func() {
@@ -284,10 +316,13 @@ func (p *Proxy) DeleteByNamePrefix(ctx context.Context, req *schedulerv1pb.Delet
 // the shared context to unblock the other goroutine and drain its error so
 // no goroutine leaks.
 func (p *Proxy) WatchJobs(stream schedulerv1pb.Scheduler_WatchJobsServer) error {
+<<<<<<< HEAD
 	if code, ok := p.takeFailure(MethodWatchJobs, ""); ok {
 		return injected(MethodWatchJobs, code)
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
 

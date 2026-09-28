@@ -15,22 +15,32 @@ package activity
 
 import (
 	"context"
+<<<<<<< HEAD
 	"errors"
+=======
+>>>>>>> upstream/release-1.18
 	"fmt"
 	"strings"
 	"time"
 
 	"google.golang.org/protobuf/proto"
 
+<<<<<<< HEAD
 	actorsapi "github.com/dapr/dapr/pkg/actors/api"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/signing"
 	diag "github.com/dapr/dapr/pkg/diagnostics"
 	"github.com/dapr/dapr/pkg/messages"
+=======
+	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/inflight"
+	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/signing"
+	diag "github.com/dapr/dapr/pkg/diagnostics"
+>>>>>>> upstream/release-1.18
 	invokev1 "github.com/dapr/dapr/pkg/messaging/v1"
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 	wferrors "github.com/dapr/dapr/pkg/runtime/wfengine/errors"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/todo"
 	"github.com/dapr/durabletask-go/api"
+<<<<<<< HEAD
 )
 
 // detachedPublishTimeout bounds a result publish. Its context is the caller's
@@ -128,17 +138,65 @@ func (f *factory) publishAndSettle(ctx context.Context, ex *execution, completed
 	return execErr
 }
 
+=======
+	"github.com/dapr/durabletask-go/backend"
+)
+
+// detachedPublishTimeout bounds how long publishResult waits when the caller
+// ctx was already canceled before the SDK callback fired.
+// context.WithoutCancel strips the original deadline, so we apply a fresh one
+// to keep a misbehaving downstream from blocking the actor lock indefinitely.
+const detachedPublishTimeout = 30 * time.Second
+
+// watchAndPublish runs on the factory (not the activity) so it cannot be
+// affected by the activity actor being recycled or rebalanced after the
+// caller's ctx canceled. All state it needs is captured by argument or read
+// from factory-level fields that are immutable post-init. Crucially it does
+// not invoke any method on the activity actor itself, so the actor's
+// turn-based contract is preserved.
+//
+// origCtx is the (already-cancelled) ctx from the owner; we strip
+// cancellation but keep trace context and values via context.WithoutCancel,
+// then apply a fresh detachedPublishTimeout deadline so a misbehaving
+// downstream cannot block this goroutine indefinitely.
+func (f *factory) watchAndPublish(origCtx context.Context, actorID, key string, call *inflight.Call, callback chan bool, wi *backend.ActivityWorkItem, taskEvent *backend.HistoryEvent, name, activityName, workflowID string, start time.Time) {
+	completed := <-callback
+	pubCtx, cancel := context.WithTimeout(context.WithoutCancel(origCtx), detachedPublishTimeout)
+	defer cancel()
+	execErr := f.publishResult(pubCtx, actorID, completed, wi, taskEvent, name, activityName, workflowID, start)
+	call.Finish(execErr)
+	// Cache the outcome for follower retries only on success; on error,
+	// release immediately so subsequent cron retries become fresh owners
+	// and can re-attempt rather than seeing the cached failure for the
+	// full TTL window.
+	if execErr == nil {
+		f.inflight.ReleaseAfter(key, call, inflightCacheTTL)
+	} else {
+		f.inflight.Release(key, call)
+	}
+}
+
+>>>>>>> upstream/release-1.18
 // publishResult handles everything after the SDK callback has fired: it
 // validates the result, attaches signing attestations, and posts the
 // completion event back to the workflow actor. Lives on factory because
 // it must remain safe to invoke from a background goroutine after the
 // owning *activity may have been recycled.
+<<<<<<< HEAD
 func (f *factory) publishResult(ctx context.Context, ex *execution, completed bool) error {
 	executionStatus := ""
 	elapsed := diag.ElapsedSince(ex.start)
 	defer func() {
 		if executionStatus != "" {
 			diag.DefaultWorkflowMonitoring.ActivityExecutionEvent(ctx, ex.activityName, executionStatus, elapsed)
+=======
+func (f *factory) publishResult(ctx context.Context, actorID string, completed bool, wi *backend.ActivityWorkItem, taskEvent *backend.HistoryEvent, name, activityName, workflowID string, start time.Time) error {
+	executionStatus := ""
+	elapsed := diag.ElapsedSince(start)
+	defer func() {
+		if executionStatus != "" {
+			diag.DefaultWorkflowMonitoring.ActivityExecutionEvent(ctx, activityName, executionStatus, elapsed)
+>>>>>>> upstream/release-1.18
 		}
 	}()
 
@@ -147,12 +205,17 @@ func (f *factory) publishResult(ctx context.Context, ex *execution, completed bo
 		executionStatus = diag.StatusRecoverable
 		return wferrors.NewRecoverable(todo.ErrExecutionAborted)
 	}
+<<<<<<< HEAD
 	log.Debugf("Activity actor '%s': activity completed for workflow with instanceId '%s' activityName '%s'", ex.actorID, ex.wi.InstanceID, activityReminderName)
+=======
+	log.Debugf("Activity actor '%s': activity completed for workflow with instanceId '%s' activityName '%s'", actorID, wi.InstanceID, name)
+>>>>>>> upstream/release-1.18
 
 	// Attach an attestation so the parent workflow can cryptographically
 	// verify this activity's identity, input, and output. No-op when
 	// signing is disabled (AttachActivityCompletionAttestation handles
 	// the nil-Signer case internally).
+<<<<<<< HEAD
 	if ex.wi.Result != nil {
 		scheduled := ex.wi.NewEvent.GetTaskScheduled()
 		if scheduled == nil {
@@ -166,24 +229,52 @@ func (f *factory) publishResult(ctx context.Context, ex *execution, completed bo
 		}); attachErr != nil {
 			executionStatus = diag.StatusRecoverable
 			return wferrors.NewRecoverable(fmt.Errorf("activity actor '%s': %w", ex.actorID, attachErr))
+=======
+	if wi.Result != nil {
+		scheduled := taskEvent.GetTaskScheduled()
+		if scheduled == nil {
+			executionStatus = diag.StatusRecoverable
+			return wferrors.NewRecoverable(fmt.Errorf("activity actor '%s': cannot build activity attestation without TaskScheduledEvent", actorID))
+		}
+		if attachErr := f.signing.AttachActivityCompletionAttestation(ctx, wi.Result, signing.ActivityAttestationParams{
+			ParentInstanceID: workflowID,
+			ActivityName:     activityName,
+			Input:            scheduled.GetInput(),
+		}); attachErr != nil {
+			executionStatus = diag.StatusRecoverable
+			return wferrors.NewRecoverable(fmt.Errorf("activity actor '%s': %w", actorID, attachErr))
+>>>>>>> upstream/release-1.18
 		}
 	}
 
 	// send completed event to orchestrator wf actor
 	wfActorType := f.workflowActorType
+<<<<<<< HEAD
 	if router := ex.wi.NewEvent.GetRouter(); router != nil {
+=======
+	if router := taskEvent.GetRouter(); router != nil {
+>>>>>>> upstream/release-1.18
 		wfActorType = f.actorTypeBuilder.Workflow(router.GetSourceAppID())
 	}
 
 	var err error
 	// TODO: @joshvanl: remove `workflowsRemoteActivityReminder` check in later
 	// version.
+<<<<<<< HEAD
 	if f.workflowsRemoteActivityReminder && f.actorNotReachable(ctx, wfActorType, ex.workflowID) {
 		err = f.createWorkflowResultReminder(ctx, wfActorType, ex.workflowID, ex.wi.Result)
 	} else {
 		// publish the result back to the workflow actor as a new event to be processed
 		var resultData []byte
 		resultData, err = proto.Marshal(ex.wi.Result)
+=======
+	if f.workflowsRemoteActivityReminder && f.actorNotReachable(ctx, wfActorType, workflowID) {
+		err = f.createWorkflowResultReminder(ctx, wfActorType, workflowID, wi.Result)
+	} else {
+		// publish the result back to the workflow actor as a new event to be processed
+		var resultData []byte
+		resultData, err = proto.Marshal(wi.Result)
+>>>>>>> upstream/release-1.18
 		if err != nil {
 			// Returning non-recoverable error
 			executionStatus = diag.StatusFailed
@@ -192,7 +283,11 @@ func (f *factory) publishResult(ctx context.Context, ex *execution, completed bo
 
 		req := internalsv1pb.
 			NewInternalInvokeRequest(todo.AddWorkflowEventMethod).
+<<<<<<< HEAD
 			WithActor(wfActorType, ex.workflowID).
+=======
+			WithActor(wfActorType, workflowID).
+>>>>>>> upstream/release-1.18
 			WithData(resultData).
 			WithContentType(invokev1.ProtobufContentType)
 		_, err = f.router.Call(ctx, req)
@@ -201,13 +296,21 @@ func (f *factory) publishResult(ctx context.Context, ex *execution, completed bo
 	switch {
 	case err != nil:
 		if strings.HasSuffix(err.Error(), api.ErrInstanceNotFound.Error()) {
+<<<<<<< HEAD
 			log.Errorf("Activity actor '%s': workflow actor instance not found when reporting activity result for workflow with instanceId '%s': %s", ex.actorID, ex.wi.InstanceID, err)
+=======
+			log.Errorf("Activity actor '%s': workflow actor instance not found when reporting activity result for workflow with instanceId '%s': %s", actorID, wi.InstanceID, err)
+>>>>>>> upstream/release-1.18
 			executionStatus = diag.StatusFailed
 			return nil
 		}
 
 		if f.workflowsRemoteActivityReminder {
+<<<<<<< HEAD
 			if cerr := f.createWorkflowResultReminder(ctx, wfActorType, ex.workflowID, ex.wi.Result); cerr == nil {
+=======
+			if cerr := f.createWorkflowResultReminder(ctx, wfActorType, workflowID, wi.Result); cerr == nil {
+>>>>>>> upstream/release-1.18
 				return nil
 			}
 		}
@@ -215,16 +318,24 @@ func (f *factory) publishResult(ctx context.Context, ex *execution, completed bo
 		// Returning recoverable error, record metrics
 		executionStatus = diag.StatusRecoverable
 		return wferrors.NewRecoverable(fmt.Errorf("failed to invoke '%s' method on workflow actor: %w", todo.AddWorkflowEventMethod, err))
+<<<<<<< HEAD
 	case ex.wi.Result.GetTaskCompleted() != nil:
 		// Activity execution completed successfully
 		executionStatus = diag.StatusSuccess
 	case ex.wi.Result.GetTaskFailed() != nil:
+=======
+	case wi.Result.GetTaskCompleted() != nil:
+		// Activity execution completed successfully
+		executionStatus = diag.StatusSuccess
+	case wi.Result.GetTaskFailed() != nil:
+>>>>>>> upstream/release-1.18
 		// Activity execution failed
 		executionStatus = diag.StatusFailed
 	}
 
 	return nil
 }
+<<<<<<< HEAD
 
 func (f *factory) actorNotReachable(ctx context.Context, wfActorType, workflowID string) bool {
 	_, _, cancel, err := f.placement.LookupActor(ctx, &actorsapi.LookupActorRequest{
@@ -236,3 +347,5 @@ func (f *factory) actorNotReachable(ctx context.Context, wfActorType, workflowID
 	}
 	return errors.Is(err, messages.ErrActorNoAddress)
 }
+=======
+>>>>>>> upstream/release-1.18

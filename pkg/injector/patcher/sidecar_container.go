@@ -199,10 +199,13 @@ func (c *SidecarConfig) getSidecarContainer(opts getSidecarContainerOpts) (*core
 		args = append(args, "--actors-disseminate-timeout", *c.ActorsDisseminateTimeout)
 	}
 
+<<<<<<< HEAD
 	if c.ActorsPlacementStartupTimeout != nil {
 		args = append(args, "--actors-placement-startup-timeout", *c.ActorsPlacementStartupTimeout)
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	if c.SchedulerAddress != nil {
 		args = append(args, "--scheduler-host-address", *c.SchedulerAddress)
 	} else if c.SchedulerEnabled {

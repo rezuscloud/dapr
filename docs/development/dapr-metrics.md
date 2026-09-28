@@ -172,14 +172,18 @@ on the Configuration resource; the workflow metrics come from the WorkflowAccess
 * dapr_runtime_workflow_operation_count: The number of successful/failed workflow operation requests.
 * dapr_runtime_workflow_operation_latency: The latencies of responses for workflow operation requests.
 * dapr_runtime_workflow_execution_count: The number of successful/failed/terminated/recoverable workflow executions.
+<<<<<<< HEAD
 * dapr_runtime_workflow_execution_latency: The end-to-end time taken to run a workflow to completion.
 * dapr_runtime_workflow_scheduling_latency: The delay between a workflow being requested and its execution starting.
+=======
+>>>>>>> upstream/release-1.18
 * dapr_runtime_workflow_activity_operation_count: The number of successful/failed/recoverable activity requests.
 * dapr_runtime_workflow_activity_operation_latency: The total time taken to run an activity request.
 * dapr_runtime_workflow_activity_execution_count: The number of successful/failed/recoverable activity executions.
 * dapr_runtime_workflow_activity_execution_latency: The total time taken to run an activity to completion.
 * dapr_runtime_workflow_payload_size_ratio: Workflow dispatch payload size as a fraction of the configured gRPC `--max-body-size`; values >0.95 trip the graceful stall, values >1 exceed the limit. Not recorded when `--max-body-size` is non-positive.
 * dapr_runtime_workflow_activity_payload_size_ratio: Activity dispatch payload size as a fraction of the configured gRPC `--max-body-size`; values >0.95 trip the graceful stall, values >1 exceed the limit. Not recorded when `--max-body-size` is non-positive.
+<<<<<<< HEAD
 * dapr_runtime_workflow_completion_route_count: The number of workflow completions by route.
 * dapr_runtime_workflow_completions_fold_count: The number of folded workflow completions.
 * dapr_runtime_workflow_completions_fold_wait_latency: The time spent waiting to fold workflow completions.
@@ -192,6 +196,8 @@ on the Configuration resource; the workflow metrics come from the WorkflowAccess
 * dapr_runtime_workflow_attestation_verified_count: The number of workflow attestations verified.
 * dapr_runtime_workflow_attestation_verify_latency: The time taken to verify a workflow attestation.
 * dapr_runtime_workflow_attestation_cert_cache_count: The number of workflow attestation certificate cache lookups.
+=======
+>>>>>>> upstream/release-1.18
 
 ### gRPC monitoring metrics
 

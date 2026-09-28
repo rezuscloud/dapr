@@ -29,13 +29,17 @@ var (
 	attestationKindKey   = tag.MustNewKey("attestation_kind")
 	attestationResultKey = tag.MustNewKey("attestation_result")
 	certCacheOutcomeKey  = tag.MustNewKey("cert_cache_outcome")
+<<<<<<< HEAD
 	taskTypeKey          = tag.MustNewKey("task_type")
 	completionRouteKey   = tag.MustNewKey("route")
+=======
+>>>>>>> upstream/release-1.18
 )
 
 const (
 	StatusSuccess = "success"
 	StatusFailed  = "failed"
+<<<<<<< HEAD
 	// The activity actor's escalation of a lost local drive to its durable
 	// run-activity reminder.
 	StatusEscalated        = "escalated"
@@ -87,6 +91,8 @@ const (
 	// start was lost) was terminally FAILED instead of silently dropping
 	// its work; ~0 in healthy steady state.
 	StatusUnstartableFailed = "unstartable_failed"
+=======
+>>>>>>> upstream/release-1.18
 	// A wake-up reminder create failed after its inbox row was committed and
 	// was handed to a detached retry, or that retry gave up; ~0 in healthy
 	// steady state.
@@ -96,6 +102,7 @@ const (
 	// A status read re-asserted the start reminder of an overdue pending
 	// start; ~0 in healthy steady state.
 	StatusPendingStartRedriven = "pending_start_redriven"
+<<<<<<< HEAD
 	// Completions-fold outcomes: a sender-retried completion committed
 	// inside its folding turn (folded), or was nacked back into the
 	// sender's retry chain (turn failure, timeout, deactivation).
@@ -107,6 +114,16 @@ const (
 	GetWorkflow       = "get_workflow"
 	AddEvent          = "add_event"
 	PurgeWorkflow     = "purge_workflow"
+=======
+	// A turn rejected because its response answered a superseded work item.
+	StatusStaleTurnRejected = "stale_turn_rejected"
+	StatusTerminated        = "terminated"
+	StatusRecoverable       = "recoverable"
+	CreateWorkflow          = "create_workflow"
+	GetWorkflow             = "get_workflow"
+	AddEvent                = "add_event"
+	PurgeWorkflow           = "purge_workflow"
+>>>>>>> upstream/release-1.18
 
 	WorkflowEvent = "event"
 	Timer         = "timer"
@@ -132,6 +149,7 @@ const (
 	// verification (first use of this cert digest within the orchestrator
 	// instance, or eventTime fell outside the cached window).
 	CertCacheMiss = "miss"
+<<<<<<< HEAD
 
 	// Completion routes under WorkflowsClusteredDeployment. Wait side: the
 	// waiter either blocks on the process-local pending map
@@ -146,6 +164,8 @@ const (
 	CompletionRouteWaitWatch     = "wait_watch"
 	CompletionRouteCompleteLocal = "complete_local"
 	CompletionRouteCompleteActor = "complete_actor"
+=======
+>>>>>>> upstream/release-1.18
 )
 
 type workflowMetrics struct {
@@ -190,6 +210,7 @@ type workflowMetrics struct {
 	// activityPayloadSizeRatio records activity payloads as a fraction of
 	// the configured gRPC max body size. Same headroom intent as
 	// workflowPayloadSizeRatio.
+<<<<<<< HEAD
 	activityPayloadSizeRatio *stats.Float64Measure
 	// completionRouteCount records how pending-task completions are routed
 	// under WorkflowsClusteredDeployment, tagged by task_type and route.
@@ -247,6 +268,18 @@ type workflowMetrics struct {
 	enabled   bool
 	namespace string
 	meter     stats.Recorder
+=======
+	// localWakeCount records wake-up reminder recovery outcomes by status:
+	// a create handed to a detached retry after its inbox row was committed,
+	// that retry giving up or being skipped at shutdown, and a status read
+	// re-driving an overdue pending start.
+	localWakeCount           *stats.Int64Measure
+	activityPayloadSizeRatio *stats.Float64Measure
+	appID                    string
+	enabled                  bool
+	namespace                string
+	meter                    stats.Recorder
+>>>>>>> upstream/release-1.18
 }
 
 func newWorkflowMetrics() *workflowMetrics {
@@ -311,6 +344,7 @@ func newWorkflowMetrics() *workflowMetrics {
 			"runtime/workflow/activity/payload/size_ratio",
 			"Activity payload size as a fraction of the configured gRPC max body size; values >=0.95 trip the stall, values >1 exceed the limit.",
 			stats.UnitDimensionless),
+<<<<<<< HEAD
 		completionRouteCount: stats.Int64(
 			"runtime/workflow/completion/route/count",
 			"The number of pending-task completions routed under clustered deployment, by task type and route.",
@@ -343,6 +377,12 @@ func newWorkflowMetrics() *workflowMetrics {
 			"runtime/workflow/lock_wait",
 			"The time a workflow orchestrator invocation spends queued on the per-actor turn lock, by invocation kind.",
 			stats.UnitMilliseconds),
+=======
+		localWakeCount: stats.Int64(
+			"runtime/workflow/local_wake/count",
+			"The number of workflow wake-up reminder recovery events, by status.",
+			stats.UnitDimensionless),
+>>>>>>> upstream/release-1.18
 	}
 }
 
@@ -357,6 +397,7 @@ func (w *workflowMetrics) Init(meter view.Meter, appID, namespace string, latenc
 	w.namespace = namespace
 	w.meter = meter
 
+<<<<<<< HEAD
 	base := []any{appIDKey, appID, namespaceKey, namespace}
 	w.workflowOperationCountC = diagUtils.NewCachedInt64Counter(meter, w.workflowOperationCount, base...)
 	w.workflowOperationLatencyC = diagUtils.NewCachedFloat64Recorder(meter, w.workflowOperationLatency, base...)
@@ -368,6 +409,8 @@ func (w *workflowMetrics) Init(meter view.Meter, appID, namespace string, latenc
 	w.activityOperationCountC = diagUtils.NewCachedInt64Counter(meter, w.activityOperationCount, base...)
 	w.activityOperationLatencyC = diagUtils.NewCachedFloat64Recorder(meter, w.activityOperationLatency, base...)
 
+=======
+>>>>>>> upstream/release-1.18
 	err := meter.Register(
 		diagUtils.NewMeasureView(w.workflowOperationCount, []tag.Key{appIDKey, namespaceKey, operationKey, statusKey}, view.Count()),
 		diagUtils.NewMeasureView(w.workflowOperationLatency, []tag.Key{appIDKey, namespaceKey, operationKey, statusKey}, latencyDistribution),
@@ -375,16 +418,23 @@ func (w *workflowMetrics) Init(meter view.Meter, appID, namespace string, latenc
 		diagUtils.NewMeasureView(w.activityOperationCount, []tag.Key{appIDKey, namespaceKey, activityNameKey, statusKey}, view.Count()),
 		diagUtils.NewMeasureView(w.activityOperationLatency, []tag.Key{appIDKey, namespaceKey, activityNameKey, statusKey}, latencyDistribution),
 		diagUtils.NewMeasureView(w.activityExecutionCount, []tag.Key{appIDKey, namespaceKey, activityNameKey, statusKey}, view.Count()),
+<<<<<<< HEAD
 		diagUtils.NewMeasureView(w.activityExecutionLatency, []tag.Key{appIDKey, namespaceKey, activityNameKey, statusKey}, workflowLatencyDistribution),
 		diagUtils.NewMeasureView(w.workflowExecutionLatency, []tag.Key{appIDKey, namespaceKey, workflowNameKey, statusKey}, workflowLatencyDistribution),
 		diagUtils.NewMeasureView(w.workflowSchedulingLatency, []tag.Key{appIDKey, namespaceKey, workflowNameKey}, latencyDistribution),
 		diagUtils.NewMeasureView(w.localWakeDriveLatency, []tag.Key{appIDKey, namespaceKey, statusKey}, latencyDistribution),
+=======
+		diagUtils.NewMeasureView(w.activityExecutionLatency, []tag.Key{appIDKey, namespaceKey, activityNameKey, statusKey}, latencyDistribution),
+		diagUtils.NewMeasureView(w.workflowExecutionLatency, []tag.Key{appIDKey, namespaceKey, workflowNameKey, statusKey}, latencyDistribution),
+		diagUtils.NewMeasureView(w.workflowSchedulingLatency, []tag.Key{appIDKey, namespaceKey, workflowNameKey}, latencyDistribution),
+>>>>>>> upstream/release-1.18
 		diagUtils.NewMeasureView(w.attestationGeneratedCount, []tag.Key{appIDKey, namespaceKey, attestationKindKey, statusKey}, view.Count()),
 		diagUtils.NewMeasureView(w.attestationVerifiedCount, []tag.Key{appIDKey, namespaceKey, attestationKindKey, attestationResultKey}, view.Count()),
 		diagUtils.NewMeasureView(w.attestationVerifyLatency, []tag.Key{appIDKey, namespaceKey, attestationKindKey, attestationResultKey}, latencyDistribution),
 		diagUtils.NewMeasureView(w.attestationCertCacheCount, []tag.Key{appIDKey, namespaceKey, certCacheOutcomeKey}, view.Count()),
 		diagUtils.NewMeasureView(w.workflowPayloadSizeRatio, []tag.Key{appIDKey, namespaceKey, workflowNameKey}, payloadRatioDistribution),
 		diagUtils.NewMeasureView(w.activityPayloadSizeRatio, []tag.Key{appIDKey, namespaceKey, workflowNameKey, activityNameKey}, payloadRatioDistribution),
+<<<<<<< HEAD
 		diagUtils.NewMeasureView(w.completionRouteCount, []tag.Key{appIDKey, namespaceKey, taskTypeKey, completionRouteKey}, view.Count()),
 		// Sum of per-event 1s, not Count: identical exposition (cumulative
 		// int64 exports as a Prometheus counter either way), but Sum lets
@@ -396,27 +446,40 @@ func (w *workflowMetrics) Init(meter view.Meter, appID, namespace string, latenc
 		diagUtils.NewMeasureView(w.lockWaitLatency, []tag.Key{appIDKey, namespaceKey, operationKey}, latencyDistribution),
 		diagUtils.NewMeasureView(w.completionsFoldCount, []tag.Key{appIDKey, namespaceKey, statusKey}, view.Count()),
 		diagUtils.NewMeasureView(w.completionsFoldWait, []tag.Key{appIDKey, namespaceKey}, latencyDistribution))
+=======
+		// Sum, not Count, so Init can pre-record the rescue-evidence statuses at
+		// zero below: an absent series would be indistinguishable from a rescue
+		// path that never fired.
+		diagUtils.NewMeasureView(w.localWakeCount, []tag.Key{appIDKey, namespaceKey, statusKey}, view.Sum()))
+>>>>>>> upstream/release-1.18
 	if err != nil {
 		return err
 	}
 
+<<<<<<< HEAD
 	// Pre-record the rescue-evidence series at zero. They are the
 	// ~0-in-healthy-steady-state counters the recovery gates read, and with
 	// lazy registration an absent series is indistinguishable from a rescue
 	// path that never fired. Their views aggregate by Sum, so the zero
 	// record registers the series without changing its value.
 	for _, s := range []string{StatusJanitorRecovered, StatusJanitorFoldRecovered, StatusStaleTurnRejected, StatusUnstartableFailed, StatusArmDetached, StatusArmDetachedFailed, StatusPendingStartRedriven} {
+=======
+	for _, s := range []string{StatusArmDetached, StatusArmDetachedFailed, StatusArmDetachedSkipped, StatusPendingStartRedriven, StatusStaleTurnRejected} {
+>>>>>>> upstream/release-1.18
 		stats.RecordWithOptions(context.Background(),
 			stats.WithRecorder(w.meter),
 			stats.WithTags(diagUtils.WithTags(w.localWakeCount.Name(), appIDKey, appID, namespaceKey, namespace, statusKey, s)...),
 			stats.WithMeasurements(w.localWakeCount.M(0)))
 	}
+<<<<<<< HEAD
 	for _, s := range []string{StatusJanitorRedispatched, StatusJanitorRedispatchEscalated, StatusJanitorEscalationReaped, StatusClaimEvicted} {
 		stats.RecordWithOptions(context.Background(),
 			stats.WithRecorder(w.meter),
 			stats.WithTags(diagUtils.WithTags(w.localActivityCount.Name(), appIDKey, appID, namespaceKey, namespace, statusKey, s)...),
 			stats.WithMeasurements(w.localActivityCount.M(0)))
 	}
+=======
+>>>>>>> upstream/release-1.18
 	return nil
 }
 
@@ -522,6 +585,20 @@ func (w *workflowMetrics) AttestationVerified(ctx context.Context, kind, result 
 
 // AttestationCertCacheLookup records a per-orchestrator cert chain-of-
 // trust cache lookup with its outcome (hit/miss).
+<<<<<<< HEAD
+=======
+// WorkflowLocalWake records a wake-up reminder recovery outcome.
+func (w *workflowMetrics) WorkflowLocalWake(ctx context.Context, status string) {
+	if !w.IsEnabled() {
+		return
+	}
+	stats.RecordWithOptions(ctx,
+		stats.WithRecorder(w.meter),
+		stats.WithTags(diagUtils.WithTags(w.localWakeCount.Name(), appIDKey, w.appID, namespaceKey, w.namespace, statusKey, status)...),
+		stats.WithMeasurements(w.localWakeCount.M(1)))
+}
+
+>>>>>>> upstream/release-1.18
 func (w *workflowMetrics) AttestationCertCacheLookup(ctx context.Context, outcome string) {
 	if !w.IsEnabled() {
 		return
@@ -557,6 +634,7 @@ func (w *workflowMetrics) ActivityPayloadSizeRatio(ctx context.Context, workflow
 		stats.WithTags(diagUtils.WithTags(w.activityPayloadSizeRatio.Name(), appIDKey, w.appID, namespaceKey, w.namespace, workflowNameKey, workflowName, activityNameKey, activityName)...),
 		stats.WithMeasurements(w.activityPayloadSizeRatio.M(ratio)))
 }
+<<<<<<< HEAD
 
 // WorkflowLocalWakeDrive records the duration of one locally-driven wake
 // (queue to turn-invocation return), by outcome status.
@@ -653,3 +731,5 @@ func (w *workflowMetrics) WorkflowCompletionRoute(ctx context.Context, taskType,
 		stats.WithTags(diagUtils.WithTags(w.completionRouteCount.Name(), appIDKey, w.appID, namespaceKey, w.namespace, taskTypeKey, taskType, completionRouteKey, route)...),
 		stats.WithMeasurements(w.completionRouteCount.M(1)))
 }
+=======
+>>>>>>> upstream/release-1.18

@@ -15,7 +15,10 @@ package inflight_test
 
 import (
 	"errors"
+<<<<<<< HEAD
 	"strings"
+=======
+>>>>>>> upstream/release-1.18
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -23,11 +26,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+<<<<<<< HEAD
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/inflight"
 	"github.com/dapr/durabletask-go/api/protos"
 	"github.com/dapr/durabletask-go/backend"
+=======
+
+	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/inflight"
+>>>>>>> upstream/release-1.18
 )
 
 func TestAcquireFirstCallerIsOwner(t *testing.T) {
@@ -182,6 +190,7 @@ func TestFollowerCtxCancelDoesNotAffectOwner(t *testing.T) {
 	assert.NoError(t, follower.Err())
 	assert.NoError(t, owner.Err())
 }
+<<<<<<< HEAD
 
 func TestKeyDiscriminatesSchedulings(t *testing.T) {
 	newEvent := func(taskExecutionID string, ts *timestamppb.Timestamp) *backend.HistoryEvent {
@@ -222,3 +231,5 @@ func TestKeyDiscriminatesSchedulings(t *testing.T) {
 			"actor wf::5::0's prefix must not match actor wf::5::0::2::0's keys")
 	})
 }
+=======
+>>>>>>> upstream/release-1.18

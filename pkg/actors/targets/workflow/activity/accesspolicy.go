@@ -23,6 +23,11 @@ import (
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 )
 
+<<<<<<< HEAD
+=======
+const workflowACLDeniedMsg = "access denied by workflow access policy"
+
+>>>>>>> upstream/release-1.18
 func (a *activity) checkAccessPolicy(method string, data []byte, md map[string]*internalsv1pb.ListStringValue) error {
 	if a.workflowAccessPolicies == nil {
 		return nil
@@ -32,6 +37,7 @@ func (a *activity) checkAccessPolicy(method string, data []byte, md map[string]*
 		return nil
 	}
 
+<<<<<<< HEAD
 	callerAppID := workflowacl.CallerAppID(md)
 	if policies.SelfCallExempt(a.appID, callerAppID, &a.selfCallerWarned) {
 		return nil
@@ -42,18 +48,36 @@ func (a *activity) checkAccessPolicy(method string, data []byte, md map[string]*
 		log.Warnf("Activity actor '%s': workflow access policy denied call '%s': could not extract name from request: %v", a.actorID, method, err)
 		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeActivity), method)
 		return status.Errorf(codes.PermissionDenied, "%s: malformed request for method '%s'", workflowacl.DeniedMessageBase, method)
+=======
+	// Self-calls are exempt: the policy is a cross-app gate.
+	callerAppID := workflowacl.CallerAppID(md)
+	if callerAppID == a.appID {
+		return nil
+	}
+
+	name, err := workflowacl.ActivityNameFromExecute(method, data)
+	if err != nil {
+		log.Warnf("Activity actor '%s': workflow access policy denied call '%s': could not extract name from request: %v", a.actorID, method, err)
+		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeActivity), method)
+		return status.Errorf(codes.PermissionDenied, "%s: malformed request for method '%s'", workflowACLDeniedMsg, method)
+>>>>>>> upstream/release-1.18
 	}
 	if name == "" {
 		// Non-Execute methods on the activity actor are only valid from the
 		// local daprd. Cross-app callers cannot invoke them.
 		log.Warnf("Activity actor '%s': workflow access policy denied cross-app call to non-Execute method '%s' from app '%s'", a.actorID, method, callerAppID)
 		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeActivity), method)
+<<<<<<< HEAD
 		return status.Errorf(codes.PermissionDenied, "%s: app '%s' cannot invoke method '%s'", workflowacl.DeniedMessageBase, callerAppID, method)
+=======
+		return status.Errorf(codes.PermissionDenied, "%s: app '%s' cannot invoke method '%s'", workflowACLDeniedMsg, callerAppID, method)
+>>>>>>> upstream/release-1.18
 	}
 
 	if callerAppID == "" {
 		log.Warnf("Activity actor '%s': workflow access policy denied call '%s' with missing caller identity", a.actorID, method)
 		diag.DefaultMonitoring.WorkflowACLActionDenied("", string(workflowacl.OperationTypeActivity), string(wfaclapi.WorkflowOperationSchedule))
+<<<<<<< HEAD
 		return status.Errorf(codes.PermissionDenied, "%s: caller identity missing on activity '%s' schedule", workflowacl.DeniedMessageBase, name)
 	}
 
@@ -62,6 +86,15 @@ func (a *activity) checkAccessPolicy(method string, data []byte, md map[string]*
 		log.Warnf("Activity actor '%s': workflow access policy denied app '%s' on activity '%s' (reason=%s)", a.actorID, callerAppID, name, reason)
 		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeActivity), string(wfaclapi.WorkflowOperationSchedule))
 		return status.Errorf(codes.PermissionDenied, "%s: app '%s' schedule on activity '%s'", workflowacl.DeniedMessageBase, callerAppID, name)
+=======
+		return status.Errorf(codes.PermissionDenied, "%s: caller identity missing on activity '%s' schedule", workflowACLDeniedMsg, name)
+	}
+
+	if !policies.Evaluate(callerAppID, workflowacl.OperationTypeActivity, wfaclapi.WorkflowOperationSchedule, name) {
+		log.Warnf("Activity actor '%s': workflow access policy denied app '%s' on activity '%s'", a.actorID, callerAppID, name)
+		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeActivity), string(wfaclapi.WorkflowOperationSchedule))
+		return status.Errorf(codes.PermissionDenied, "%s: app '%s' schedule on activity '%s'", workflowACLDeniedMsg, callerAppID, name)
+>>>>>>> upstream/release-1.18
 	}
 
 	diag.DefaultMonitoring.WorkflowACLActionAllowed(callerAppID, string(workflowacl.OperationTypeActivity), string(wfaclapi.WorkflowOperationSchedule))

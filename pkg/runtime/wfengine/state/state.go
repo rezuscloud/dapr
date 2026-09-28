@@ -173,7 +173,10 @@ type State struct {
 	signaturesAddedCount                    int
 	signaturesRemovedCount                  int
 	incomingHistoryChanged                  bool
+<<<<<<< HEAD
 	customStatusChanged                     bool
+=======
+>>>>>>> upstream/release-1.18
 }
 
 // TODO: @joshvanl: remove in v1.16
@@ -239,11 +242,18 @@ func (s *State) Reset() {
 
 // ResetChangeTracking resets the change tracking counters. This should be called after a save request.
 func (s *State) ResetChangeTracking() {
+<<<<<<< HEAD
 	// Mirrors the customStatus write condition in GetSaveRequest: after a
 	// successful save that carried the key, it is persisted and clean.
 	if (s.historyAddedCount > 0 || s.historyRemovedCount > 0) && (s.customStatusChanged || !s.customStatusPersisted) {
 		s.customStatusPersisted = true
 		s.customStatusChanged = false
+=======
+	// A save with any history delta upserts the customStatus key (see
+	// GetSaveRequest), so after a successful save it is now persisted.
+	if s.historyAddedCount > 0 || s.historyRemovedCount > 0 {
+		s.customStatusPersisted = true
+>>>>>>> upstream/release-1.18
 	}
 	// A save with incomingHistoryChanged either upserts or deletes the
 	// propagated-history key; track the resulting persistence state.
@@ -689,7 +699,11 @@ func (s *State) GetSaveRequest(actorID string) (*api.TransactionalRequest, error
 	}
 
 	metaProto, err := proto.Marshal(&backend.BackendWorkflowStateMetadata{
+<<<<<<< HEAD
 		InboxLength:                      uint64(len(inbox)),
+=======
+		InboxLength:                      uint64(len(s.Inbox)),
+>>>>>>> upstream/release-1.18
 		HistoryLength:                    uint64(len(s.History)),
 		Generation:                       s.Generation,
 		SignatureLength:                  uint64(len(s.Signatures)),
@@ -1043,7 +1057,11 @@ func loadWorkflowStateOnce(ctx context.Context, state state.Interface, actorID s
 	// Parse responses. If metadata declares N inbox or history entries but
 	// the bulk GET returns nil Data for any of them, return an error so the
 	// caller can retry the load. Silently skipping was the previous
+<<<<<<< HEAD
 	// behavior, but under transient state-store read failures it
+=======
+	// behavior, but under state-store chaos (transient read failures) it
+>>>>>>> upstream/release-1.18
 	// produces a workflow runtime state with truncated history; durabletask
 	// then reports name=(unknown)/events=0 and the workflow strands on the
 	// next save, which clobbers the metadata HistoryLength.
