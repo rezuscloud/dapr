@@ -1,0 +1,56 @@
+# Upstream mirror — the trigger signal for event-driven fork-maintenance
+# (harmostes#192 pattern, ported from rezuscloud/signoz).
+#
+# Keeps refs/heads/master in this repo tracking dapr/dapr's master. When the
+# branch moves, GitHub fires a push webhook to harmostes (HMAC-verified),
+# which dispatches the fork-maintenance sync (the engine fetches upstream
+# itself for the merge — this branch is a movement SIGNAL, not the sync
+# transport).
+#
+# NOTE (dapr-specific): dapr cuts releases on release-1.NN branches that are
+# never merged back to master. The harmostes engine's tag phase merges the
+# def's upstream.release_refs (release-1.18) before deriving the release
+# identity (#627), so master-mirroring is sufficient — the release line is
+# covered engine-side, not by this mirror.
+#
+# When upstream is unchanged, `git push` reports "Everything up-to-date",
+# GitHub fires NO push event, and harmostes dispatches nothing. A weekly
+# scheduled no-op run on the harmostes side (fork-maintenance-dapr-weekly)
+# bounds drift if this action ever breaks silently.
+#
+# IMPORTANT: this branch (master) is a MIRROR — never commit to it directly;
+# it is force-reset to upstream on every run. Fork work happens on
+# rezus/master (default) and lands via PRs.
+#
+# Runs on GitHub free-tier runners (public repo) — zero cluster compute.
+name: upstream-mirror
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upstream-mirror
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/dapr/dapr
+          git fetch upstream +refs/heads/master:refs/remotes/upstream/master --no-tags
+
+      - name: Push mirror branch (no-op when upstream is static)
+        run: |
+          git push --force origin refs/remotes/upstream/master:refs/heads/master
