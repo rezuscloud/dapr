@@ -15,7 +15,10 @@ package suborchestrator
 
 import (
 	"context"
+<<<<<<< HEAD
 	"errors"
+=======
+>>>>>>> upstream/release-1.18
 	"testing"
 	"time"
 
@@ -97,6 +100,7 @@ func (r *retention) Run(t *testing.T, ctx context.Context) {
 	require.NoError(t, err)
 	assert.Equal(t, api.RUNTIME_STATUS_COMPLETED, parentMeta.GetRuntimeStatus())
 
+<<<<<<< HEAD
 	// The child's 1s retention can purge it before this wait begins, and a
 	// watch registered on a purged instance parks until the case deadline.
 	// Retention only purges terminal instances, so purged-already proves the
@@ -111,6 +115,11 @@ func (r *retention) Run(t *testing.T, ctx context.Context) {
 		}
 		assert.Equal(c, api.RUNTIME_STATUS_COMPLETED, childMeta.GetRuntimeStatus())
 	}, time.Second*20, time.Millisecond*10)
+=======
+	childMeta, err := child.WaitForWorkflowCompletion(ctx, api.InstanceID(childInstanceID))
+	require.NoError(t, err)
+	assert.Equal(t, api.RUNTIME_STATUS_COMPLETED, childMeta.GetRuntimeStatus())
+>>>>>>> upstream/release-1.18
 
 	// With a 1s completion-retention policy on both apps, each app's own
 	// retention reminder should purge its own instance shortly after the

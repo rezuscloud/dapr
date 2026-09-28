@@ -55,9 +55,15 @@ func Test_workflowAccessPolicies_recompileBeforeStore(t *testing.T) {
 
 	policy := testPolicy("p1", "caller")
 
+<<<<<<< HEAD
 	require.NoError(t, w.update(t.Context(), policy))
 	assert.Equal(t, []string{"p1"}, names())
 	require.NoError(t, w.delete(t.Context(), policy))
+=======
+	w.update(t.Context(), policy)
+	assert.Equal(t, []string{"p1"}, names())
+	w.delete(t.Context(), policy)
+>>>>>>> upstream/release-1.18
 	assert.Empty(t, names())
 
 	require.Len(t, listedAtSwap, 2)
@@ -88,7 +94,11 @@ func Test_workflowAccessPolicies_concurrentUpdates(t *testing.T) {
 	var wg sync.WaitGroup
 	for i := range n {
 		wg.Go(func() {
+<<<<<<< HEAD
 			assert.NoError(t, w.update(t.Context(), testPolicy(fmt.Sprintf("p%d", i), fmt.Sprintf("caller%d", i))))
+=======
+			w.update(t.Context(), testPolicy(fmt.Sprintf("p%d", i), fmt.Sprintf("caller%d", i)))
+>>>>>>> upstream/release-1.18
 		})
 	}
 	wg.Wait()

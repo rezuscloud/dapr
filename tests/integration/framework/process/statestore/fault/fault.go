@@ -47,12 +47,18 @@ type Store struct {
 	multiObserver func(*state.TransactionalStateRequest)
 
 	multiDeleteHold *holdSpec
+<<<<<<< HEAD
 	multiHold       *holdSpec
 	bulkGetHold     *holdSpec
 	getHold         *holdSpec
 
 	multiCancelled atomic.Int32
 
+=======
+	bulkGetHold     *holdSpec
+	getHold         *holdSpec
+
+>>>>>>> upstream/release-1.18
 	getFailKeySubstring string
 	getFailRemaining    int
 	getFailNotifyCh     chan struct{}
@@ -142,6 +148,7 @@ func (s *Store) ArmMultiDeleteHold(sub string) (arrived <-chan struct{}, release
 	return spec.arrived, func() { once.Do(func() { close(spec.releaseCh) }) }, spec.done
 }
 
+<<<<<<< HEAD
 // ArmMultiHold arms a one-shot hold on the next Multi touching a key
 // containing sub, whatever the operation type. arrived is closed when the
 // Multi is captured; it then blocks until release is called. Unlike the
@@ -168,6 +175,8 @@ func (s *Store) ArmMultiHold(sub string) (arrived <-chan struct{}, release func(
 // their request context was cancelled while the hold was in place.
 func (s *Store) MultiCancelled() int { return int(s.multiCancelled.Load()) }
 
+=======
+>>>>>>> upstream/release-1.18
 // ArmBulkGetHold arms a one-shot hold on the next BulkGet touching a key
 // containing sub. arrived is closed when the BulkGet is captured; the call
 // blocks until release is called (or its context is done). release is
@@ -330,6 +339,7 @@ func (s *Store) Multi(ctx context.Context, req *state.TransactionalStateRequest)
 		defer close(hold.done)
 	}
 
+<<<<<<< HEAD
 	s.mu.Lock()
 	var general *holdSpec
 	if s.multiHold != nil && anyHasSubstring(keys, s.multiHold.sub) {
@@ -350,6 +360,8 @@ func (s *Store) Multi(ctx context.Context, req *state.TransactionalStateRequest)
 		}
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	return s.Wrapped.Store.(state.TransactionalStore).Multi(ctx, req)
 }
 

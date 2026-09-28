@@ -12,10 +12,17 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.17.0
+<<<<<<< HEAD
 	github.com/dapr/components-contrib v1.18.4
 	github.com/dapr/durabletask-go v0.14.2-0.20260923181807-3ab246ba418d
 	github.com/dapr/kit v0.18.3-0.20260727141402-dd127582d044
 	github.com/diagridio/go-etcd-cron v0.12.8
+=======
+	github.com/dapr/components-contrib v1.18.5
+	github.com/dapr/durabletask-go v0.12.5
+	github.com/dapr/kit v0.18.3
+	github.com/diagridio/go-etcd-cron v0.12.7
+>>>>>>> upstream/release-1.18
 	github.com/evanphx/json-patch/v5 v5.9.0
 	github.com/go-chi/chi/v5 v5.2.4
 	github.com/go-chi/cors v1.2.1
@@ -44,7 +51,10 @@ require (
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.64.0
 	github.com/redis/go-redis/v9 v9.21.0
+<<<<<<< HEAD
 	github.com/sirupsen/logrus v1.9.4
+=======
+>>>>>>> upstream/release-1.18
 	github.com/sony/gobreaker v0.5.0
 	github.com/spf13/cast v1.8.0
 	github.com/spf13/pflag v1.0.10
@@ -57,6 +67,7 @@ require (
 	go.etcd.io/etcd/server/v3 v3.5.33
 	go.mongodb.org/mongo-driver v1.17.7
 	go.opencensus.io v0.24.0
+<<<<<<< HEAD
 	go.opentelemetry.io/contrib/bridges/otellogrus v0.18.0
 	go.opentelemetry.io/otel v1.44.0
 	go.opentelemetry.io/otel/bridge/opencensus v1.44.0
@@ -71,11 +82,22 @@ require (
 	go.opentelemetry.io/otel/sdk v1.44.0
 	go.opentelemetry.io/otel/sdk/log v0.19.0
 	go.opentelemetry.io/otel/sdk/metric v1.44.0
+=======
+	go.opentelemetry.io/otel v1.44.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.44.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.44.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.44.0
+	go.opentelemetry.io/otel/exporters/zipkin v1.40.0
+	go.opentelemetry.io/otel/sdk v1.44.0
+>>>>>>> upstream/release-1.18
 	go.opentelemetry.io/otel/trace v1.44.0
 	go.opentelemetry.io/proto/otlp v1.10.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/ratelimit v0.3.0
+<<<<<<< HEAD
 	go.uber.org/zap v1.27.0
+=======
+>>>>>>> upstream/release-1.18
 	golang.org/x/crypto v0.56.0
 	golang.org/x/net v0.58.0
 	golang.org/x/oauth2 v0.36.0
@@ -410,7 +432,11 @@ require (
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/prometheus/statsd_exporter v0.22.7 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
+<<<<<<< HEAD
 	github.com/rabbitmq/amqp091-go v1.13.0 // indirect
+=======
+	github.com/rabbitmq/amqp091-go v1.14.0 // indirect
+>>>>>>> upstream/release-1.18
 	github.com/ravendb/ravendb-go-client v0.0.0-20240723121956-2b87f37fe427 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
@@ -468,8 +494,13 @@ require (
 	go.opentelemetry.io/contrib/detectors/gcp v1.44.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.61.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0 // indirect
+<<<<<<< HEAD
 	go.opentelemetry.io/otel/log v0.19.0 // indirect
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
+=======
+	go.opentelemetry.io/otel/metric v1.44.0 // indirect
+	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
+>>>>>>> upstream/release-1.18
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
@@ -521,7 +552,13 @@ replace (
 	// this is a fork that utilises github.com/iskorotkov/avro/v2
 	// TODO: @mikeee remove this once the pr against the base has been merged and released.
 	github.com/apache/pulsar-client-go v0.18.0 => github.com/twmb/pulsar-client-go v0.20.1-0.20260624144353-90eefc81f70a
+<<<<<<< HEAD
 	// etcd v3.5 needs the interceptor API removed in otelgrpc v0.61.
+=======
+
+	// otelgrpc v0.61.0 removed UnaryServerInterceptor/StreamServerInterceptor which etcd server v3.5 still uses.
+	// TODO: remove once etcd server is upgraded to a version compatible with otelgrpc >= v0.61.0.
+>>>>>>> upstream/release-1.18
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0
 
 	gopkg.in/couchbaselabs/gocbconnstr.v1 => github.com/couchbaselabs/gocbconnstr v1.0.5

@@ -34,6 +34,7 @@ type mcpservers struct {
 	loader.Loader[mcpserverapi.MCPServer]
 }
 
+<<<<<<< HEAD
 func NewMCPServers(opts Options[mcpserverapi.MCPServer]) *Reconciler[mcpserverapi.MCPServer] {
 	r := &Reconciler[mcpserverapi.MCPServer]{
 		kind:     mcpserverapi.Kind,
@@ -54,11 +55,22 @@ func NewMCPServers(opts Options[mcpserverapi.MCPServer]) *Reconciler[mcpserverap
 // The go linter does not yet understand that these functions are being used by
 // the generic reconciler.
 func (m *mcpservers) update(ctx context.Context, server mcpserverapi.MCPServer) error {
+=======
+func (m *mcpservers) update(ctx context.Context, server mcpserverapi.MCPServer) {
+>>>>>>> upstream/release-1.18
 	if !m.auth.IsObjectAuthorized(server) {
 		log.Warnf("Received unauthorized MCPServer update, ignored: %s", server.LogName())
 		return nil
 	}
 
+<<<<<<< HEAD
+=======
+	// Close the existing server (compstore entry + workflow refcount) before
+	// adding the new one. Without this, an update with a bad spec under
+	// IgnoreErrors=true would leave the prior server in compstore and skip the
+	// failing add silently; a valid update would re-call
+	// wfengine.EnsureActorsRegistered, leaking per-name workflow registrations.
+>>>>>>> upstream/release-1.18
 	if existing, ok := m.store.GetMCPServer(server.Name); ok {
 		// Resolve the incoming spec's secretKeyRef/envRef values before
 		// comparing. The stored copy was resolved when it was loaded
@@ -76,6 +88,7 @@ func (m *mcpservers) update(ctx context.Context, server mcpserverapi.MCPServer) 
 		m.proc.ProcessMCPServerSecrets(ctx, resolved)
 		if differ.AreSame(existing, *resolved) {
 			log.Debugf("MCPServer update skipped: no changes detected: %s", server.LogName())
+<<<<<<< HEAD
 			return nil
 		}
 
@@ -115,14 +128,30 @@ func (m *mcpservers) update(ctx context.Context, server mcpserverapi.MCPServer) 
 		log.Warnf("Error processing MCPServer, daprd will exit gracefully: %s", err)
 		return err
 	}
+=======
+			return
+		}
+		log.Infof("Closing existing MCPServer to reload: %s", existing.LogName())
+		m.proc.DeleteMCPServer(existing.Name)
+	}
+
+	log.Infof("MCPServer updated via hot-reload: %s", server.LogName())
+	m.proc.AddPendingMCPServer(ctx, server)
+>>>>>>> upstream/release-1.18
 }
 
 // The go linter does not understand that delete is used by the generic
 // reconciler via the manager interface.
 //
 //nolint:unused
+<<<<<<< HEAD
 func (m *mcpservers) delete(ctx context.Context, server mcpserverapi.MCPServer) error {
 	log.Infof("MCPServer deleted via hot-reload: %s", server.LogName())
 	m.proc.DeleteMCPServer(ctx, server.Name)
 	return nil
+=======
+func (m *mcpservers) delete(ctx context.Context, server mcpserverapi.MCPServer) {
+	log.Infof("MCPServer deleted via hot-reload: %s", server.LogName())
+	m.proc.DeleteMCPServer(server.Name)
+>>>>>>> upstream/release-1.18
 }

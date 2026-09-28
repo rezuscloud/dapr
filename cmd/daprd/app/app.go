@@ -173,7 +173,10 @@ func runWithContext(ctx context.Context, opts *options.Options) error {
 				AppID:                         opts.AppID,
 				ActorsService:                 opts.ActorsService,
 				ActorsDisseminationTimeout:    opts.ActorsDisseminationTimeout,
+<<<<<<< HEAD
 				ActorsPlacementStartupTimeout: opts.ActorsPlacementStartupTimeout,
+=======
+>>>>>>> upstream/release-1.18
 				HotReloadReconcileInterval:    opts.HotReloadReconcileInterval,
 				RemindersService:              opts.RemindersService,
 				SchedulerAddress:              opts.SchedulerAddress,

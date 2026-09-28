@@ -41,7 +41,11 @@ type strayfire struct {
 }
 
 func (s *strayfire) Setup(t *testing.T) []framework.Option {
+<<<<<<< HEAD
 	s.workflow = workflow.New(t, workflow.WithSigning(false))
+=======
+	s.workflow = workflow.New(t)
+>>>>>>> upstream/release-1.18
 	return []framework.Option{framework.WithProcesses(s.workflow)}
 }
 

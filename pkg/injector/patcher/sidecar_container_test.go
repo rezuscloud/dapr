@@ -901,6 +901,7 @@ func TestGetSidecarContainer(t *testing.T) {
 		},
 	}))
 
+<<<<<<< HEAD
 	t.Run("actors placement startup timeout", testSuiteGenerator([]testCase{
 		{
 			name:        "default to empty",
@@ -922,6 +923,8 @@ func TestGetSidecarContainer(t *testing.T) {
 		},
 	}))
 
+=======
+>>>>>>> upstream/release-1.18
 	t.Run("app binding options timeout", testSuiteGenerator([]testCase{
 		{
 			name:        "default to empty",

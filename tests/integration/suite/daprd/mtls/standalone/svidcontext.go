@@ -19,7 +19,10 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+<<<<<<< HEAD
 	"time"
+=======
+>>>>>>> upstream/release-1.18
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -42,6 +45,7 @@ func init() {
 // runtime injects the workload's SPIFFE identity (X.509 and JWT SVID sources)
 // into the context of building-block component operations.
 //
+<<<<<<< HEAD
 // It covers two distinct paths, which are wired independently:
 //
 //   - Data plane operations, via the `state.spiffeprobe` state store whose Get
@@ -56,6 +60,14 @@ func init() {
 // Both probes are integration-only components compiled into the test daprd via
 // the `state_spiffeprobe` and `secretstores_spiffeprobe` build tags (see
 // tests/integration/framework/binary and cmd/daprd/components).
+=======
+// It relies on the `state.spiffeprobe` state store, an integration-only
+// component compiled into the test daprd via the `state_spiffeprobe` build tag
+// (see tests/integration/framework/binary and cmd/daprd/components), whose Get
+// reports which SVID sources were present in its operation context. We drive it
+// through the normal state API so the request travels the real path:
+// gRPC server -> universal API -> resiliency runner -> component.
+>>>>>>> upstream/release-1.18
 type svidcontext struct {
 	mtlsDaprd  *daprd.Daprd
 	plainDaprd *daprd.Daprd
@@ -73,6 +85,7 @@ spec:
   version: v1
 `
 
+<<<<<<< HEAD
 //nolint:gosec // G101: component YAML, not a credential.
 const spiffeProbeSecretStore = `apiVersion: dapr.io/v1alpha1
 kind: Component
@@ -109,6 +122,8 @@ auth:
 // the package has no Go files from the integration suite's point of view.
 const resolutionReportKey = "__resolution__"
 
+=======
+>>>>>>> upstream/release-1.18
 func (s *svidcontext) Setup(t *testing.T) []framework.Option {
 	s.sentry = sentry.New(t)
 	bundle := s.sentry.CABundle()
@@ -137,7 +152,11 @@ func (s *svidcontext) Setup(t *testing.T) []framework.Option {
 		daprd.WithPlacementAddresses(s.placement.Address()),
 		daprd.WithSchedulerAddresses(s.scheduler.Address()),
 		daprd.WithEnableMTLS(true),
+<<<<<<< HEAD
 		daprd.WithResourceFiles(spiffeProbeComponent, spiffeProbeSecretStore, secretRefComponent),
+=======
+		daprd.WithResourceFiles(spiffeProbeComponent),
+>>>>>>> upstream/release-1.18
 	)
 
 	// mTLS disabled: WithSVIDContext is a no-op, so component operations must not
@@ -145,7 +164,11 @@ func (s *svidcontext) Setup(t *testing.T) []framework.Option {
 	// assertion is not vacuous.
 	s.plainDaprd = daprd.New(t,
 		daprd.WithAppID("plain-app"),
+<<<<<<< HEAD
 		daprd.WithResourceFiles(spiffeProbeComponent, spiffeProbeSecretStore, secretRefComponent),
+=======
+		daprd.WithResourceFiles(spiffeProbeComponent),
+>>>>>>> upstream/release-1.18
 	)
 
 	return []framework.Option{
@@ -173,6 +196,7 @@ func (s *svidcontext) Run(t *testing.T, ctx context.Context) {
 		return got
 	}
 
+<<<<<<< HEAD
 	// resolutionProbe reads back which SVID sources the secret store saw while
 	// the runtime resolved secretref-store's secretKeyRef. The referencing
 	// component is parked until its secret store loads, so wait for the probe to
@@ -207,6 +231,8 @@ func (s *svidcontext) Run(t *testing.T, ctx context.Context) {
 		return data
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	t.Run("with mTLS the component sees the SVID sources", func(t *testing.T) {
 		got := probe(t, s.mtlsDaprd)
 		assert.True(t, got["x509"], "X.509 SVID source should be in the component operation context")
@@ -218,6 +244,7 @@ func (s *svidcontext) Run(t *testing.T, ctx context.Context) {
 		assert.False(t, got["x509"], "X.509 SVID source should be absent when mTLS is disabled")
 		assert.False(t, got["jwt"], "JWT SVID source should be absent when mTLS is disabled")
 	})
+<<<<<<< HEAD
 
 	t.Run("with mTLS the secret store sees the SVID sources during secret resolution", func(t *testing.T) {
 		got := resolutionProbe(t, s.mtlsDaprd)
@@ -230,4 +257,6 @@ func (s *svidcontext) Run(t *testing.T, ctx context.Context) {
 		assert.Equal(t, "false", got["x509"], "X.509 SVID source should be absent when mTLS is disabled")
 		assert.Equal(t, "false", got["jwt"], "JWT SVID source should be absent when mTLS is disabled")
 	})
+=======
+>>>>>>> upstream/release-1.18
 }

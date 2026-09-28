@@ -32,12 +32,19 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dapr/durabletask-go/api"
+<<<<<<< HEAD
+=======
+	"github.com/dapr/durabletask-go/backend"
+>>>>>>> upstream/release-1.18
 	dtclient "github.com/dapr/durabletask-go/client"
 
 	mcpnames "github.com/dapr/dapr/pkg/runtime/wfengine/inprocess/mcp/v1/names"
 	"github.com/dapr/dapr/tests/integration/framework"
 	fclient "github.com/dapr/dapr/tests/integration/framework/client"
+<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/exec"
 	prochttp "github.com/dapr/dapr/tests/integration/framework/process/http"
@@ -150,7 +157,11 @@ func (s *spiffeAuth) Run(t *testing.T, ctx context.Context) {
 	s.daprd.WaitUntilRunning(t, ctx)
 
 	s.httpClient = fclient.HTTP(t)
+<<<<<<< HEAD
 	taskhubClient := dtclient.NewTaskHubGrpcClient(s.daprd.GRPCConn(t, ctx), logger.New(t))
+=======
+	taskhubClient := dtclient.NewTaskHubGrpcClient(s.daprd.GRPCConn(t, ctx), backend.DefaultLogger())
+>>>>>>> upstream/release-1.18
 
 	t.Run("SPIFFE JWT is injected with correct SPIFFE ID and signed by Sentry", func(t *testing.T) {
 		input := map[string]any{

@@ -24,12 +24,25 @@ import (
 	diag "github.com/dapr/dapr/pkg/diagnostics"
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/todo"
+<<<<<<< HEAD
 	"github.com/dapr/durabletask-go/api/protos"
 	"github.com/dapr/durabletask-go/backend"
 )
 
 // isLocalSyntheticFailure reports whether e is a failure event this app authored
 // itself — a WorkflowAccessPolicy denial or an occupied-instance-ID rejection —
+=======
+	"github.com/dapr/durabletask-go/backend"
+)
+
+const workflowACLDeniedMsg = "access denied by workflow access policy"
+
+// preLoadedMeta lets callers that have already loaded the actor's metadata
+// (e.g. handleStream which needs ometa for the response anyway) skip the
+// state load inside the access check. Pass nil to load on demand.
+// isLocalSyntheticFailure reports whether e is a failure event this app authored
+// itself (a WorkflowAccessPolicy denial or an occupied-instance-ID rejection)
+>>>>>>> upstream/release-1.18
 // rather than a completion received over the wire. Such events carry no
 // attestation by design, so they must not be checked against one. A remote
 // completion carries the sender's appID and is unaffected.
@@ -45,9 +58,12 @@ func (o *orchestrator) isLocalSyntheticFailure(e *backend.HistoryEvent) bool {
 	return et == messages.ErrorTypeAccessPolicyDenied || et == messages.ErrorTypeAlreadyExists
 }
 
+<<<<<<< HEAD
 // preLoadedMeta lets callers that have already loaded the actor's metadata
 // (e.g. handleStream which needs ometa for the response anyway) skip the
 // state load inside the access check. Pass nil to load on demand.
+=======
+>>>>>>> upstream/release-1.18
 func (o *orchestrator) checkAccessPolicy(ctx context.Context, method string, data []byte, parsedAddEvent *backend.HistoryEvent, preLoadedMeta *backend.WorkflowMetadata, md map[string]*internalsv1pb.ListStringValue) error {
 	if o.workflowAccessPolicies == nil {
 		return nil
@@ -57,8 +73,14 @@ func (o *orchestrator) checkAccessPolicy(ctx context.Context, method string, dat
 		return nil
 	}
 
+<<<<<<< HEAD
 	callerAppID := workflowacl.CallerAppID(md)
 	if policies.SelfCallExempt(o.appID, callerAppID, &o.selfCallerWarned) {
+=======
+	// Self-calls are exempt: the policy is a cross-app gate.
+	callerAppID := workflowacl.CallerAppID(md)
+	if callerAppID == o.appID {
+>>>>>>> upstream/release-1.18
 		return nil
 	}
 
@@ -66,39 +88,62 @@ func (o *orchestrator) checkAccessPolicy(ctx context.Context, method string, dat
 	if err != nil {
 		log.Warnf("Workflow actor '%s': workflow access policy denied call '%s': could not derive operation from request: %v", o.actorID, method, err)
 		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeWorkflow), method)
+<<<<<<< HEAD
 		return status.Errorf(codes.PermissionDenied, "%s: malformed request for method '%s'", workflowacl.DeniedMessageBase, method)
+=======
+		return status.Errorf(codes.PermissionDenied, "%s: malformed request for method '%s'", workflowACLDeniedMsg, method)
+>>>>>>> upstream/release-1.18
 	}
 	if operation == "" {
 		// Non-subject methods (reminders, internal protocol) are only valid
 		// from the local daprd. Cross-app callers cannot invoke them.
 		log.Warnf("Workflow actor '%s': workflow access policy denied cross-app call to non-subject method '%s' from app '%s'", o.actorID, method, callerAppID)
 		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeWorkflow), method)
+<<<<<<< HEAD
 		return status.Errorf(codes.PermissionDenied, "%s: app '%s' cannot invoke method '%s'", workflowacl.DeniedMessageBase, callerAppID, method)
+=======
+		return status.Errorf(codes.PermissionDenied, "%s: app '%s' cannot invoke method '%s'", workflowACLDeniedMsg, callerAppID, method)
+>>>>>>> upstream/release-1.18
 	}
 
 	if callerAppID == "" {
 		log.Warnf("Workflow actor '%s': workflow access policy denied call '%s' with missing caller identity", o.actorID, method)
 		diag.DefaultMonitoring.WorkflowACLActionDenied("", string(workflowacl.OperationTypeWorkflow), string(operation))
+<<<<<<< HEAD
 		return status.Errorf(codes.PermissionDenied, "%s: caller identity missing on workflow '%s' operation", workflowacl.DeniedMessageBase, operation)
 	}
 
 	name, history, err := o.workflowNameForOperation(ctx, method, data, preLoadedMeta)
+=======
+		return status.Errorf(codes.PermissionDenied, "%s: caller identity missing on workflow '%s' operation", workflowACLDeniedMsg, operation)
+	}
+
+	name, err := o.workflowNameForOperation(ctx, method, data, preLoadedMeta)
+>>>>>>> upstream/release-1.18
 	if err != nil {
 		log.Errorf("Workflow actor '%s': failed to resolve workflow name for policy check on '%s': %v", o.actorID, method, err)
 		return status.Error(codes.Internal, "failed to evaluate workflow access policy")
 	}
 
+<<<<<<< HEAD
 	allowed, reason := policies.Evaluate(callerAppID, workflowacl.OperationTypeWorkflow, operation, name, history, o.signing.Enabled())
 	if !allowed {
 		log.Warnf("Workflow actor '%s': workflow access policy denied app '%s' operation '%s' on '%s' (reason=%s)", o.actorID, callerAppID, operation, name, reason)
 		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeWorkflow), string(operation))
 		return status.Errorf(codes.PermissionDenied, "%s: app '%s' operation '%s' on workflow '%s' (instance '%s')", workflowacl.DeniedMessageBase, callerAppID, operation, name, o.actorID)
+=======
+	if !policies.Evaluate(callerAppID, workflowacl.OperationTypeWorkflow, operation, name) {
+		log.Warnf("Workflow actor '%s': workflow access policy denied app '%s' operation '%s' on '%s'", o.actorID, callerAppID, operation, name)
+		diag.DefaultMonitoring.WorkflowACLActionDenied(callerAppID, string(workflowacl.OperationTypeWorkflow), string(operation))
+		return status.Errorf(codes.PermissionDenied, "%s: app '%s' operation '%s' on workflow '%s' (instance '%s')", workflowACLDeniedMsg, callerAppID, operation, name, o.actorID)
+>>>>>>> upstream/release-1.18
 	}
 
 	diag.DefaultMonitoring.WorkflowACLActionAllowed(callerAppID, string(workflowacl.OperationTypeWorkflow), string(operation))
 	return nil
 }
 
+<<<<<<< HEAD
 // workflowNameForOperation returns the workflow name for the policy check
 // and (when available) the propagated history that should gate `requires`.
 // Schedule (CreateWorkflowInstance) carries the name and propagated history
@@ -109,20 +154,36 @@ func (o *orchestrator) checkAccessPolicy(ctx context.Context, method string, dat
 // for all other operations history is nil and any rule with a `requires`
 // block will fail-closed.
 func (o *orchestrator) workflowNameForOperation(ctx context.Context, method string, data []byte, preLoadedMeta *backend.WorkflowMetadata) (string, *protos.PropagatedHistory, error) {
+=======
+func (o *orchestrator) workflowNameForOperation(ctx context.Context, method string, data []byte, preLoadedMeta *backend.WorkflowMetadata) (string, error) {
+>>>>>>> upstream/release-1.18
 	if method == todo.CreateWorkflowInstanceMethod {
 		return workflowacl.WorkflowNameFromCreateRequest(data)
 	}
 
 	if preLoadedMeta != nil {
+<<<<<<< HEAD
 		return preLoadedMeta.GetName(), nil, nil
+=======
+		return preLoadedMeta.GetName(), nil
+>>>>>>> upstream/release-1.18
 	}
 
 	_, ometa, err := o.loadInternalState(ctx)
 	if err != nil {
+<<<<<<< HEAD
 		return "", nil, err
 	}
 	if ometa == nil {
 		return "", nil, nil
 	}
 	return ometa.GetName(), nil, nil
+=======
+		return "", err
+	}
+	if ometa == nil {
+		return "", nil
+	}
+	return ometa.GetName(), nil
+>>>>>>> upstream/release-1.18
 }

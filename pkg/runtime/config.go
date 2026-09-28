@@ -76,8 +76,11 @@ const (
 	// daprd does not reset the stream before placement can finish a
 	// legitimately slow round.
 	DefaultActorsDisseminationTimeout = time.Second * 30
+<<<<<<< HEAD
 
 	DefaultActorsPlacementStartupTimeout = time.Second * 30
+=======
+>>>>>>> upstream/release-1.18
 	// DefaultAppHealthCheckPath is the default path for HTTP health checks.
 	DefaultAppHealthCheckPath = "/healthz"
 	// DefaultChannelAddress is the default local network address that user application listen on.
@@ -119,7 +122,10 @@ type Config struct {
 	DaprBlockShutdownDuration     *time.Duration
 	ActorsService                 string
 	ActorsDisseminationTimeout    time.Duration
+<<<<<<< HEAD
 	ActorsPlacementStartupTimeout time.Duration
+=======
+>>>>>>> upstream/release-1.18
 	RemindersService              string
 	SchedulerAddress              []string
 	SchedulerStreams              uint
@@ -151,6 +157,7 @@ type Config struct {
 }
 
 type internalConfig struct {
+<<<<<<< HEAD
 	id                            string
 	httpPort                      int
 	publicPort                    *int
@@ -190,6 +197,46 @@ type internalConfig struct {
 	disableInitEndpoints          []string
 	hotReloadReconcileInterval    time.Duration
 	appBindingOptionsTimeout      time.Duration
+=======
+	id                           string
+	httpPort                     int
+	publicPort                   *int
+	publicListenAddress          string
+	profilePort                  int
+	enableProfiling              bool
+	apiGRPCPort                  int
+	internalGRPCPort             int
+	internalGRPCListenAddress    string
+	apiListenAddresses           []string
+	appConnectionConfig          config.AppConnectionConfig
+	mode                         modes.DaprMode
+	actorsService                string
+	actorsDisseminationTimeout   time.Duration
+	remindersService             string
+	schedulerAddress             []string
+	schedulerStreams             uint
+	allowedOrigins               string
+	standalone                   configmodes.StandaloneConfig
+	kubernetes                   configmodes.KubernetesConfig
+	mTLSEnabled                  bool
+	sentryServiceAddress         string
+	unixDomainSocket             string
+	maxRequestBodySize           int // In bytes
+	readBufferSize               int // In bytes
+	gracefulShutdownDuration     time.Duration
+	blockShutdownDuration        *time.Duration
+	enableAPILogging             *bool
+	disableBuiltinK8sSecretStore bool
+	config                       []string
+	registry                     *registry.Registry
+	metricsExporter              metrics.Exporter
+	healthz                      healthz.Healthz
+	outboundHealthz              healthz.Healthz
+	workflowEventSink            orchestrator.EventSink
+	disableInitEndpoints         []string
+	hotReloadReconcileInterval   time.Duration
+	appBindingOptionsTimeout     time.Duration
+>>>>>>> upstream/release-1.18
 }
 
 func (i internalConfig) SchedulerEnabled() bool {
@@ -483,6 +530,7 @@ func (c *Config) toInternal() (*internalConfig, error) {
 			HealthCheckHTTPPath: c.AppHealthCheckPath,
 			MaxConcurrency:      c.AppMaxConcurrency,
 		},
+<<<<<<< HEAD
 		registry:                      registry.New(c.Registry),
 		metricsExporter:               metrics.New(c.Metrics),
 		blockShutdownDuration:         c.DaprBlockShutdownDuration,
@@ -499,6 +547,23 @@ func (c *Config) toInternal() (*internalConfig, error) {
 		healthz:                       c.Healthz,
 		outboundHealthz:               healthz.New(),
 		workflowEventSink:             c.WorkflowEventSink,
+=======
+		registry:                   registry.New(c.Registry),
+		metricsExporter:            metrics.New(c.Metrics),
+		blockShutdownDuration:      c.DaprBlockShutdownDuration,
+		actorsService:              c.ActorsService,
+		actorsDisseminationTimeout: c.ActorsDisseminationTimeout,
+		hotReloadReconcileInterval: c.HotReloadReconcileInterval,
+		appBindingOptionsTimeout:   c.AppBindingOptionsTimeout,
+		remindersService:           c.RemindersService,
+		schedulerAddress:           c.SchedulerAddress,
+		schedulerStreams:           c.SchedulerStreams,
+		publicListenAddress:        c.DaprPublicListenAddress,
+		internalGRPCListenAddress:  c.DaprInternalGRPCListenAddress,
+		healthz:                    c.Healthz,
+		outboundHealthz:            healthz.New(),
+		workflowEventSink:          c.WorkflowEventSink,
+>>>>>>> upstream/release-1.18
 	}
 
 	if len(intc.standalone.ResourcesPath) == 0 && c.ComponentsPath != "" {
@@ -589,10 +654,13 @@ func (c *Config) toInternal() (*internalConfig, error) {
 		intc.actorsDisseminationTimeout = DefaultActorsDisseminationTimeout
 	}
 
+<<<<<<< HEAD
 	if intc.actorsPlacementStartupTimeout <= 0 {
 		intc.actorsPlacementStartupTimeout = DefaultActorsPlacementStartupTimeout
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	if intc.appConnectionConfig.MaxConcurrency == -1 {
 		intc.appConnectionConfig.MaxConcurrency = 0
 	}

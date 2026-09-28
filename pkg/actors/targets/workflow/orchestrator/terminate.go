@@ -21,11 +21,19 @@ import (
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+<<<<<<< HEAD
+=======
+	"google.golang.org/protobuf/types/known/durationpb"
+>>>>>>> upstream/release-1.18
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	actorapi "github.com/dapr/dapr/pkg/actors/api"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
 	invokev1 "github.com/dapr/dapr/pkg/messaging/v1"
+<<<<<<< HEAD
+=======
+	commonv1pb "github.com/dapr/dapr/pkg/proto/common/v1"
+>>>>>>> upstream/release-1.18
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 	wfenginestate "github.com/dapr/dapr/pkg/runtime/wfengine/state"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/todo"
@@ -60,7 +68,11 @@ func (o *orchestrator) terminateChildren(ctx context.Context, state *wfenginesta
 	var errs []error
 	for _, child := range collectChildren(state.History) {
 		var err error
+<<<<<<< HEAD
 		if o.isRemoteApp(child.targetAppID) {
+=======
+		if child.targetAppID != "" && child.targetAppID != o.appID {
+>>>>>>> upstream/release-1.18
 			err = o.terminateRemoteChild(ctx, child, term)
 		} else {
 			err = o.createCascadeTerminateReminder(ctx, child, term)
@@ -89,8 +101,20 @@ func (o *orchestrator) createCascadeTerminateReminder(ctx context.Context, child
 		Name:      reminderCascadeTerminate,
 		Data:      data,
 		DueTime:   time.Now().UTC().Format(time.RFC3339Nano),
+<<<<<<< HEAD
 		// One shot, retry forever, jittered interval.
 		FailurePolicy: common.RetryForeverPolicy(),
+=======
+		// One shot, retry forever, every second.
+		FailurePolicy: &commonv1pb.JobFailurePolicy{
+			Policy: &commonv1pb.JobFailurePolicy_Constant{
+				Constant: &commonv1pb.JobFailurePolicyConstant{
+					Interval:   durationpb.New(time.Second),
+					MaxRetries: nil,
+				},
+			},
+		},
+>>>>>>> upstream/release-1.18
 	})
 }
 

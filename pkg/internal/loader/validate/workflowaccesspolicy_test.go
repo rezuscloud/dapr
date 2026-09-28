@@ -88,9 +88,13 @@ func TestWorkflowAccessPolicy_BothWorkflowsAndActivities(t *testing.T) {
 
 func TestWorkflowAccessPolicy_InvalidOperation(t *testing.T) {
 	p := validPolicy()
+<<<<<<< HEAD
 	p.Spec.Rules[0].Workflows[0].Operations = []wfaclapi.WorkflowOperation{
 		wfaclapi.WorkflowOperation("bogus"),
 	}
+=======
+	p.Spec.Rules[0].Workflows[0].Operations = []wfaclapi.WorkflowOperation{wfaclapi.WorkflowOperation("bogus")}
+>>>>>>> upstream/release-1.18
 	err := WorkflowAccessPolicy(t.Context(), p)
 	require.Error(t, err)
 }
@@ -145,9 +149,13 @@ func TestWorkflowAccessPolicy_MultipleRulesOneInvalid(t *testing.T) {
 	p.Spec.Rules = append(p.Spec.Rules, wfaclapi.WorkflowAccessPolicyRule{
 		Callers: []wfaclapi.WorkflowCaller{{AppID: "other"}},
 		Workflows: []wfaclapi.WorkflowRule{
+<<<<<<< HEAD
 			{Name: "wf", Operations: []wfaclapi.WorkflowOperation{
 				wfaclapi.WorkflowOperation("bad"),
 			}},
+=======
+			{Name: "wf", Operations: []wfaclapi.WorkflowOperation{wfaclapi.WorkflowOperation("bad")}},
+>>>>>>> upstream/release-1.18
 		},
 	})
 	err := WorkflowAccessPolicy(t.Context(), p)

@@ -74,10 +74,14 @@ func (w *workflowacl) Setup(t *testing.T) []framework.Option {
 			Rules: []wfaclapi.WorkflowAccessPolicyRule{{
 				Callers: []wfaclapi.WorkflowCaller{{AppID: "metric-caller"}},
 				Workflows: []wfaclapi.WorkflowRule{
+<<<<<<< HEAD
 					{Name: "AllowedWF", Operations: []wfaclapi.WorkflowOperation{
 						wfaclapi.WorkflowOperationSchedule,
 						wfaclapi.WorkflowOperationGet,
 					}},
+=======
+					{Name: "AllowedWF", Operations: []wfaclapi.WorkflowOperation{wfaclapi.WorkflowOperationSchedule}},
+>>>>>>> upstream/release-1.18
 				},
 			}},
 		},

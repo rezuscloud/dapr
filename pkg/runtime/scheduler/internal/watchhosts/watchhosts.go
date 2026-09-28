@@ -126,6 +126,7 @@ func (w *WatchHosts) Run(ctx context.Context) error {
 			return nil
 		}
 
+<<<<<<< HEAD
 		// Keep receiving on the stream: the scheduler re-broadcasts the host
 		// list on every membership or placement leadership change.
 		for {
@@ -161,6 +162,20 @@ func (w *WatchHosts) Run(ctx context.Context) error {
 			w.htarget.Ready()
 
 			resp, err = stream.Recv()
+=======
+		if err != nil {
+			closeCon()
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+			log.Warnf("Scheduler WatchHosts stream error, reconnecting: %s", err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(time.Second):
+				continue
+			}
+>>>>>>> upstream/release-1.18
 		}
 	}
 }
@@ -181,6 +196,7 @@ func (w *WatchHosts) handleHosts(ctx context.Context, resp *schedulerv1pb.WatchH
 
 	log.Infof("Received scheduler hosts addresses: %v (placement leader %q)", gotAddrs, leader)
 
+<<<<<<< HEAD
 	// Reloading on an identical set would cycle every scheduler stream, and
 	// that churn re-broadcasts back into this loop. Broadcast order is not
 	// stable across membership changes, so compare sorted.
@@ -189,6 +205,20 @@ func (w *WatchHosts) handleHosts(ctx context.Context, resp *schedulerv1pb.WatchH
 	if !slices.Equal(sorted, w.lastAddrs) {
 		if err := w.clients.Reload(ctx, gotAddrs); err != nil {
 			return err
+=======
+		if err = w.clients.Reload(ctx, gotAddrs); err != nil {
+			closeCon()
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
+			log.Errorf("Failed to reload scheduler clients, retrying: %s", err)
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(retry.Jitter(time.Second, time.Second/2)):
+				continue
+			}
+>>>>>>> upstream/release-1.18
 		}
 
 		w.loop.Enqueue(&loops.ReloadClients{

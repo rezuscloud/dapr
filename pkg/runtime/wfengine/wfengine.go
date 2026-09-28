@@ -25,6 +25,10 @@ import (
 
 	"google.golang.org/grpc"
 
+<<<<<<< HEAD
+=======
+	"github.com/dapr/components-contrib/workflows"
+>>>>>>> upstream/release-1.18
 	workflowacl "github.com/dapr/dapr/pkg/acl/workflow"
 	"github.com/dapr/dapr/pkg/actors"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator"
@@ -105,16 +109,30 @@ type engine struct {
 	actors               actors.Interface
 	getWorkItemsCount    atomic.Int32
 	mcpRegistrationCount atomic.Int32
+<<<<<<< HEAD
 	// actorRegLock makes the "increment+check+RegisterActors" and
 	// "decrement+check+UnRegisterActors" sequences atomic, so concurrent
 	// connects/disconnects and MCP register/unregister cannot double-register
 	// or unregister while another path believes actors are still live.
 	actorRegLock     sync.Mutex
+=======
+	// actorRegLock guards the registration counters and actorsRegistered.
+	// Held by the GetWorkItems connect/disconnect callbacks, EnsureActorsRegistered,
+	// and UnregisterMCPServer so all paths can read and write the registration
+	// state without racing.
+	actorRegLock sync.Mutex
+	// actorsRegistered tracks whether workflow actor types are currently
+	// registered with placement. Guarded by actorRegLock.
+>>>>>>> upstream/release-1.18
 	actorsRegistered bool
 
 	worker        backend.TaskHubWorker
 	backend       *backendactors.Actors
+<<<<<<< HEAD
 	client        backend.TaskHubClient
+=======
+	client        workflows.Workflow
+>>>>>>> upstream/release-1.18
 	inProcessExec *inprocess.Executor
 	compStore     *compstore.ComponentStore
 
@@ -154,7 +172,11 @@ func New(opts Options) (Interface, error) {
 	}
 
 	// If no backend was initialized by the manager, create a backend backed by actors
+<<<<<<< HEAD
 	abackend, err := backendactors.New(backendactors.Options{
+=======
+	abackend := backendactors.New(backendactors.Options{
+>>>>>>> upstream/release-1.18
 		AppID:                  opts.AppID,
 		Namespace:              opts.Namespace,
 		Actors:                 opts.Actors,
@@ -163,8 +185,13 @@ func New(opts Options) (Interface, error) {
 		ComponentStore:         opts.ComponentStore,
 		RetentionPolicy:        retPolicy,
 		Signer:                 s,
+<<<<<<< HEAD
 		MaxRequestBodySize:     opts.MaxRequestBodySize,
 		WorkflowAccessPolicies: opts.WorkflowAccessPolicies,
+=======
+		WorkflowAccessPolicies: opts.WorkflowAccessPolicies,
+		MaxRequestBodySize:     opts.MaxRequestBodySize,
+>>>>>>> upstream/release-1.18
 
 		EnableClusteredDeployment:       opts.EnableClusteredDeployment,
 		WorkflowsRemoteActivityReminder: opts.WorkflowsRemoteActivityReminder,
@@ -208,9 +235,80 @@ func New(opts Options) (Interface, error) {
 		}
 	})
 
+<<<<<<< HEAD
 	grpcExec, registerGrpcServerFn := backend.NewGrpcExecutor(abackend, log,
 		backend.WithOnGetWorkItemsConnectionCallback(wfe.onWorkItemConnection),
 		backend.WithOnGetWorkItemsDisconnectCallback(wfe.onWorkItemDisconnection),
+=======
+	inProcessExec := opts.InProcessExecutor
+	if inProcessExec == nil {
+		return nil, errors.New("InProcessExecutor is required")
+	}
+
+	wfe := &engine{
+		appID:            opts.AppID,
+		namespace:        opts.Namespace,
+		actors:           opts.Actors,
+		backend:          abackend,
+		inProcessExec:    inProcessExec,
+		compStore:        opts.ComponentStore,
+		streamShutdownCh: make(chan any),
+	}
+
+	// Keep the actor refcount balanced when Executor.Run tears holders down
+	// during shutdown: each torn-down holder represents one outstanding
+	// EnsureActorsRegistered Add(+1) that would otherwise be left dangling.
+	inProcessExec.SetOnMCPTeardown(func(string) {
+		wfe.actorRegLock.Lock()
+		defer wfe.actorRegLock.Unlock()
+		if wfe.mcpRegistrationCount.Add(-1) == 0 && wfe.getWorkItemsCount.Load() == 0 && wfe.actorsRegistered {
+			err := abackend.UnRegisterActors(context.Background())
+			wfe.actorsRegistered = false
+			if err != nil {
+				log.Warnf("Failed to unregister workflow actors during shutdown: %s", err)
+			}
+		}
+	})
+
+	grpcExec, registerGrpcServerFn := backend.NewGrpcExecutor(abackend, log,
+		backend.WithOnGetWorkItemsConnectionCallback(func(ctx context.Context) error {
+			wfe.actorRegLock.Lock()
+			defer wfe.actorRegLock.Unlock()
+
+			wfe.getWorkItemsCount.Add(1)
+			if !wfe.actorsRegistered {
+				log.Debug("Registering workflow actors")
+				if err := abackend.RegisterActors(ctx); err != nil {
+					wfe.getWorkItemsCount.Add(-1)
+					return err
+				}
+				wfe.actorsRegistered = true
+			}
+
+			return nil
+		}),
+		backend.WithOnGetWorkItemsDisconnectCallback(func(ctx context.Context) error {
+			wfe.actorRegLock.Lock()
+			defer wfe.actorRegLock.Unlock()
+
+			if ctx.Err() != nil {
+				ctx = context.Background()
+			}
+
+			if wfe.getWorkItemsCount.Add(-1) == 0 && wfe.mcpRegistrationCount.Load() == 0 && wfe.actorsRegistered {
+				log.Debug("Unregistering workflow actors")
+				// Reset unconditionally: UnRegisterActors removes types from the
+				// table before HaltAll, so an error here still means they're gone.
+				err := abackend.UnRegisterActors(ctx)
+				wfe.actorsRegistered = false
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		}),
+>>>>>>> upstream/release-1.18
 		backend.WithStreamSendTimeout(time.Second*10),
 		backend.WithStreamShutdownChannel(wfe.streamShutdownCh),
 	)
@@ -250,7 +348,14 @@ func New(opts Options) (Interface, error) {
 
 	wfe.worker = worker
 	wfe.registerGrpcServerFn = registerGrpcServerFn
+<<<<<<< HEAD
 	wfe.client = backend.NewTaskHubClient(abackend)
+=======
+	wfe.client = &client{
+		logger: wfBackendLogger,
+		client: backend.NewTaskHubClient(abackend),
+	}
+>>>>>>> upstream/release-1.18
 	return wfe, nil
 }
 
@@ -263,12 +368,18 @@ func (wfe *engine) EnsureActorsRegistered(ctx context.Context) error {
 	defer wfe.actorRegLock.Unlock()
 
 	wfe.mcpRegistrationCount.Add(1)
+<<<<<<< HEAD
 	wfe.syncExecutorAvailable()
+=======
+>>>>>>> upstream/release-1.18
 	if !wfe.actorsRegistered {
 		log.Debug("Registering workflow actors for internal workflows")
 		if err := wfe.backend.RegisterActors(ctx); err != nil {
 			wfe.mcpRegistrationCount.Add(-1)
+<<<<<<< HEAD
 			wfe.syncExecutorAvailable()
+=======
+>>>>>>> upstream/release-1.18
 			return err
 		}
 		wfe.actorsRegistered = true
@@ -276,6 +387,7 @@ func (wfe *engine) EnsureActorsRegistered(ctx context.Context) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func (wfe *engine) onWorkItemConnection(ctx context.Context) error {
 	wfe.actorRegLock.Lock()
 	defer wfe.actorRegLock.Unlock()
@@ -336,6 +448,8 @@ func (wfe *engine) syncExecutorAvailable() {
 	wfe.backend.SetExecutorAvailable(wfe.getWorkItemsCount.Load() > 0 || wfe.mcpRegistrationCount.Load() > 0)
 }
 
+=======
+>>>>>>> upstream/release-1.18
 // RegisterMCPServer installs workflows and ensures actors are registered.
 // Refcount bumps only on success. If actor registration fails after the
 // inprocess workflows were installed, the inprocess registration is torn back
@@ -365,8 +479,11 @@ func (wfe *engine) UnregisterMCPServer(serverName string) {
 	defer wfe.actorRegLock.Unlock()
 
 	if wfe.mcpRegistrationCount.Add(-1) == 0 && wfe.getWorkItemsCount.Load() == 0 && wfe.actorsRegistered {
+<<<<<<< HEAD
 		// Sweep parked completions before HaltAll; see the disconnect callback.
 		wfe.syncExecutorAvailable()
+=======
+>>>>>>> upstream/release-1.18
 		log.Debug("Unregistering workflow actors")
 		err := wfe.backend.UnRegisterActors(context.Background())
 		wfe.actorsRegistered = false

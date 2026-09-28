@@ -46,10 +46,15 @@ type options struct {
 	daprds          int
 	skipDB          bool
 	mtls            bool
+<<<<<<< HEAD
 	signingDisabled []int
 	clustered       *bool
 	fastPath        *bool
 	signing         *bool
+=======
+	signing         bool
+	signingDisabled []int
+>>>>>>> upstream/release-1.18
 
 	orchestrators     []orchestratorConfig
 	activities        []activityConfig
@@ -58,9 +63,12 @@ type options struct {
 	placementOptions  []placement.Option
 	schedulerInstance *scheduler.Scheduler
 	schedulerAddress  *string
+<<<<<<< HEAD
 	sentryInstance    *sentry.Sentry
 
 	schedulerPlacement *bool
+=======
+>>>>>>> upstream/release-1.18
 }
 
 func WithAddOrchestrator(t *testing.T, name string, or func(*task.WorkflowContext) (any, error)) Option {
@@ -136,8 +144,12 @@ func WithMTLS(t *testing.T) Option {
 func WithHistorySigning(t *testing.T) Option {
 	t.Helper()
 	return func(o *options) {
+<<<<<<< HEAD
 		enabled := true
 		o.signing = &enabled
+=======
+		o.signing = true
+>>>>>>> upstream/release-1.18
 		o.mtls = true
 	}
 }
@@ -151,6 +163,7 @@ func WithSigningDisabledN(index int) Option {
 	}
 }
 
+<<<<<<< HEAD
 // WithClusteredDeployment explicitly enables or disables the
 // WorkflowsClusteredDeployment feature flag on every daprd in the workflow,
 // overriding the DAPR_INTEGRATION_WORKFLOW_CLUSTERED environment variable.
@@ -198,12 +211,15 @@ func WithSigning(enabled bool) Option {
 	}
 }
 
+=======
+>>>>>>> upstream/release-1.18
 func WithSchedulerOptions(opts ...scheduler.Option) Option {
 	return func(o *options) {
 		o.schedulerOptions = append(o.schedulerOptions, opts...)
 	}
 }
 
+<<<<<<< HEAD
 // WithSentryInstance lets a test supply a pre-constructed Sentry, implying
 // mTLS. The framework uses it for placement, scheduler and daprd identity
 // instead of creating its own, and skips adding it to its process list (the
@@ -216,6 +232,8 @@ func WithSentryInstance(sen *sentry.Sentry) Option {
 	}
 }
 
+=======
+>>>>>>> upstream/release-1.18
 // WithSchedulerInstance lets a test supply a pre-constructed scheduler. The
 // framework uses this scheduler instead of creating its own and skips
 // adding it to its process list (the caller is responsible for that).

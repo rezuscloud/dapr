@@ -17,6 +17,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+<<<<<<< HEAD
 	"time"
 
 	actorapi "github.com/dapr/dapr/pkg/actors/api"
@@ -24,6 +25,13 @@ import (
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/inflight"
 	diag "github.com/dapr/dapr/pkg/diagnostics"
 	wferrors "github.com/dapr/dapr/pkg/runtime/wfengine/errors"
+=======
+	"strings"
+
+	actorsapi "github.com/dapr/dapr/pkg/actors/api"
+	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/inflight"
+	"github.com/dapr/dapr/pkg/messages"
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/durabletask-go/api/protos"
 )
 
@@ -46,6 +54,7 @@ func (a *activity) executeActivity(ctx context.Context, reminder *actorapi.Remin
 	}
 	activityName := ts.GetName()
 
+<<<<<<< HEAD
 	workflowID, err := a.workflowID()
 	if err != nil {
 		return err
@@ -148,6 +157,58 @@ func (a *activity) claim(ctx context.Context, key, workflowID string, taskID int
 		a.settle(key, call, errStaleClaimEvicted)
 		log.Warnf("Activity actor '%s': evicted a stale in-flight claim (no engine-held work item after %s); re-executing", a.actorID, call.Age())
 		diag.DefaultWorkflowMonitoring.WorkflowLocalActivity(context.Background(), diag.StatusClaimEvicted)
+=======
+	// The actor ID is "<instanceID>::<taskID>::<generation>". The instance ID
+	// may itself contain "::"; the two trailing components never do.
+	endIndex := strings.LastIndex(a.actorID, "::")
+	if endIndex > 0 {
+		endIndex = strings.LastIndex(a.actorID[:endIndex], "::")
+	}
+	if endIndex < 0 {
+		return fmt.Errorf("invalid activity actor ID: '%s'", a.actorID)
+	}
+	workflowID := a.actorID[0:endIndex]
+
+	// Cryptographically verify any propagated history before letting the
+	// activity see it. Activities are stateless workers with no
+	// ext-sigcert table to absorb certs into, so this is a verify-or-
+	// reject gate. The helper handles the disabled-signer case (logs a
+	// warning if a signed payload arrives) and the nil-payload case
+	// internally. On failure, abort activity execution: the caller (parent
+	// workflow) gets a recoverable error and the activity never runs.
+	if err := a.signing.VerifyPropagatedHistoryStateless(invocation.GetPropagatedHistory()); err != nil {
+		return fmt.Errorf("activity '%s::%d' rejecting invocation: propagated history verification failed: %w", activityName, taskEvent.GetEventId(), err)
+	}
+
+	key := inflight.Key(a.actorID, taskEvent)
+	call, owner := a.inflight.Acquire(key)
+	if !owner {
+		// A previous reminder for this activity scheduling is already in
+		// flight (or just finished and its outcome is still cached). Wait
+		// for its result and surface the same outcome so the scheduler's
+		// retry can be acked without dispatching the activity to the SDK
+		// again. The owner is responsible for posting the result to the
+		// workflow actor.
+		log.Debugf("Activity actor '%s': following in-flight execution of '%s'", a.actorID, name)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-call.Done():
+			return call.Err()
+		}
+	}
+
+	return a.runOwned(ctx, key, call, name, activityName, workflowID, taskEvent, invocation)
+}
+
+func (f *factory) actorNotReachable(ctx context.Context, wfActorType, workflowID string) bool {
+	_, _, cancel, err := f.placement.LookupActor(ctx, &actorsapi.LookupActorRequest{
+		ActorType: wfActorType,
+		ActorID:   workflowID,
+	})
+	if cancel != nil {
+		cancel(nil)
+>>>>>>> upstream/release-1.18
 	}
 }
 

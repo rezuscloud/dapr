@@ -280,6 +280,7 @@ func Test_runWorkflow_terminalTurnSavesBeforeParentNotify(t *testing.T) {
 		assert.Equal(t, "parent-exec-1", h.calls[0].GetMetadata()[todo.MetadataParentExecutionID].GetValues()[0])
 	})
 
+<<<<<<< HEAD
 	t.Run("fastpath asserts the janitor before the terminal save", func(t *testing.T) {
 		t.Parallel()
 		h := newCompletingHarness(t)
@@ -292,6 +293,8 @@ func Test_runWorkflow_terminalTurnSavesBeforeParentNotify(t *testing.T) {
 		assert.Equal(t, []string{"create:" + janitorReminderName, "save+notify", "call:" + todo.AddWorkflowEventMethod}, ops[:3], "a local wake has no reminder to nack, so the janitor must exist before the save")
 	})
 
+=======
+>>>>>>> upstream/release-1.18
 	t.Run("a purge landing on the terminal save aborts before the notify", func(t *testing.T) {
 		t.Parallel()
 		h := newCompletingHarness(t)

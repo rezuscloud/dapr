@@ -183,6 +183,7 @@ func New(t *testing.T, fopts ...Option) *Workflow {
 		)
 	}
 
+<<<<<<< HEAD
 	// No standalone placement process runs when placement is served by the
 	// scheduler: sidecars take the scheduler's advertisement.
 	var place *placement.Placement
@@ -191,6 +192,9 @@ func New(t *testing.T, fopts ...Option) *Workflow {
 	} else {
 		schedulerOpts = append(schedulerOpts, scheduler.WithPlacementEnabled(true))
 	}
+=======
+	place := placement.New(t, placementOpts...)
+>>>>>>> upstream/release-1.18
 	sched := opts.schedulerInstance
 	ownsSched := false
 	if sched == nil {
@@ -207,8 +211,10 @@ func New(t *testing.T, fopts ...Option) *Workflow {
 		baseDopts = append(baseDopts, daprd.WithResourceFiles(db.GetComponent(t)))
 	}
 
+	var signingDopts []daprd.Option
 	if sen != nil {
 		baseDopts = append(baseDopts, daprd.WithSentry(t, sen))
+<<<<<<< HEAD
 	}
 
 	// daprd loads each config file onto one Configuration struct and
@@ -218,6 +224,21 @@ func New(t *testing.T, fopts ...Option) *Workflow {
 	// built in the per-daprd loop below because signing is per-daprd.
 	baseFeatures := baseFeatureList(clustered, fastPath)
 
+=======
+		signingDopts = []daprd.Option{
+			daprd.WithConfigManifests(t, `apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: propagation-signing
+spec:
+  features:
+  - name: WorkflowHistorySigning
+    enabled: true
+`),
+		}
+	}
+
+>>>>>>> upstream/release-1.18
 	if opts.schedulerAddress != nil {
 		// Reset so a caller-supplied override (e.g. a proxy in front of the
 		// scheduler) truly replaces any addresses appended by other option
@@ -235,6 +256,7 @@ func New(t *testing.T, fopts ...Option) *Workflow {
 	daprds := make([]*daprd.Daprd, opts.daprds)
 
 	for i := range daprds {
+<<<<<<< HEAD
 		dopts := make([]daprd.Option, 0, len(baseDopts)+1)
 		dopts = append(dopts, baseDopts...)
 
@@ -244,6 +266,13 @@ func New(t *testing.T, fopts ...Option) *Workflow {
 		}
 		if len(features) > 0 {
 			dopts = append(dopts, daprd.WithFeatureEnabled(t, features...))
+=======
+		dopts := make([]daprd.Option, 0, len(baseDopts)+len(signingDopts))
+		dopts = append(dopts, baseDopts...)
+
+		if !signingDisabled[i] {
+			dopts = append(dopts, signingDopts...)
+>>>>>>> upstream/release-1.18
 		}
 
 		// Add specific opts for this daprd
@@ -301,9 +330,13 @@ func (w *Workflow) Run(t *testing.T, ctx context.Context) {
 	if w.sentry != nil && w.ownsSentry {
 		w.sentry.Run(t, ctx)
 	}
+<<<<<<< HEAD
 	if w.place != nil {
 		w.place.Run(t, ctx)
 	}
+=======
+	w.place.Run(t, ctx)
+>>>>>>> upstream/release-1.18
 	if w.ownsSched {
 		w.sched.Run(t, ctx)
 	}
@@ -392,6 +425,23 @@ func (w *Workflow) BackendClient(t *testing.T, ctx context.Context) *client.Task
 	t.Helper()
 
 	return w.BackendClientN(t, ctx, 0)
+}
+
+// ManagementClient returns a backend client connected to daprd index 0 for
+// control-plane operations only. See ManagementClientN.
+func (w *Workflow) ManagementClient(t *testing.T, ctx context.Context) *client.TaskHubGrpcClient {
+	t.Helper()
+	return w.ManagementClientN(t, ctx, 0)
+}
+
+// ManagementClientN returns a backend client connected to the daprd at the given
+// index for control-plane operations only (scheduling, waiting, raising events,
+// fetching history). It does not start a work-item listener, so it never executes
+// workflows and never advertises any worker capability.
+func (w *Workflow) ManagementClientN(t *testing.T, ctx context.Context, index int) *client.TaskHubGrpcClient {
+	t.Helper()
+	require.Less(t, index, len(w.daprds), "index out of range")
+	return client.NewTaskHubGrpcClient(w.daprds[index].GRPCConn(t, ctx), logger.New(t))
 }
 
 // BackendClient returns a backend client for the specified index
@@ -529,6 +579,7 @@ func (w *Workflow) Sentry() *sentry.Sentry {
 	return w.sentry
 }
 
+<<<<<<< HEAD
 // HasPlacement reports whether a standalone placement service runs, rather
 // than placement served by the scheduler.
 func (w *Workflow) HasPlacement() bool {
@@ -559,5 +610,8 @@ func (w *Workflow) Placement() *placement.Placement {
 	if w.place == nil {
 		panic("no placement service runs when the scheduler serves placement: pin this suite with workflow.WithPlacementService()")
 	}
+=======
+func (w *Workflow) Placement() *placement.Placement {
+>>>>>>> upstream/release-1.18
 	return w.place
 }
