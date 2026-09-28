@@ -39,7 +39,14 @@ const childTerminalCheckTimeout = 5 * time.Second
 // terminal state, tolerating children that were purged out-of-band.
 func (o *orchestrator) childrenTerminalCheck(ctx context.Context, state *wfenginestate.State) error {
 	for _, child := range collectChildren(state.History) {
+<<<<<<< HEAD
 		actorType := o.childWorkflowActorType(child)
+=======
+		actorType := o.actorType
+		if child.targetAppID != "" && child.targetAppID != o.appID {
+			actorType = o.actorTypeBuilder.Workflow(child.targetAppID)
+		}
+>>>>>>> upstream/release-1.18
 
 		err := o.childTerminalCheck(ctx, actorType, child.instanceID)
 		if err == nil {

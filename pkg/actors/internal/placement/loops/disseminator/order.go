@@ -41,10 +41,15 @@ func (d *disseminator) handleOrder(ctx context.Context, order *loops.StreamOrder
 
 	version := order.Order.Version
 
+<<<<<<< HEAD
 	log.Debugf("Handling placement order=%s version=%d", order.Order.Op, version)
 
 	switch order.Order.Op {
 	case loops.OrderLock:
+=======
+	switch order.Order.GetOperation() {
+	case operationLock:
+>>>>>>> upstream/release-1.18
 		// LOCK signals that the placement server is about to push a new
 		// table. The new tables haven't arrived yet, so we don't know
 		// which actor types will change. Lookups continue to resolve
@@ -83,14 +88,29 @@ func (d *disseminator) handleOrder(ctx context.Context, order *loops.StreamOrder
 		// for unchanged types. Accumulate into roundChangedTypes so a
 		// later UNLOCK releases every type touched across compressed
 		// rounds (the placement server may elide intermediate UNLOCKs).
+<<<<<<< HEAD
 		changed := d.inflight.Set(order.Order.V1Tables, version)
+=======
+		changed := d.inflight.Set(order.Order.GetTables(), version)
+>>>>>>> upstream/release-1.18
 		for _, t := range changed {
 			d.roundChangedTypes[t] = struct{}{}
 		}
 		d.inflight.LockTypes(changed)
 		d.inflight.Open(ctx)
 
+<<<<<<< HEAD
 		d.currentOperation = loops.OrderUpdate
+
+		// Drain in-flight claims for actor types whose hash ring changed
+		// in this UPDATE so the request layer can retry against the new
+		// routing. Claims for unchanged types survive: a routine
+		// dissemination round is no longer fatal to in-flight invocations
+		// of unaffected types.
+		d.inflight.CancelClaimsForTypes(changed, errors.New("placement table updated"))
+=======
+		d.currentOperation = v1pb.HostOperation_UPDATE
+>>>>>>> upstream/release-1.18
 
 		// Drain in-flight claims for actor types whose hash ring changed
 		// in this UPDATE so the request layer can retry against the new

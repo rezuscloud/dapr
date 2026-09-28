@@ -26,12 +26,19 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dapr/durabletask-go/api"
+<<<<<<< HEAD
+=======
+	"github.com/dapr/durabletask-go/backend"
+>>>>>>> upstream/release-1.18
 	dtclient "github.com/dapr/durabletask-go/client"
 
 	mcpnames "github.com/dapr/dapr/pkg/runtime/wfengine/inprocess/mcp/v1/names"
 	"github.com/dapr/dapr/tests/integration/framework"
 	fclient "github.com/dapr/dapr/tests/integration/framework/client"
+<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	prochttp "github.com/dapr/dapr/tests/integration/framework/process/http"
 	"github.com/dapr/dapr/tests/integration/framework/process/http/app"
@@ -129,7 +136,11 @@ func (r *registrationRetry) Run(t *testing.T, ctx context.Context) {
 	// workflow proves it.
 	t.Run("its tools are usable", func(t *testing.T) {
 		httpClient := fclient.HTTP(t)
+<<<<<<< HEAD
 		taskhubClient := dtclient.NewTaskHubGrpcClient(r.daprd.GRPCConn(t, ctx), logger.New(t))
+=======
+		taskhubClient := dtclient.NewTaskHubGrpcClient(r.daprd.GRPCConn(t, ctx), backend.DefaultLogger())
+>>>>>>> upstream/release-1.18
 
 		instanceID := httpapi.Start(t, ctx, httpClient, r.daprd.HTTPPort(),
 			mcpnames.MCPListToolsWorkflowName("flaky"), map[string]any{})

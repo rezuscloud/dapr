@@ -30,7 +30,10 @@ import (
 	"github.com/dapr/dapr/tests/integration/framework/os"
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
+<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/statestore"
 	"github.com/dapr/dapr/tests/integration/framework/process/statestore/fault"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
@@ -60,6 +63,7 @@ func (l *loadretry) Setup(t *testing.T) []framework.Option {
 		statestore.WithStateStore(l.store),
 	)
 
+<<<<<<< HEAD
 	sen := sentry.New(t)
 	l.sched = scheduler.New(t,
 		scheduler.WithSentry(sen),
@@ -68,6 +72,11 @@ func (l *loadretry) Setup(t *testing.T) []framework.Option {
 
 	l.workflow = workflow.New(t,
 		workflow.WithSentryInstance(sen),
+=======
+	l.sched = scheduler.New(t)
+
+	l.workflow = workflow.New(t,
+>>>>>>> upstream/release-1.18
 		workflow.WithNoDB(),
 		workflow.WithSchedulerInstance(l.sched),
 		workflow.WithDaprdOptions(0,
@@ -88,7 +97,11 @@ spec:
 	)
 
 	return []framework.Option{
+<<<<<<< HEAD
 		framework.WithProcesses(sen, l.sched, l.ss, l.workflow),
+=======
+		framework.WithProcesses(l.sched, l.ss, l.workflow),
+>>>>>>> upstream/release-1.18
 	}
 }
 

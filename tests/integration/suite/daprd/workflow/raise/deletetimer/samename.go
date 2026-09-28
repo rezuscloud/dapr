@@ -23,7 +23,10 @@ import (
 
 	"github.com/dapr/dapr/tests/integration/framework"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
+<<<<<<< HEAD
 	fworkflow "github.com/dapr/dapr/tests/integration/framework/workflow"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/suite"
 	"github.com/dapr/durabletask-go/task"
 )
@@ -66,14 +69,28 @@ func (d *samename) Run(t *testing.T, ctx context.Context) {
 	require.NoError(t, err)
 
 	assert.EventuallyWithT(t, func(c *assert.CollectT) {
+<<<<<<< HEAD
 		fworkflow.AssertScheduledTimers(t, c, ctx, d.workflow, false, "timer-0")
+=======
+		keys := d.workflow.Scheduler().ListAllKeys(t, ctx, "dapr/jobs")
+		if assert.Len(c, keys, 1) {
+			assert.Contains(c, keys[0], "timer-0")
+		}
+>>>>>>> upstream/release-1.18
 	}, time.Second*20, 10*time.Millisecond)
 
 	// First event: cancels timer-0, arms the second wait (timer-1).
 	require.NoError(t, cl.RaiseEvent(ctx, id, "bar"))
 
 	assert.EventuallyWithT(t, func(c *assert.CollectT) {
+<<<<<<< HEAD
 		fworkflow.AssertScheduledTimers(t, c, ctx, d.workflow, true, "timer-1")
+=======
+		keys := d.workflow.Scheduler().ListAllKeys(t, ctx, "dapr/jobs")
+		if assert.Len(c, keys, 1) {
+			assert.Contains(c, keys[0], "timer-1")
+		}
+>>>>>>> upstream/release-1.18
 	}, time.Second*20, 10*time.Millisecond)
 
 	// Second event: must cancel timer-1, not re-target the long-gone timer-0
@@ -81,7 +98,14 @@ func (d *samename) Run(t *testing.T, ctx context.Context) {
 	require.NoError(t, cl.RaiseEvent(ctx, id, "bar"))
 
 	assert.EventuallyWithT(t, func(c *assert.CollectT) {
+<<<<<<< HEAD
 		fworkflow.AssertScheduledTimers(t, c, ctx, d.workflow, true, "timer-2")
+=======
+		keys := d.workflow.Scheduler().ListAllKeys(t, ctx, "dapr/jobs")
+		if assert.Len(c, keys, 1) {
+			assert.Contains(c, keys[0], "timer-2")
+		}
+>>>>>>> upstream/release-1.18
 	}, time.Second*20, 10*time.Millisecond)
 
 	require.NoError(t, cl.RaiseEvent(ctx, id, "bar"))

@@ -26,7 +26,10 @@ import (
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/continueasnew"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/crossapp"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/dedup"
+<<<<<<< HEAD
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/detached"
+=======
+>>>>>>> upstream/release-1.18
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/disk"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/executionid"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/externalevent"
@@ -52,6 +55,7 @@ import (
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/retries"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/reuseid"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler"
+<<<<<<< HEAD
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/activityv2"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/activityv2/escalationreap"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/activityv2/handoff"
@@ -60,6 +64,9 @@ import (
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/pendingstart"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/startdriver"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/wakev2"
+=======
+	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/scheduler/pendingstart"
+>>>>>>> upstream/release-1.18
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/security"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/signing"
 	_ "github.com/dapr/dapr/tests/integration/suite/daprd/workflow/starttime"

@@ -17,7 +17,10 @@ import (
 	"context"
 	"strings"
 	"testing"
+<<<<<<< HEAD
 	"time"
+=======
+>>>>>>> upstream/release-1.18
 
 	"github.com/stretchr/testify/require"
 
@@ -44,10 +47,14 @@ type maxbodysize struct {
 }
 
 func (m *maxbodysize) Setup(t *testing.T) []framework.Option {
+<<<<<<< HEAD
 	m.workflow = workflow.NewClustered(t, 2,
 		daprd.WithMaxBodySize("1Mi"),
 		daprd.WithWorkflowJanitorPeriod(t, time.Millisecond*500),
 	)
+=======
+	m.workflow = workflow.NewClustered(t, 2, daprd.WithMaxBodySize("1Mi"))
+>>>>>>> upstream/release-1.18
 
 	return []framework.Option{
 		framework.WithProcesses(m.workflow),

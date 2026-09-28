@@ -25,6 +25,11 @@ import (
 	"github.com/dapr/dapr/pkg/security/spiffe"
 )
 
+<<<<<<< HEAD
+=======
+const workflowACLDeniedMsg = "access denied by workflow access policy"
+
+>>>>>>> upstream/release-1.18
 // Per-operation enforcement happens inside the actor itself (orchestrator /
 // activity targets) so the workflow name is resolved against locked state
 // without a TOCTOU race. This handler only authenticates the caller and

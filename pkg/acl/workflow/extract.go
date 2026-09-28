@@ -22,7 +22,10 @@ import (
 
 	wfaclapi "github.com/dapr/dapr/pkg/apis/workflowaccesspolicy/v1alpha1"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/todo"
+<<<<<<< HEAD
 	"github.com/dapr/durabletask-go/api/protos"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/durabletask-go/backend"
 )
 
@@ -74,7 +77,11 @@ func WorkflowOperationFromMethod(method string, parsedAddEvent *backend.HistoryE
 		}
 		return operationFromHistoryEvent(parsedAddEvent)
 
+<<<<<<< HEAD
 	case todo.PurgeWorkflowStateMethod, todo.RecursivePurgeWorkflowStateMethod:
+=======
+	case todo.PurgeWorkflowStateMethod:
+>>>>>>> upstream/release-1.18
 		return wfaclapi.WorkflowOperationPurge, nil
 
 	case todo.WaitForRuntimeStatus:
@@ -88,6 +95,7 @@ func WorkflowOperationFromMethod(method string, parsedAddEvent *backend.HistoryE
 	}
 }
 
+<<<<<<< HEAD
 // ActivityNameFromExecute returns the activity name and (optionally) the
 // propagated history from an Execute method payload. Activities are
 // dispatched either as a raw HistoryEvent (legacy) or wrapped in an
@@ -108,10 +116,19 @@ func ActivityNameFromExecute(method string, data []byte) (string, *protos.Propag
 			return "", nil, errors.New("activity HistoryEvent missing TaskScheduled")
 		}
 		return ts.GetName(), invocation.GetPropagatedHistory(), nil
+=======
+// ActivityNameFromExecute returns the activity name from an Execute method
+// payload. An empty name with nil error means the method is not Execute
+// (no other activity methods are subject to access control).
+func ActivityNameFromExecute(method string, data []byte) (string, error) {
+	if method != todo.ExecuteActivityMethod {
+		return "", nil
+>>>>>>> upstream/release-1.18
 	}
 
 	var his backend.HistoryEvent
 	if err := proto.Unmarshal(data, &his); err != nil {
+<<<<<<< HEAD
 		return "", nil, fmt.Errorf("failed to unmarshal activity HistoryEvent: %w", err)
 	}
 	ts := his.GetTaskScheduled()
@@ -133,6 +150,27 @@ func WorkflowNameFromCreateRequest(data []byte) (string, *protos.PropagatedHisto
 		return "", nil, errors.New("CreateWorkflowInstanceRequest missing ExecutionStarted event")
 	}
 	return es.GetName(), req.GetPropagatedHistory(), nil
+=======
+		return "", fmt.Errorf("failed to unmarshal activity HistoryEvent: %w", err)
+	}
+	ts := his.GetTaskScheduled()
+	if ts == nil {
+		return "", errors.New("activity HistoryEvent missing TaskScheduled")
+	}
+	return ts.GetName(), nil
+}
+
+func WorkflowNameFromCreateRequest(data []byte) (string, error) {
+	var req backend.CreateWorkflowInstanceRequest
+	if err := proto.Unmarshal(data, &req); err != nil {
+		return "", fmt.Errorf("failed to unmarshal CreateWorkflowInstanceRequest: %w", err)
+	}
+	es := req.GetStartEvent().GetExecutionStarted()
+	if es == nil {
+		return "", errors.New("CreateWorkflowInstanceRequest missing ExecutionStarted event")
+	}
+	return es.GetName(), nil
+>>>>>>> upstream/release-1.18
 }
 
 func operationFromHistoryEvent(ev *backend.HistoryEvent) (wfaclapi.WorkflowOperation, error) {

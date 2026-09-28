@@ -20,16 +20,24 @@ import (
 	"testing"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/google/uuid"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
 	"github.com/dapr/dapr/tests/integration/framework"
+<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
+=======
+	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
+	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 	"github.com/dapr/dapr/tests/integration/suite"
 	"github.com/dapr/durabletask-go/api"
@@ -47,6 +55,7 @@ type terminatecascade struct {
 }
 
 func (c *terminatecascade) Setup(t *testing.T) []framework.Option {
+<<<<<<< HEAD
 	appID := uuid.New().String()
 	sen := sentry.New(t)
 	c.scheduler = scheduler.New(t,
@@ -58,12 +67,22 @@ func (c *terminatecascade) Setup(t *testing.T) []framework.Option {
 	c.workflow = workflow.New(t,
 		workflow.WithSentryInstance(sen),
 		workflow.WithDaprdOptions(0, daprd.WithAppID(appID)),
+=======
+	c.scheduler = scheduler.New(t)
+	c.proxy = proxy.New(t, c.scheduler)
+
+	c.workflow = workflow.New(t,
+>>>>>>> upstream/release-1.18
 		workflow.WithSchedulerInstance(c.scheduler),
 		workflow.WithSchedulerAddress(c.proxy.Address()),
 	)
 
 	return []framework.Option{
+<<<<<<< HEAD
 		framework.WithProcesses(sen, c.scheduler, c.proxy, c.workflow),
+=======
+		framework.WithProcesses(c.scheduler, c.proxy, c.workflow),
+>>>>>>> upstream/release-1.18
 	}
 }
 

@@ -56,6 +56,7 @@ func (f *factory) createActivityReminder(ctx context.Context, actorID string, in
 
 	// The activity actor should always create reminders for its own actor type
 	// and ID
+<<<<<<< HEAD
 	return common.CreateReminderWithRetry(ctx, f.reminders, &actorapi.CreateReminderRequest{
 		ActorType: f.actorType,
 		ActorID:   actorID,
@@ -63,6 +64,22 @@ func (f *factory) createActivityReminder(ctx context.Context, actorID string, in
 		Name:      activityReminderName,
 		// One shot, retry forever, jittered interval.
 		FailurePolicy:  common.RetryForeverPolicy(),
+=======
+	return common.CreateReminderWithRetry(ctx, a.reminders, &actorapi.CreateReminderRequest{
+		ActorType: a.actorType,
+		ActorID:   a.actorID,
+		DueTime:   dueTime.Format(time.RFC3339Nano),
+		Name:      reminderName,
+		// One shot, retry forever, every second.
+		FailurePolicy: &commonv1pb.JobFailurePolicy{
+			Policy: &commonv1pb.JobFailurePolicy_Constant{
+				Constant: &commonv1pb.JobFailurePolicyConstant{
+					Interval:   durationpb.New(time.Second),
+					MaxRetries: nil,
+				},
+			},
+		},
+>>>>>>> upstream/release-1.18
 		Data:           anydata,
 		ConcurrencyKey: activityName,
 	})

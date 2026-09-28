@@ -370,6 +370,7 @@ func testResiliencyExhaustion(t *testing.T, publisherExternalURL, subscriberExte
 	_ = sentMessages
 
 	// After exhaustion, messages should be ACK'd and dropped. The wait is
+<<<<<<< HEAD
 	// comfortably longer than the pubsubRetry budget (maxRetries=5 at 1s,
 	// plus a 1-3s broker redelivery cycle per attempt); this assertion only
 	// requires that the messages are not delivered to the app, which holds
@@ -377,6 +378,13 @@ func testResiliencyExhaustion(t *testing.T, publisherExternalURL, subscriberExte
 	// beyond the wait are flushed by the next scenario's backlog drain.
 	log.Printf("Waiting for resiliency policy to exhaust retries...")
 	time.Sleep(20 * time.Second)
+=======
+	// comfortably longer than the pubsubRetry budget (maxRetries=5); this
+	// assertion only requires that the messages are not delivered to the
+	// app, which holds whether they are still retrying or already dropped.
+	log.Printf("Waiting for resiliency policy to exhaust retries...")
+	time.Sleep(65 * time.Second)
+>>>>>>> upstream/release-1.18
 
 	log.Printf("Validating messages were dropped after retry exhaustion...")
 	validateMessagesReceivedBySubscriber(t, publisherExternalURL, subscriberAppName, protocol, false, receivedMessagesResponse{
@@ -513,7 +521,11 @@ func testValidateRedeliveryOrEmptyJSON(t *testing.T, publisherExternalURL, subsc
 			got, err := subscriberReceivedDeadLetterCount(publisherExternalURL, subscriberAppName, protocol, podEndpoints)
 			assert.NoError(c, err, "error calling subscriber to get dead letter count")
 			assert.Equal(c, len(sentMessages.ReceivedByTopicDeadLetter), got)
+<<<<<<< HEAD
 		}, 300*time.Second, time.Second,
+=======
+		}, 300*time.Second, 5*time.Second,
+>>>>>>> upstream/release-1.18
 			"subscriber did not receive all dead letter messages within timeout")
 
 		// Now flip to success so the non-dead-letter topics (a/b/c/raw)
@@ -549,8 +561,12 @@ func testValidateRedeliveryOrEmptyJSON(t *testing.T, publisherExternalURL, subsc
 			ReceivedByTopicDead: []string{},
 		}, podEndpoints)
 	} else {
+<<<<<<< HEAD
 		// validate redelivery of messages (retry / invalid-status cases); the
 		// validation polls until the redelivered counts converge
+=======
+		// validate redelivery of messages (retry / invalid-status cases)
+>>>>>>> upstream/release-1.18
 		log.Printf("Validating redelivered messages...")
 		validateMessagesReceivedBySubscriber(t, publisherExternalURL, subscriberAppName, protocol, false, sentMessages, podEndpoints)
 	}
@@ -659,6 +675,7 @@ func drainSubscriberBacklog(t *testing.T, publisherExternalURL, subscriberAppNam
 			stable = 0
 			last = got
 		}
+<<<<<<< HEAD
 		// Eight consecutive quiet polls (~8s) with no new arrivals means the
 		// broker has no more in-flight redeliveries to hand us: with the
 		// subscriber in success mode the gap between redelivery waves is
@@ -666,6 +683,12 @@ func drainSubscriberBacklog(t *testing.T, publisherExternalURL, subscriberAppNam
 		// quiet window several times that is a drained backlog.
 		return stable >= 8
 	}, 180*time.Second, time.Second, "subscriber backlog did not drain before scenario start")
+=======
+		// Three consecutive quiet polls (~15s) with no new arrivals means
+		// the broker has no more in-flight redeliveries to hand us.
+		return stable >= 3
+	}, 180*time.Second, 5*time.Second, "subscriber backlog did not drain before scenario start")
+>>>>>>> upstream/release-1.18
 }
 
 func validateBulkMessagesReceivedBySubscriber(t *testing.T, publisherExternalURL string, subscriberApp string, protocol string, sentMessages receivedMessagesResponse, podEndpoints []string) {

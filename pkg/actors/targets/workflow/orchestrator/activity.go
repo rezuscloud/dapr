@@ -35,12 +35,16 @@ import (
 	dtdedup "github.com/dapr/durabletask-go/backend/runtimestate/dedup"
 )
 
+<<<<<<< HEAD
 // callActivities dispatches the pending TaskScheduled events. elide is the
 // caller's certification that the janitor backstop is armed, allowing target
 // hosts running the WorkflowsFastPath preview to skip the
 // durable run-activity reminder; callers that cannot certify it (gate off,
 // janitor create failed) pass false.
 func (o *orchestrator) callActivities(ctx context.Context, es []*backend.HistoryEvent, state *wfenginestate.State, rs *backend.WorkflowRuntimeState, outgoingHistory map[int32]*protos.PropagatedHistory, elide bool) messages.DispatchResult {
+=======
+func (o *orchestrator) callActivities(ctx context.Context, es []*backend.HistoryEvent, state *wfenginestate.State, rs *backend.WorkflowRuntimeState, outgoingHistory map[int32]*protos.PropagatedHistory) messages.DispatchResult {
+>>>>>>> upstream/release-1.18
 	var dueTime time.Time
 	if len(state.History) > 0 {
 		dueTime = state.History[0].GetTimestamp().AsTime()
@@ -64,7 +68,11 @@ func (o *orchestrator) callActivities(ctx context.Context, es []*backend.History
 			continue
 		}
 
+<<<<<<< HEAD
 		err := o.callActivity(ctx, e, dueTime, outgoingHistory[e.GetEventId()], workflowName, elide, false)
+=======
+		err := o.callActivity(ctx, e, dueTime, state.Generation, outgoingHistory[e.GetEventId()], workflowName)
+>>>>>>> upstream/release-1.18
 		if err != nil {
 			if errors.Is(err, todo.ErrDuplicateInvocation) {
 				log.Warnf("Workflow actor '%s': activity invocation '%s::%d' was flagged as a duplicate and will be skipped", o.actorID, e.GetTaskScheduled().GetName(), e.GetEventId())
@@ -79,7 +87,11 @@ func (o *orchestrator) callActivities(ctx context.Context, es []*backend.History
 	return result
 }
 
+<<<<<<< HEAD
 func (o *orchestrator) callActivity(ctx context.Context, e *backend.HistoryEvent, dueTime time.Time, ph *protos.PropagatedHistory, workflowName string, elide, redispatch bool) error {
+=======
+func (o *orchestrator) callActivity(ctx context.Context, e *backend.HistoryEvent, dueTime time.Time, generation uint64, ph *protos.PropagatedHistory, workflowName string) error {
+>>>>>>> upstream/release-1.18
 	ts := e.GetTaskScheduled()
 	if ts == nil {
 		log.Warnf("Workflow actor '%s': unable to process task '%v'", o.actorID, e)
@@ -116,6 +128,7 @@ func (o *orchestrator) callActivity(ctx context.Context, e *backend.HistoryEvent
 
 	log.Debugf("Workflow actor '%s': invoking execute method on activity actor '%s||%s'", o.actorID, activityActorType, targetActorID)
 
+<<<<<<< HEAD
 	meta := map[string][]string{
 		todo.MetadataActivityReminderDueTime: {strconv.FormatInt(dueTime.UnixMilli(), 10)},
 	}
@@ -132,6 +145,8 @@ func (o *orchestrator) callActivity(ctx context.Context, e *backend.HistoryEvent
 		defer cancel()
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	_, err = o.router.Call(ctx, internalsv1pb.
 		NewInternalInvokeRequest(todo.ExecuteActivityMethod).
 		WithActor(activityActorType, targetActorID).
@@ -161,9 +176,28 @@ func (o *orchestrator) callActivity(ctx context.Context, e *backend.HistoryEvent
 // the activity call is rejected by a WorkflowAccessPolicy. Uses a reminder to
 // deliver the event in a fresh execution cycle.
 func (o *orchestrator) failActivityACL(ctx context.Context, e *backend.HistoryEvent) error {
+<<<<<<< HEAD
 	return o.failTaskViaReminder(ctx, &protos.HistoryEvent{
 		EventType: events.NewTaskFailedEventType(e.GetEventId(), messages.ErrorTypeAccessPolicyDenied, messages.ErrorMessageAccessPolicyDenied, false),
 	})
+=======
+	failedEvent := &protos.HistoryEvent{
+		EventId:   -1,
+		Timestamp: timestamppb.New(time.Now()),
+		Router:    &protos.TaskRouter{SourceAppID: o.appID},
+		EventType: events.NewTaskFailedEventType(e.GetEventId(), messages.ErrorTypeAccessPolicyDenied, messages.ErrorMessageAccessPolicyDenied, false),
+	}
+
+	reminderName, err := randomReminderName(common.ReminderPrefixActivityResult)
+	if err != nil {
+		return fmt.Errorf("failed to create activity failure reminder: %w", err)
+	}
+	if err := o.createWorkflowReminder(ctx, reminderName, failedEvent, time.Now(), o.appID, nil); err != nil {
+		return fmt.Errorf("failed to create activity failure reminder: %w", err)
+	}
+
+	return nil
+>>>>>>> upstream/release-1.18
 }
 
 func buildActivityActorID(workflowID string, taskID int32) string {

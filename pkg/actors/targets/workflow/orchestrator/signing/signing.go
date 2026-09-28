@@ -48,8 +48,11 @@ type Signing struct {
 func (s *Signing) Reset() {
 	s.certVerifyCache.Clear()
 }
+<<<<<<< HEAD
 
 // Enabled reports whether propagated-history signing is active.
 func (s *Signing) Enabled() bool {
 	return s != nil && s.Signer != nil
 }
+=======
+>>>>>>> upstream/release-1.18

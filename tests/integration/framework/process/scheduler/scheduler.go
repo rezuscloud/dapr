@@ -637,6 +637,21 @@ func (s *Scheduler) ListAllKeys(t *testing.T, ctx context.Context, prefix string
 	return resp
 }
 
+<<<<<<< HEAD
+=======
+// JobKeyCount returns the number of scheduler job keys containing substr.
+func (s *Scheduler) JobKeyCount(t *testing.T, ctx context.Context, substr string) int {
+	t.Helper()
+	var n int
+	for _, key := range s.ListAllKeys(t, ctx, "dapr/jobs") {
+		if strings.Contains(key, substr) {
+			n++
+		}
+	}
+	return n
+}
+
+>>>>>>> upstream/release-1.18
 // WaitJobKeyCount polls the number of job keys containing substr until cond
 // holds, failing after 20 seconds. It polls on the calling goroutine so the
 // assertions inside JobKeyCount never run after the test has finished.

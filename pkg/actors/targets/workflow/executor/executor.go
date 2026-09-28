@@ -17,14 +17,12 @@ import (
 	"context"
 	"errors"
 	"sync"
-	"sync/atomic"
 
 	"github.com/cenkalti/backoff/v4"
 	"google.golang.org/grpc/codes"
 
 	actorapi "github.com/dapr/dapr/pkg/actors/api"
 	targeterrors "github.com/dapr/dapr/pkg/actors/targets/errors"
-	"github.com/dapr/dapr/pkg/actors/targets/workflow/common/lock"
 	commonv1pb "github.com/dapr/dapr/pkg/proto/common/v1"
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 	"github.com/dapr/kit/logger"
@@ -33,22 +31,44 @@ import (
 var log = logger.NewLogger("dapr.runtime.actors.targets.executor")
 
 const (
+	// MethodRegister arms the actor for the next work item; called before the
+	// work item is dispatched so an early completion is parked for the
+	// watcher and an unregistered one is dropped.
+	MethodRegister      = "Register"
 	MethodComplete      = "Complete"
 	MethodCancel        = "Cancel"
 	MethodClaim         = "Claim"
 	MethodWatchComplete = "WatchComplete"
 )
 
+// executor rendezvouses a work item's waiter with the completion the app
+// reports, which may arrive on any daprd. Completions carry only the instance
+// ID, so a waiter registers before its work item is dispatched: the
+// registration discards any completion left behind by a superseded execution
+// and the next completion is held for it. A watcher that attaches without
+// registering (a daprd predating Register) takes whatever is parked, as
+// before.
 type executor struct {
 	*factory
 	actorID string
-	lock    *lock.Lock
 
-	closeCh    chan struct{}
-	completeCh chan *internalsv1pb.InternalInvokeResponse
-	cancelCh   chan struct{}
+	// mu guards the fields below except watchLock and wg.
+	mu sync.Mutex
+
+	closed  bool
+	closeCh chan struct{}
+
+	// epoch changes on every Register so a superseded watcher does not tear
+	// down the newer registration on exit.
+	epoch     uint64
+	armed     bool
+	parked    *internalsv1pb.InternalInvokeResponse
+	cancelled bool
+	// watcher is the attached WatchComplete stream's delivery channel.
+	watcher chan *internalsv1pb.InternalInvokeResponse
 
 	watchLock chan struct{}
+<<<<<<< HEAD
 
 	// displaced holds a parked completion of the colliding other task type
 	// that a claim drained from completeCh. It cannot be put back on the
@@ -70,6 +90,9 @@ type executor struct {
 	closed       atomic.Bool
 	cancelClosed atomic.Bool
 	wg           sync.WaitGroup
+=======
+	wg        sync.WaitGroup
+>>>>>>> upstream/release-1.18
 }
 
 func (e *executor) InvokeMethod(ctx context.Context, req *internalsv1pb.InternalInvokeRequest) (*internalsv1pb.InternalInvokeResponse, error) {
@@ -87,8 +110,14 @@ func (e *executor) InvokeMethod(ctx context.Context, req *internalsv1pb.Internal
 	defer e.wg.Done()
 
 	switch req.GetMessage().GetMethod() {
+	case MethodRegister:
+		return nil, e.register()
 	case MethodComplete:
+<<<<<<< HEAD
 		run, err = e.complete(ctx, req)
+=======
+		return nil, e.complete(req)
+>>>>>>> upstream/release-1.18
 	case MethodCancel:
 		run, err = e.cancel(req)
 	case MethodClaim:
@@ -100,12 +129,36 @@ func (e *executor) InvokeMethod(ctx context.Context, req *internalsv1pb.Internal
 	return res, err
 }
 
+<<<<<<< HEAD
 func (e *executor) complete(ctx context.Context, req *internalsv1pb.InternalInvokeRequest) (func(), error) {
 	taskType := taskTypeOf(req, e.actorID)
 
 	// The task type header lets a watcher of the colliding other task type
 	// (a workflow instance ID equal to an activity actor ID) reject a
 	// completion that is not for it; pre-upgrade watchers ignore it.
+=======
+func (e *executor) register() error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	if e.closed {
+		return targeterrors.NewClosed("executor")
+	}
+
+	if e.parked != nil {
+		log.Warnf("Executor actor '%s': discarding a parked completion that no waiter collected before a new registration", e.actorID)
+		e.parked = nil
+	}
+
+	e.epoch++
+	e.armed = true
+	e.cancelled = false
+
+	return nil
+}
+
+func (e *executor) complete(req *internalsv1pb.InternalInvokeRequest) error {
+>>>>>>> upstream/release-1.18
 	d := &internalsv1pb.InternalInvokeResponse{
 		Status: &internalsv1pb.Status{
 			Code: int32(codes.OK),
@@ -118,6 +171,7 @@ func (e *executor) complete(ctx context.Context, req *internalsv1pb.InternalInvo
 		},
 	}
 
+<<<<<<< HEAD
 	// The waiter for this task normally lives on this host (it shares this
 	// actor's ID, so placement co-locates them) and is registered in the
 	// process-local pending map: deliver in-process. A callback waiter's
@@ -197,9 +251,38 @@ func (e *executor) complete(ctx context.Context, req *internalsv1pb.InternalInvo
 		return nil, targeterrors.NewClosed("executor")
 	case <-ctx.Done():
 		return nil, errors.New("context cancelled before completion result was sent")
+=======
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	if e.closed {
+		return targeterrors.NewClosed("executor")
+>>>>>>> upstream/release-1.18
 	}
+
+	switch {
+	case e.watcher != nil:
+		select {
+		case e.watcher <- d:
+		default:
+			log.Warnf("Executor actor '%s': dropping duplicate completion, the attached waiter already holds one", e.actorID)
+		}
+	case e.parked != nil:
+		log.Warnf("Executor actor '%s': dropping duplicate completion, one is already parked", e.actorID)
+	case e.armed:
+		e.parked = d
+	default:
+		// Nothing registered: a superseded execution's completion, which the
+		// next registration discards, or one for a watcher that does not
+		// register, which takes it.
+		log.Warnf("Executor actor '%s': parking completion with no registered waiter", e.actorID)
+		e.parked = d
+	}
+
+	return nil
 }
 
+<<<<<<< HEAD
 // claim hands a parked completion to a co-located waiter whose pending-map
 // registration lost the race with the completion RPC: complete() found no
 // waiter and parked the payload in completeCh, which the pending map never
@@ -340,6 +423,26 @@ func (e *executor) tryDeactivate() {
 	case e.deactivateCh <- e:
 	default:
 	}
+=======
+func (e *executor) cancel() error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	if e.closed {
+		return targeterrors.NewClosed("executor")
+	}
+
+	if e.watcher != nil {
+		select {
+		case e.watcher <- abortedResponse():
+		default:
+		}
+	} else {
+		e.cancelled = true
+	}
+
+	return nil
+>>>>>>> upstream/release-1.18
 }
 
 func (e *executor) InvokeReminder(ctx context.Context, reminder *actorapi.Reminder) error {
@@ -350,11 +453,18 @@ func (e *executor) InvokeTimer(ctx context.Context, reminder *actorapi.Reminder)
 	return errors.New("timers are not implemented")
 }
 
+// Deactivate closes the actor unconditionally (halt or rebalance); an attached
+// watcher aborts its turn.
 func (e *executor) Deactivate(_ context.Context) error {
-	if !e.closed.CompareAndSwap(false, true) {
+	e.mu.Lock()
+	if e.closed {
+		e.mu.Unlock()
 		return nil
 	}
+	e.close()
+	e.mu.Unlock()
 
+<<<<<<< HEAD
 	// Close under mu so complete's closed-check-then-park cannot straddle
 	// the close and strand a payload in a deactivated actor. wg.Wait stays
 	// outside: in-flight invocations hold wg and may be waiting on mu.
@@ -362,8 +472,43 @@ func (e *executor) Deactivate(_ context.Context) error {
 	close(e.closeCh)
 	e.table.Delete(e.actorID)
 	e.mu.Unlock()
+=======
+>>>>>>> upstream/release-1.18
 	e.wg.Wait()
 	return nil
+}
+
+// deactivateIfIdle closes the actor unless a waiter is armed or attached or a
+// completion is parked. A caller that loaded the actor just before the close
+// gets a closed error and is retried onto a fresh one by the router.
+func (e *executor) deactivateIfIdle() {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	if e.closed || e.armed || e.watcher != nil || e.parked != nil {
+		return
+	}
+	e.close()
+}
+
+// close must be called with mu held.
+func (e *executor) close() {
+	e.closed = true
+	close(e.closeCh)
+	e.table.CompareAndDelete(e.actorID, e)
+}
+
+func (e *executor) isClosed() bool {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	return e.closed
+}
+
+// requestDeactivate queues an idle deactivation. The send blocks on a full
+// queue so every idle actor is examined; the drain goroutine never waits on
+// the caller, so this cannot deadlock.
+func (e *executor) requestDeactivate() {
+	e.deactivateCh <- e
 }
 
 func (e *executor) InvokeStream(ctx context.Context,
@@ -381,6 +526,7 @@ func (e *executor) InvokeStream(ctx context.Context,
 	}
 }
 
+<<<<<<< HEAD
 func (e *executor) watchComplete(ctx context.Context, req *internalsv1pb.InternalInvokeRequest, stream func(*internalsv1pb.InternalInvokeResponse) (bool, error)) error {
 	defer func() {
 		// A displaced completion still needs the actor alive for its own
@@ -395,10 +541,13 @@ func (e *executor) watchComplete(ctx context.Context, req *internalsv1pb.Interna
 		}
 	}()
 
+=======
+func (e *executor) watchComplete(ctx context.Context, stream func(*internalsv1pb.InternalInvokeResponse) (bool, error)) error {
+>>>>>>> upstream/release-1.18
 	select {
 	case e.watchLock <- struct{}{}:
 	case <-e.closeCh:
-		return backoff.Permanent(errors.New("closed"))
+		return targeterrors.NewClosed("executor")
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -406,6 +555,7 @@ func (e *executor) watchComplete(ctx context.Context, req *internalsv1pb.Interna
 		<-e.watchLock
 	}()
 
+<<<<<<< HEAD
 	// A completion displaced by a wrong-type claim never reaches the channel
 	// select below: hand it to the first watcher whose advertised type
 	// matches. A watcher advertising no type (a pre-upgrade daprd) takes
@@ -423,23 +573,80 @@ func (e *executor) watchComplete(ctx context.Context, req *internalsv1pb.Interna
 			return err
 		}
 	}
+=======
+	e.mu.Lock()
+	if e.closed {
+		e.mu.Unlock()
+		return targeterrors.NewClosed("executor")
+	}
+
+	// Attaching arms the actor, so a watcher that never called Register works
+	// as before.
+	e.armed = true
+	epoch := e.epoch
+
+	var ch chan *internalsv1pb.InternalInvokeResponse
+	defer func() {
+		e.mu.Lock()
+		if e.epoch == epoch {
+			e.watcher = nil
+			e.armed = false
+			e.parked = nil
+			e.cancelled = false
+		} else if e.watcher == ch {
+			// Superseded by a Register while still attached: a completion that
+			// landed on this stream in the meantime belongs to the new
+			// registration.
+			e.watcher = nil
+			select {
+			case d := <-ch:
+				if e.parked == nil {
+					e.parked = d
+				}
+			default:
+			}
+		}
+		e.mu.Unlock()
+		e.requestDeactivate()
+	}()
+
+	if e.cancelled {
+		e.cancelled = false
+		e.mu.Unlock()
+		_, err := stream(abortedResponse())
+		return err
+	}
+
+	if d := e.parked; d != nil {
+		e.parked = nil
+		e.mu.Unlock()
+		_, err := stream(d)
+		return err
+	}
+
+	ch = make(chan *internalsv1pb.InternalInvokeResponse, 1)
+	e.watcher = ch
+>>>>>>> upstream/release-1.18
 	e.mu.Unlock()
 
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
 	case <-e.closeCh:
+		// Only a halt closes an actor with an attached watcher; abort the turn
+		// rather than retry against a moved actor.
 		return backoff.Permanent(errors.New("closed"))
-	case <-e.cancelCh:
-		_, err := stream(&internalsv1pb.InternalInvokeResponse{
-			Status: &internalsv1pb.Status{
-				Code: int32(codes.Aborted),
-			},
-		})
-		return err
-	case d := <-e.completeCh:
+	case d := <-ch:
 		_, err := stream(d)
 		return err
+	}
+}
+
+func abortedResponse() *internalsv1pb.InternalInvokeResponse {
+	return &internalsv1pb.InternalInvokeResponse{
+		Status: &internalsv1pb.Status{
+			Code: int32(codes.Aborted),
+		},
 	}
 }
 

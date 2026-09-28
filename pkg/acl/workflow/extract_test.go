@@ -113,11 +113,14 @@ func TestWorkflowOperationFromMethod(t *testing.T) {
 			wantOp: wfaclapi.WorkflowOperationPurge,
 		},
 		{
+<<<<<<< HEAD
 			name:   "RecursivePurgeWorkflowState is purge",
 			method: "RecursivePurgeWorkflowState",
 			wantOp: wfaclapi.WorkflowOperationPurge,
 		},
 		{
+=======
+>>>>>>> upstream/release-1.18
 			name:   "WaitForRuntimeStatus is get",
 			method: "WaitForRuntimeStatus",
 			wantOp: wfaclapi.WorkflowOperationGet,
@@ -186,13 +189,21 @@ func TestWorkflowNameFromCreateRequest(t *testing.T) {
 		data, err := proto.Marshal(req)
 		require.NoError(t, err)
 
+<<<<<<< HEAD
 		name, _, err := WorkflowNameFromCreateRequest(data)
+=======
+		name, err := WorkflowNameFromCreateRequest(data)
+>>>>>>> upstream/release-1.18
 		require.NoError(t, err)
 		assert.Equal(t, "ProcessOrder", name)
 	})
 
 	t.Run("invalid payload errors", func(t *testing.T) {
+<<<<<<< HEAD
 		_, _, err := WorkflowNameFromCreateRequest([]byte("garbage"))
+=======
+		_, err := WorkflowNameFromCreateRequest([]byte("garbage"))
+>>>>>>> upstream/release-1.18
 		require.Error(t, err)
 	})
 
@@ -203,13 +214,21 @@ func TestWorkflowNameFromCreateRequest(t *testing.T) {
 		data, err := proto.Marshal(req)
 		require.NoError(t, err)
 
+<<<<<<< HEAD
 		_, _, err = WorkflowNameFromCreateRequest(data)
+=======
+		_, err = WorkflowNameFromCreateRequest(data)
+>>>>>>> upstream/release-1.18
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "ExecutionStarted")
 	})
 
 	t.Run("empty payload errors with missing ExecutionStarted", func(t *testing.T) {
+<<<<<<< HEAD
 		_, _, err := WorkflowNameFromCreateRequest([]byte{})
+=======
+		_, err := WorkflowNameFromCreateRequest([]byte{})
+>>>>>>> upstream/release-1.18
 		require.Error(t, err)
 	})
 }
@@ -227,19 +246,31 @@ func TestActivityNameFromExecute(t *testing.T) {
 		data, err := proto.Marshal(ev)
 		require.NoError(t, err)
 
+<<<<<<< HEAD
 		name, _, err := ActivityNameFromExecute("Execute", data)
+=======
+		name, err := ActivityNameFromExecute("Execute", data)
+>>>>>>> upstream/release-1.18
 		require.NoError(t, err)
 		assert.Equal(t, "ChargePayment", name)
 	})
 
 	t.Run("non-Execute method is not subject", func(t *testing.T) {
+<<<<<<< HEAD
 		name, _, err := ActivityNameFromExecute("Other", nil)
+=======
+		name, err := ActivityNameFromExecute("Other", nil)
+>>>>>>> upstream/release-1.18
 		require.NoError(t, err)
 		assert.Empty(t, name)
 	})
 
 	t.Run("invalid data errors", func(t *testing.T) {
+<<<<<<< HEAD
 		_, _, err := ActivityNameFromExecute("Execute", []byte("not a protobuf"))
+=======
+		_, err := ActivityNameFromExecute("Execute", []byte("not a protobuf"))
+>>>>>>> upstream/release-1.18
 		require.Error(t, err)
 	})
 
@@ -248,7 +279,11 @@ func TestActivityNameFromExecute(t *testing.T) {
 		data, err := proto.Marshal(ev)
 		require.NoError(t, err)
 
+<<<<<<< HEAD
 		_, _, err = ActivityNameFromExecute("Execute", data)
+=======
+		_, err = ActivityNameFromExecute("Execute", data)
+>>>>>>> upstream/release-1.18
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "TaskScheduled")
 	})

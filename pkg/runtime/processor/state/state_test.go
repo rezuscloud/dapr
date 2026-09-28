@@ -211,7 +211,11 @@ func TestActorStateStore(t *testing.T) {
 		_, _, ok := compStore.GetStateStoreActor()
 		assert.False(t, ok)
 
+<<<<<<< HEAD
 		require.NoError(t, proc.Close(t.Context(), comp("plain", false)))
+=======
+		require.NoError(t, proc.Close(comp("plain", false)))
+>>>>>>> upstream/release-1.18
 		assert.Equal(t, int64(0), kicks.Load())
 	})
 
@@ -235,7 +239,11 @@ func TestActorStateStore(t *testing.T) {
 		proc, compStore := newProc(t, &kicks)
 
 		require.NoError(t, proc.Init(t.Context(), comp("mystore", true)))
+<<<<<<< HEAD
 		require.NoError(t, proc.Close(t.Context(), comp("mystore", true)))
+=======
+		require.NoError(t, proc.Close(comp("mystore", true)))
+>>>>>>> upstream/release-1.18
 
 		_, _, ok := compStore.GetStateStoreActor()
 		assert.False(t, ok)

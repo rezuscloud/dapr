@@ -131,6 +131,7 @@ func New(ctx context.Context, opts Options) (*Server, error) {
 		broadcastAddr = net.JoinHostPort(haddr, strconv.Itoa(opts.Port))
 	}
 
+<<<<<<< HEAD
 	var etcdServer etcd.Interface
 	if opts.Backend == nil || *opts.Backend == cron.BackendEtcd {
 		var err error
@@ -156,6 +157,30 @@ func New(ctx context.Context, opts Options) (*Server, error) {
 			DataDir:                    opts.EtcdDataDir,
 			Healthz:                    opts.Healthz,
 			Mode:                       opts.Mode,
+=======
+	etcd, err := etcd.New(ctx, etcd.Options{
+		Name:                       opts.EtcdName,
+		Embed:                      opts.EtcdEmbed,
+		InitialCluster:             opts.EtcdInitialCluster,
+		ClientPort:                 opts.EtcdClientPort,
+		ClientListenAddress:        opts.EtcdClientListenAddress,
+		SpaceQuota:                 opts.EtcdSpaceQuota,
+		CompactionMode:             opts.EtcdCompactionMode,
+		CompactionRetention:        opts.EtcdCompactionRetention,
+		SnapshotCount:              opts.EtcdSnapshotCount,
+		MaxSnapshots:               opts.EtcdMaxSnapshots,
+		MaxWALs:                    opts.EtcdMaxWALs,
+		BackendBatchLimit:          opts.EtcdBackendBatchLimit,
+		BackendBatchInterval:       opts.EtcdBackendBatchInterval,
+		MaxTxnOps:                  opts.EtcdMaxTxnOps,
+		DefragThresholdMB:          opts.EtcdDefragThresholdMB,
+		InitialElectionTickAdvance: opts.EtcdInitialElectionTickAdvance,
+		Metrics:                    opts.EtcdMetrics,
+		Security:                   opts.Security,
+		DataDir:                    opts.EtcdDataDir,
+		Healthz:                    opts.Healthz,
+		Mode:                       opts.Mode,
+>>>>>>> upstream/release-1.18
 
 			ClientEndpoints: opts.EtcdClientEndpoints,
 			ClientUsername:  opts.EtcdClientUsername,

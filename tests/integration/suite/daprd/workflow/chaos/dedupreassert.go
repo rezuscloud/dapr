@@ -19,7 +19,10 @@ import (
 	"testing"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/google/uuid"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -33,10 +36,15 @@ import (
 	"github.com/dapr/durabletask-go/task"
 
 	"github.com/dapr/dapr/tests/integration/framework"
+<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
+=======
+	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
+	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 	"github.com/dapr/dapr/tests/integration/suite"
 )
@@ -52,6 +60,7 @@ type dedupreassert struct {
 }
 
 func (d *dedupreassert) Setup(t *testing.T) []framework.Option {
+<<<<<<< HEAD
 	appID := uuid.New().String()
 	sen := sentry.New(t)
 	d.sched = scheduler.New(t,
@@ -63,12 +72,22 @@ func (d *dedupreassert) Setup(t *testing.T) []framework.Option {
 	d.workflow = workflow.New(t,
 		workflow.WithSentryInstance(sen),
 		workflow.WithDaprdOptions(0, daprd.WithAppID(appID)),
+=======
+	d.sched = scheduler.New(t)
+	d.proxy = proxy.New(t, d.sched)
+
+	d.workflow = workflow.New(t,
+>>>>>>> upstream/release-1.18
 		workflow.WithSchedulerInstance(d.sched),
 		workflow.WithSchedulerAddress(d.proxy.Address()),
 	)
 
 	return []framework.Option{
+<<<<<<< HEAD
 		framework.WithProcesses(sen, d.sched, d.proxy, d.workflow),
+=======
+		framework.WithProcesses(d.sched, d.proxy, d.workflow),
+>>>>>>> upstream/release-1.18
 	}
 }
 

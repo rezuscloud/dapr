@@ -375,6 +375,7 @@ func (r *router) callStream(ctx context.Context,
 			return backoff.Permanent(errors.New("remote actor moved"))
 		}
 
+<<<<<<< HEAD
 		err = r.callRemoteActorStream(ctx, lar, req, stream)
 		if err == nil || errors.Is(err, io.EOF) || ctx.Err() != nil {
 			return err
@@ -394,6 +395,12 @@ func (r *router) callStream(ctx context.Context,
 		}
 		return backoff.Permanent(err)
 	}
+=======
+		return r.callRemoteActorStream(ctx, lar, req, stream)
+	}
+
+	r.stampLocalCallerIdentity(req)
+>>>>>>> upstream/release-1.18
 
 	r.stampLocalCallerIdentity(req)
 

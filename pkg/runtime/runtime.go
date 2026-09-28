@@ -259,6 +259,7 @@ func newDaprRuntime(ctx context.Context,
 		Namespace: namespace,
 		Port:      runtimeConfig.internalGRPCPort,
 		// TODO: @joshvanl
+<<<<<<< HEAD
 		PlacementAddresses:        strings.Split(strings.TrimPrefix(runtimeConfig.actorsService, "placement:"), ","),
 		HealthEndpoint:            channels.AppHTTPEndpoint(),
 		Resiliency:                resiliencyProvider,
@@ -271,6 +272,18 @@ func newDaprRuntime(ctx context.Context,
 		DisseminationTimeout:      runtimeConfig.actorsDisseminationTimeout,
 		PlacementStartupTimeout:   runtimeConfig.actorsPlacementStartupTimeout,
 		SchedulerPlacementEnabled: schedulerPlacement,
+=======
+		PlacementAddresses:   strings.Split(strings.TrimPrefix(runtimeConfig.actorsService, "placement:"), ","),
+		HealthEndpoint:       channels.AppHTTPEndpoint(),
+		Resiliency:           resiliencyProvider,
+		Security:             sec,
+		Healthz:              runtimeConfig.healthz,
+		CompStore:            compStore,
+		StateTTLEnabled:      globalConfig.IsFeatureEnabled(config.ActorStateTTL),
+		MaxRequestBodySize:   runtimeConfig.maxRequestBodySize,
+		Mode:                 runtimeConfig.mode,
+		DisseminationTimeout: runtimeConfig.actorsDisseminationTimeout,
+>>>>>>> upstream/release-1.18
 	})
 	inProcessExec := inprocess.NewExecutor()
 
@@ -354,8 +367,13 @@ func newDaprRuntime(ctx context.Context,
 		Security:                        sec,
 		Signer:                          wfSigner,
 		InProcessExecutor:               inProcessExec,
+<<<<<<< HEAD
 		MaxRequestBodySize:              runtimeConfig.maxRequestBodySize,
 		WorkflowAccessPolicies:          workflowAccessPolicies,
+=======
+		WorkflowAccessPolicies:          workflowAccessPolicies,
+		MaxRequestBodySize:              runtimeConfig.maxRequestBodySize,
+>>>>>>> upstream/release-1.18
 	})
 	if err != nil {
 		return nil, err
@@ -364,6 +382,7 @@ func newDaprRuntime(ctx context.Context,
 	// Install the wfengine as the processor's internal workflow registrar.
 	processor.SetInProcessWorkflows(wfe)
 
+<<<<<<< HEAD
 	var reportedPlacementAddresses []string
 	if addrs, ok := strings.CutPrefix(runtimeConfig.actorsService, "placement:"); ok {
 		for addr := range strings.SplitSeq(addrs, ",") {
@@ -378,6 +397,8 @@ func newDaprRuntime(ctx context.Context,
 		return nil, err
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	jobsManager, err := scheduler.New(scheduler.Options{
 		Namespace:          namespace,
 		AppID:              runtimeConfig.id,
@@ -770,9 +791,13 @@ func (a *DaprRuntime) initRuntime(ctx context.Context) error {
 		log.Warnf("failed to load HTTP endpoints: %s", err)
 	}
 
+<<<<<<< HEAD
 	if err = a.flushOutstandingHTTPEndpoints(ctx); err != nil {
 		return err
 	}
+=======
+	a.flushOutstandingHTTPEndpoints(ctx)
+>>>>>>> upstream/release-1.18
 
 	err = a.loadDeclarativeSubscriptions(ctx)
 	if err != nil {
@@ -878,9 +903,13 @@ func (a *DaprRuntime) initRuntime(ctx context.Context) error {
 	if err := a.loadMCPServers(ctx); err != nil {
 		return fmt.Errorf("failed to load mcpservers: %s", err)
 	}
+<<<<<<< HEAD
 	if err := a.flushOutstandingMCPServers(ctx); err != nil {
 		return err
 	}
+=======
+	a.flushOutstandingMCPServers(ctx)
+>>>>>>> upstream/release-1.18
 
 	a.runtimeConfig.outboundHealthz.AddTarget("app").Ready()
 
@@ -888,6 +917,11 @@ func (a *DaprRuntime) initRuntime(ctx context.Context) error {
 		return err
 	}
 
+<<<<<<< HEAD
+=======
+	a.initDirectMessaging(a.nameResolver)
+
+>>>>>>> upstream/release-1.18
 	if a.runtimeConfig.appConnectionConfig.MaxConcurrency > 0 {
 		log.Infof("app max concurrency set to %v", a.runtimeConfig.appConnectionConfig.MaxConcurrency)
 	}
@@ -1317,11 +1351,18 @@ func (a *DaprRuntime) initActors(ctx context.Context) error {
 	}
 
 	if err := a.actors.Init(actors.InitOptions{
+<<<<<<< HEAD
 		Hostname:            hostAddress,
 		GRPC:                a.grpc,
 		SchedulerClient:     a.jobsManager.Client(),
 		SchedulerReloader:   a.jobsManager,
 		SchedulerLeadership: a.jobsManager.Leadership(),
+=======
+		Hostname:          hostAddress,
+		GRPC:              a.grpc,
+		SchedulerClient:   a.jobsManager.Client(),
+		SchedulerReloader: a.jobsManager,
+>>>>>>> upstream/release-1.18
 	}); err != nil {
 		return err
 	}

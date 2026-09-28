@@ -243,10 +243,18 @@ func (g *Channel) invokeMethodV1(ctx context.Context, req *invokev1.InvokeMethod
 		grpc.MaxCallRecvMsgSize(g.maxRequestBodySize),
 	}
 
+<<<<<<< HEAD
 	// The slot is released exactly once, by the defer above: an additional
 	// inline release here would double-release, blocking the return path on
 	// an empty limiter channel and defeating the concurrency bound.
 	resp, err := runtimev1pb.NewAppCallbackClient(conn).OnInvoke(ctx, pd.GetMessage(), opts...)
+=======
+	resp, err := runtimev1pb.NewAppCallbackClient(conn).OnInvoke(ctx, pd.GetMessage(), opts...)
+
+	if g.ch != nil {
+		<-g.ch
+	}
+>>>>>>> upstream/release-1.18
 
 	var rsp *invokev1.InvokeMethodResponse
 	if err != nil {

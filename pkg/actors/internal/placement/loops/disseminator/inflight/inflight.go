@@ -15,7 +15,10 @@ package inflight
 
 import (
 	"context"
+<<<<<<< HEAD
 	"fmt"
+=======
+>>>>>>> upstream/release-1.18
 	"maps"
 	"strconv"
 	"sync"
@@ -110,10 +113,15 @@ func New(opts Options) *Inflight {
 		hashTable: &hashing.ConsistentHashTables{
 			Entries: make(map[string]*hashing.Consistent),
 		},
+<<<<<<< HEAD
 		v2Entries:     make(map[string]*rendezvousEntry),
 		versionByType: make(map[string]uint64),
 		queued:        make(map[string][]func()),
 		blockedTypes:  make(map[string]struct{}),
+=======
+		queued:       make(map[string][]func()),
+		blockedTypes: make(map[string]struct{}),
+>>>>>>> upstream/release-1.18
 	}
 }
 
@@ -196,6 +204,7 @@ func (i *Inflight) Set(in *v1pb.PlacementTables, version uint64) []string {
 	return changed
 }
 
+<<<<<<< HEAD
 // Merge installs the v2 partial placement tables: only the actor types
 // present in the input are replaced; a type with no hosts is removed. Returns
 // the actor types whose table actually changed. Errors on an unknown hash
@@ -284,6 +293,8 @@ func (i *Inflight) ResetSession() {
 	clear(i.blockedTypes)
 }
 
+=======
+>>>>>>> upstream/release-1.18
 // LockTypes marks the given actor types as blocked. New acquires for these
 // types queue until UnlockTypes is called for them.
 func (i *Inflight) LockTypes(types []string) {
@@ -375,12 +386,15 @@ func (i *Inflight) isBlocked(actorType string) bool {
 	return ok
 }
 
+<<<<<<< HEAD
 // IsBlocked returns whether new acquires for the actor type currently queue
 // due to an in-flight dissemination round.
 func (i *Inflight) IsBlocked(actorType string) bool {
 	return i.isBlocked(actorType)
 }
 
+=======
+>>>>>>> upstream/release-1.18
 func (i *Inflight) getLockResponse(lu *loops.LockRequest) *loops.LockResponse {
 	aq := aquireCache.Get().(*lock.Acquire)
 	aq.ActorType = lu.ActorType

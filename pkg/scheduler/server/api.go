@@ -166,10 +166,17 @@ func (s *Server) ListJobs(ctx context.Context, req *schedulerv1pb.ListJobsReques
 		}
 
 		// Recover the reminder/job name by trimming the known key prefix built
+<<<<<<< HEAD
 		// from the metadata. The cron key is "<etcdNamespace>/jobs/<composed>"
 		// and names cannot contain '/', so the segment after the final '/' is
 		// the composed name. Trimming the metadata prefix off it then yields
 		// the reminder/job name unambiguously, even when the name or actor id
+=======
+		// from the metadata. The cron key is "<etcdNamespace>/jobs/<composed>";
+		// names cannot contain '/', so the segment after the final '/' is the
+		// composed name. Trimming the metadata prefix off it then yields the
+		// reminder/job name unambiguously, even when the name or actor id
+>>>>>>> upstream/release-1.18
 		// contains "||".
 		prefix, err := serialize.PrefixFromMetadata(&meta)
 		if err != nil {

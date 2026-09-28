@@ -78,6 +78,12 @@ func hasGRPCStatusCode(err error, code codes.Code) bool {
 // error chain (including wrapped or joined errors), so surfaced failure
 // messages are stable even when the original status error is wrapped.
 func GRPCStatusMessage(err error) string {
+<<<<<<< HEAD
+=======
+	if err == nil {
+		return ""
+	}
+>>>>>>> upstream/release-1.18
 	var gs interface{ GRPCStatus() *status.Status }
 	if errors.As(err, &gs) {
 		return gs.GRPCStatus().Message()

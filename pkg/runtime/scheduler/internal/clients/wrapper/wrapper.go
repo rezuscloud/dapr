@@ -184,7 +184,11 @@ func (w *wrapper) call(ctx context.Context, fn apiFn) error {
 
 		done()
 
+<<<<<<< HEAD
 		// A scheduler shutting down cancels in-flight RPCs. Retry against the
+=======
+		// A scheduler shutting down cancels in-flight RPCs; retry against the
+>>>>>>> upstream/release-1.18
 		// next client, with backoff so a cluster-wide restart does not turn
 		// this loop into a hot spin.
 		status, ok := status.FromError(err)

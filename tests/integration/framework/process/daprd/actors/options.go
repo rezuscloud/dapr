@@ -44,8 +44,11 @@ type options struct {
 	resources               []string
 	maxBodySize             *string
 	daprdOpts               []daprd.Option
+<<<<<<< HEAD
 	schedulerPlacement      bool
 	placementService        bool
+=======
+>>>>>>> upstream/release-1.18
 }
 
 func WithDB(db *sqlite.SQLite) Option {
