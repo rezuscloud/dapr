@@ -31,14 +31,6 @@ import (
 
 const reminderNameParentNotify = "parent-notify"
 
-<<<<<<< HEAD
-=======
-// parentNotifyTimeout bounds a delivery so a lock cycle with a parent
-// dispatching into this child resolves, and the reminder create that arms
-// the retry.
-const parentNotifyTimeout = 30 * time.Second
-
->>>>>>> upstream/release-1.18
 // parentNotify is a completion notification ready to deliver. It is built
 // under the turn lock so a detached delivery holds no reference to the state,
 // which a recreate may reset while the call is in flight.
@@ -69,11 +61,7 @@ func (o *orchestrator) deliverParentNotify(ctx context.Context, state *wfengines
 	if len(pn.msgs) == 0 {
 		return nil
 	}
-<<<<<<< HEAD
 	cctx, cancel := context.WithTimeout(ctx, detachedReminderTimeout)
-=======
-	cctx, cancel := context.WithTimeout(ctx, parentNotifyTimeout)
->>>>>>> upstream/release-1.18
 	defer cancel()
 	res := o.messages.CallAddEventStateMessage(cctx, pn.msgs, pn.md)
 	if res.Err == nil {
@@ -181,17 +169,10 @@ func (o *orchestrator) parentNotification(ctx context.Context, state *wfenginest
 
 // assertParentNotifyReminder arms the durable driver for a pending parent
 // notification; the fixed name makes re-asserts idempotent. The turn context
-<<<<<<< HEAD
 // may already be cancelled (a notify parked behind the parent's lock past
 // the local wake timeout), so the create runs on the actor's root context.
 func (o *orchestrator) assertParentNotifyReminder(workflowName string) error {
 	ctx, cancel := context.WithTimeout(o.rootCtx, detachedReminderTimeout)
-=======
-// may already be cancelled (a notify parked behind the parent's lock), so
-// the create runs detached from it.
-func (o *orchestrator) assertParentNotifyReminder(workflowName string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), parentNotifyTimeout)
->>>>>>> upstream/release-1.18
 	defer cancel()
 	return o.createWorkflowReminderForever(ctx, reminderNameParentNotify, nil, time.Now(), o.appID, &workflowName)
 }

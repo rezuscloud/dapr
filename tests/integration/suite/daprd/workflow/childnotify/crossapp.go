@@ -40,11 +40,7 @@ type crossapp struct {
 }
 
 func (x *crossapp) Setup(t *testing.T) []framework.Option {
-<<<<<<< HEAD
 	x.workflow = workflow.New(t, workflow.WithDaprds(2), workflow.WithSigning(false))
-=======
-	x.workflow = workflow.New(t, workflow.WithDaprds(2))
->>>>>>> upstream/release-1.18
 	return []framework.Option{framework.WithProcesses(x.workflow)}
 }
 

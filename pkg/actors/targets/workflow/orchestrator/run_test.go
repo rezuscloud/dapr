@@ -35,10 +35,7 @@ import (
 	actorstate "github.com/dapr/dapr/pkg/actors/state"
 	statefake "github.com/dapr/dapr/pkg/actors/state/fake"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/signing"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/pkg/config"
 	diag "github.com/dapr/dapr/pkg/diagnostics"
 	wferrors "github.com/dapr/dapr/pkg/runtime/wfengine/errors"
@@ -471,15 +468,11 @@ func Test_runWorkflow_emptyInboxTerminalCreatesRetentionReminder(t *testing.T) {
 			activityActorType:  "dapr.internal.default.testapp.activity",
 			retentionActorType: "dapr.internal.default.testapp.retentioner",
 			reminders:          reminders,
-<<<<<<< HEAD
 			// The empty-inbox path always reloads from the store before
 			// acting; serve the same terminal state so the recovery path
 			// operates on durable truth.
 			actorState:       fakeStoreServingState(t, 0, history, nil),
 			actorTypeBuilder: common.NewActorTypeBuilder("default"),
-=======
-			actorTypeBuilder:   common.NewActorTypeBuilder("default"),
->>>>>>> upstream/release-1.18
 			retentionPolicy: &config.WorkflowStateRetentionPolicy{
 				AnyTerminal: &retentionDur,
 			},
@@ -563,10 +556,7 @@ func Test_runWorkflow_emptyInboxTerminalNoRetentionPolicy(t *testing.T) {
 			activityActorType:  "dapr.internal.default.testapp.activity",
 			retentionActorType: "dapr.internal.default.testapp.retentioner",
 			reminders:          reminders,
-<<<<<<< HEAD
 			actorState:         fakeStoreServingState(t, 0, history, nil),
-=======
->>>>>>> upstream/release-1.18
 			actorTypeBuilder:   common.NewActorTypeBuilder("default"),
 			retentionPolicy:    nil,
 		},
@@ -1050,7 +1040,6 @@ func fakeStoreServingState(t *testing.T, generation uint64, history, inbox []*ba
 		})
 }
 
-<<<<<<< HEAD
 // terminalHistory returns a minimal completed-workflow history for tests.
 func terminalHistory(instanceID string) []*backend.HistoryEvent {
 	return []*backend.HistoryEvent{
@@ -1329,8 +1318,6 @@ func Test_runWorkflow_unstartableStateFailsTerminally(t *testing.T) {
 		"a terminally failed instance must get its retention reminder")
 }
 
-=======
->>>>>>> upstream/release-1.18
 // Test_runWorkflow_pendingStartEmptyHistoryRuns pins the healthy-pending
 // shape the unstartable check must never touch: empty history with an
 // ExecutionStarted sitting in the inbox awaiting its start reminder. The turn
@@ -1391,7 +1378,6 @@ func Test_runWorkflow_pendingStartEmptyHistoryRuns(t *testing.T) {
 	assert.Zero(t, saves, "nothing may be committed for the abandoned healthy turn")
 }
 
-<<<<<<< HEAD
 // Test_runWorkflow_unstartableCacheButDurableStartableRetries verifies the
 // reclassify-before-acting step: when only the CACHE shows the unstartable
 // shape but the durable state holds a pending start, the instance must not be
@@ -1469,77 +1455,4 @@ func Test_runWorkflow_unstartableCacheButDurableStartableRetries(t *testing.T) {
 	require.NotNil(t, o.state, "the cache must hold the reloaded durable state")
 	require.Len(t, o.state.Inbox, 1)
 	assert.NotNil(t, o.state.Inbox[0].GetExecutionStarted())
-=======
-func Test_staleTurnDuplicate(t *testing.T) {
-	t.Parallel()
-
-	task := func(id int32) *backend.HistoryEvent {
-		return &protos.HistoryEvent{EventId: id, EventType: &protos.HistoryEvent_TaskScheduled{TaskScheduled: &protos.TaskScheduledEvent{Name: "act"}}}
-	}
-	timer := func(id int32) *backend.HistoryEvent {
-		return &protos.HistoryEvent{EventId: id, EventType: &protos.HistoryEvent_TimerCreated{TimerCreated: &protos.TimerCreatedEvent{}}}
-	}
-	child := func(id int32) *backend.HistoryEvent {
-		return &protos.HistoryEvent{EventId: id, EventType: &protos.HistoryEvent_ChildWorkflowInstanceCreated{ChildWorkflowInstanceCreated: &protos.ChildWorkflowInstanceCreatedEvent{Name: "child"}}}
-	}
-	completed := func(id int32) *backend.HistoryEvent {
-		return &protos.HistoryEvent{EventId: -1, EventType: &protos.HistoryEvent_TaskCompleted{TaskCompleted: &protos.TaskCompletedEvent{TaskScheduledId: id}}}
-	}
-	started := &protos.HistoryEvent{EventId: -1, EventType: &protos.HistoryEvent_ExecutionStarted{ExecutionStarted: &protos.ExecutionStartedEvent{Name: "wf"}}}
-
-	tests := map[string]struct {
-		history  []*backend.HistoryEvent
-		new      []*backend.HistoryEvent
-		wantKind string
-		wantID   int32
-		stale    bool
-	}{
-		"no new operations": {
-			history: []*backend.HistoryEvent{started, task(0)},
-			new:     []*backend.HistoryEvent{completed(0)},
-		},
-		"new operation with a fresh id": {
-			history: []*backend.HistoryEvent{started, task(0), completed(0)},
-			new:     []*backend.HistoryEvent{task(1)},
-		},
-		"same id but different kind": {
-			history: []*backend.HistoryEvent{started, task(0), completed(0)},
-			new:     []*backend.HistoryEvent{timer(0)},
-		},
-		"task re-created (the F1 stale turn)": {
-			history:  []*backend.HistoryEvent{started, task(0), completed(0)},
-			new:      []*backend.HistoryEvent{task(0)},
-			wantKind: "task",
-			wantID:   0,
-			stale:    true,
-		},
-		"timer re-created": {
-			history:  []*backend.HistoryEvent{started, timer(3)},
-			new:      []*backend.HistoryEvent{task(4), timer(3)},
-			wantKind: "timer",
-			wantID:   3,
-			stale:    true,
-		},
-		"child re-created": {
-			history:  []*backend.HistoryEvent{started, child(2)},
-			new:      []*backend.HistoryEvent{child(2)},
-			wantKind: "child",
-			wantID:   2,
-			stale:    true,
-		},
-		"empty history": {
-			new: []*backend.HistoryEvent{task(0)},
-		},
-	}
-
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			kind, id, stale := staleTurnDuplicate(&wfenginestate.State{History: test.history}, &backend.WorkflowRuntimeState{NewEvents: test.new})
-			assert.Equal(t, test.stale, stale)
-			assert.Equal(t, test.wantKind, kind)
-			assert.Equal(t, test.wantID, id)
-		})
-	}
->>>>>>> upstream/release-1.18
 }

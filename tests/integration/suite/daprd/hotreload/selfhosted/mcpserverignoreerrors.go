@@ -33,7 +33,6 @@ func init() {
 	suite.Register(new(mcpserverignoreerrors))
 }
 
-<<<<<<< HEAD
 // mcpserverignoreerrors mirrors the components ignoreerrors suite for
 // MCPServer hot-reload. It exercises:
 //
@@ -50,8 +49,6 @@ func init() {
 // case) so the workflow-registration step against example.com can fail
 // without crashing daprd; we are exercising the reconciler error-policy
 // machinery, not real MCP traffic.
-=======
->>>>>>> upstream/release-1.18
 type mcpserverignoreerrors struct {
 	daprd   *daprd.Daprd
 	logline *logline.LogLine
@@ -61,7 +58,6 @@ type mcpserverignoreerrors struct {
 func (m *mcpserverignoreerrors) Setup(t *testing.T) []framework.Option {
 	m.logline = logline.New(t,
 		logline.WithStdoutLineContains(
-<<<<<<< HEAD
 			// daprd writes the message field in logrus's quoted form, so
 			// MCPServer "a" appears in the line as MCPServer \"a\".
 			// Update with ignoreErrors=true and a bad scheme: logged then
@@ -69,10 +65,6 @@ func (m *mcpserverignoreerrors) Setup(t *testing.T) []framework.Option {
 			`Ignoring error processing MCPServer: process MCPServer a error: MCPServer \"a\" failed security validation:`,
 			// Final update with ignoreErrors=false: daprd exits gracefully.
 			`Error processing MCPServer, daprd will exit gracefully: process MCPServer a error: MCPServer \"a\" failed security validation:`,
-=======
-			`Ignoring error processing MCPServer: MCPServer \"a\" failed security validation:`,
-			`Error processing MCPServer, daprd will exit gracefully: MCPServer \"a\" failed security validation:`,
->>>>>>> upstream/release-1.18
 		),
 	)
 
@@ -124,11 +116,8 @@ spec:
     streamableHTTP:
       url: ftp://example.com/mcp
 `), 0o600))
-<<<<<<< HEAD
 		// Reconciler runs DeleteMCPServer (close) then AddPendingMCPServer
 		// (rejected by security validation). End state: empty compstore.
-=======
->>>>>>> upstream/release-1.18
 		require.EventuallyWithT(t, func(t *assert.CollectT) {
 			assert.Empty(t, m.daprd.GetMetaMCPServers(t, ctx))
 		}, time.Second*5, time.Millisecond*10)

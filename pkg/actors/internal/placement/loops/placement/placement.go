@@ -344,7 +344,6 @@ func (p *placement) handleReconnect(ctx context.Context, recon *loops.PlacementR
 		}
 	}
 
-<<<<<<< HEAD
 	// The other authority's connector is kept, so a later handover in
 	// either direction is adopted without a restart.
 	if p.fallback != nil {
@@ -352,8 +351,6 @@ func (p *placement) handleReconnect(ctx context.Context, recon *loops.PlacementR
 		p.fallback = nil
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	if recon.TransientPrior {
 		log.Debugf("Connected to placement service: %s", p.connector.Address())
 	} else {
@@ -389,15 +386,9 @@ func (p *placement) handleReconnect(ctx context.Context, recon *loops.PlacementR
 	}
 
 	if recon.TransientPrior {
-<<<<<<< HEAD
 		log.Debugf("Reporting initial host to placement service with initial types %v", p.report.ActorTypes)
 	} else {
 		log.Infof("Reporting initial host to placement service with initial types %v", p.report.ActorTypes)
-=======
-		log.Debugf("Reporting initial host to placement service with initial types %v", p.host.GetEntities())
-	} else {
-		log.Infof("Reporting initial host to placement service with initial types %v", p.host.GetEntities())
->>>>>>> upstream/release-1.18
 	}
 	p.dissLoop.Enqueue(&loops.ReportHost{
 		Report: p.report.Clone(),
@@ -447,7 +438,6 @@ func (p *placement) handleCloseStream(ctx context.Context, closeStream *loops.Co
 	} else {
 		log.Infof("Placement stream closed: %v. Reconnecting...", closeStream.Error)
 	}
-<<<<<<< HEAD
 
 	// A refusal arrives on the first Recv, not at connect, so the reconnect
 	// cycle has no pause of its own. Back off once so a follower bounce, a
@@ -462,8 +452,6 @@ func (p *placement) handleCloseStream(ctx context.Context, closeStream *loops.Co
 		}
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	return p.handleReconnect(ctx, &loops.PlacementReconnect{TransientPrior: transient})
 }
 

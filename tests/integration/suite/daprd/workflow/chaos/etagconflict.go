@@ -53,13 +53,10 @@ type etagconflict struct {
 func (e *etagconflict) Setup(t *testing.T) []framework.Option {
 	os.SkipWindows(t)
 
-<<<<<<< HEAD
 	if workflow.FastPathFromEnv() {
 		t.Skip("WorkflowsFastPath folds activity results into the turn commit, so the standalone inbox save this test arms a fault on fires unreliably")
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	e.store = fault.New(t)
 
 	sock := socket.New(t)

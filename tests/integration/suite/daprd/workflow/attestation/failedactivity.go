@@ -23,10 +23,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/dapr/dapr/tests/integration/framework"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/placement"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
@@ -92,11 +89,7 @@ func (f *failedactivity) Run(t *testing.T, ctx context.Context) {
 		return nil, errors.New("activity blew up on purpose")
 	})
 
-<<<<<<< HEAD
 	client := dworkflow.NewClientWithLogger(f.daprd.GRPCConn(t, ctx), logger.New(t))
-=======
-	client := dworkflow.NewClient(f.daprd.GRPCConn(t, ctx))
->>>>>>> upstream/release-1.18
 	require.NoError(t, client.StartWorker(ctx, reg))
 
 	id, err := client.ScheduleWorkflow(ctx, "attest-fail-activity-wf")

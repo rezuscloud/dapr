@@ -114,10 +114,7 @@ type SidecarConfig struct {
 	AppBindingOptionsTimeout            *string `annotation:"dapr.io/app-binding-options-timeout"`
 	PlacementAddress                    string  `annotation:"dapr.io/placement-host-address"`
 	ActorsDisseminateTimeout            *string `annotation:"dapr.io/actors-disseminate-timeout"`
-<<<<<<< HEAD
 	ActorsPlacementStartupTimeout       *string `annotation:"dapr.io/actors-placement-startup-timeout"`
-=======
->>>>>>> upstream/release-1.18
 	SchedulerAddress                    *string `annotation:"dapr.io/scheduler-host-address"`
 	SchedulerEnabled                    bool
 	PluggableComponents                 string  `annotation:"dapr.io/pluggable-components"`

@@ -51,11 +51,7 @@ import (
 )
 
 // Test_addWorkflowEvent_dedupReAssertsReminder is a focused regression test for
-<<<<<<< HEAD
 // a stuck-workflow class: under
-=======
-// the stuck-workflow class found on the dapr-chaos preflight cluster: under
->>>>>>> upstream/release-1.18
 // fleet-wide daprd kill, activity-result events end up durable in state.Inbox
 // while the wake-up reminder that should drive runWorkflow has been deleted
 // from the scheduler (acked SUCCESS on a prior round). The next time the
@@ -159,11 +155,7 @@ func Test_addWorkflowEvent_dedupReAssertsReminder(t *testing.T) {
 	o.ometa = o.ometaFromState(o.rstate, startEvent.GetExecutionStarted())
 
 	// The second arrival of the same activity result: a publishResult retry
-<<<<<<< HEAD
 	// because the original activity reminder was not acked.
-=======
-	// because the original activity reminder was not acked under chaos.
->>>>>>> upstream/release-1.18
 	incoming := &protos.HistoryEvent{
 		EventId:   -1,
 		Timestamp: timestamppb.Now(),

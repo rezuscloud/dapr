@@ -126,18 +126,12 @@ type WorkflowAccessPolicyRule struct {
 
 	// Workflows are the workflow rules that the matched callers are allowed.
 	// +optional
-<<<<<<< HEAD
 	// +kubebuilder:validation:MaxItems=100
-=======
->>>>>>> upstream/release-1.18
 	Workflows []WorkflowRule `json:"workflows,omitempty"`
 
 	// Activities are the activity rules that the matched callers are allowed.
 	// +optional
-<<<<<<< HEAD
 	// +kubebuilder:validation:MaxItems=100
-=======
->>>>>>> upstream/release-1.18
 	Activities []ActivityRule `json:"activities,omitempty"`
 }
 
@@ -164,7 +158,6 @@ const (
 )
 
 // WorkflowRule grants the matched callers access to the listed operations on
-<<<<<<< HEAD
 // workflows whose name matches Name (exact or glob). An optional `requires`
 // gate may be attached, but only when the rule's sole operation is
 // `schedule` — schedule is the only operation that carries propagated
@@ -173,9 +166,6 @@ const (
 // `requires`; access is granted if any matching rule is satisfied.
 //
 // +kubebuilder:validation:XValidation:rule="!has(self.requires) || size(self.requires) == 0 || (size(self.operations) == 1 && self.operations[0] == 'schedule')",message="requires is only valid when the rule's only operation is 'schedule'"
-=======
-// workflows whose name matches Name (exact or glob).
->>>>>>> upstream/release-1.18
 type WorkflowRule struct {
 	// Name is the exact name or glob pattern for the workflow.
 	// +kubebuilder:validation:MinLength=1
@@ -184,7 +174,6 @@ type WorkflowRule struct {
 
 	// Operations is the set of operations this rule applies to.
 	// +kubebuilder:validation:MinItems=1
-<<<<<<< HEAD
 	// +kubebuilder:validation:MaxItems=8
 	// +kubebuilder:validation:items:Enum=schedule;terminate;raise;pause;resume;purge;get;rerun
 	// +listType=set
@@ -200,20 +189,12 @@ type WorkflowRule struct {
 	Requires []RequiredEvent `json:"requires,omitempty"`
 }
 
-=======
-	// +kubebuilder:validation:items:Enum=schedule;terminate;raise;pause;resume;purge;get;rerun
-	// +listType=set
-	Operations []WorkflowOperation `json:"operations"`
-}
-
->>>>>>> upstream/release-1.18
 // ActivityRule grants the matched callers access to schedule the activity
 // whose name matches Name (exact or glob). Activities only have one
 // operation (schedule).
 type ActivityRule struct {
 	// Name is the exact name or glob pattern for the activity.
 	// +kubebuilder:validation:MinLength=1
-<<<<<<< HEAD
 	// +kubebuilder:validation:MaxLength=256
 	Name string `json:"name"`
 
@@ -260,9 +241,6 @@ type RequiredEvent struct {
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=256
 	AppID string `json:"appID"`
-=======
-	Name string `json:"name"`
->>>>>>> upstream/release-1.18
 }
 
 // +kubebuilder:object:root=true

@@ -56,7 +56,6 @@ Validates podAntiAffinityPolicy is one of the allowed values.
 {{- fail "global.ha.podAntiAffinityPolicy must be either 'preferredDuringSchedulingIgnoredDuringExecution' or 'requiredDuringSchedulingIgnoredDuringExecution'" -}}
 {{- end -}}
 {{- end -}}
-<<<<<<< HEAD
 
 {{/*
 Returns "true" when actor placement is served by the Scheduler, else "false".
@@ -68,5 +67,3 @@ global.scheduler.placement is absent from values of releases installed before
 {{- $placement := $scheduler.placement | default dict -}}
 {{- $placement.enabled | default false | toString -}}
 {{- end -}}
-=======
->>>>>>> upstream/release-1.18

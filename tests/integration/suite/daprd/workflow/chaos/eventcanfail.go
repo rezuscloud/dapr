@@ -18,10 +18,7 @@ import (
 	"testing"
 	"time"
 
-<<<<<<< HEAD
 	"github.com/google/uuid"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -31,15 +28,10 @@ import (
 	"github.com/dapr/durabletask-go/task"
 
 	"github.com/dapr/dapr/tests/integration/framework"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
-=======
-	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
-	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 	"github.com/dapr/dapr/tests/integration/suite"
 )
@@ -59,7 +51,6 @@ type eventcanfail struct {
 }
 
 func (e *eventcanfail) Setup(t *testing.T) []framework.Option {
-<<<<<<< HEAD
 	appID := uuid.New().String()
 	sen := sentry.New(t)
 	e.scheduler = scheduler.New(t,
@@ -71,22 +62,12 @@ func (e *eventcanfail) Setup(t *testing.T) []framework.Option {
 	e.workflow = workflow.New(t,
 		workflow.WithSentryInstance(sen),
 		workflow.WithDaprdOptions(0, daprd.WithAppID(appID)),
-=======
-	e.scheduler = scheduler.New(t)
-	e.proxy = proxy.New(t, e.scheduler)
-
-	e.workflow = workflow.New(t,
->>>>>>> upstream/release-1.18
 		workflow.WithSchedulerInstance(e.scheduler),
 		workflow.WithSchedulerAddress(e.proxy.Address()),
 	)
 
 	return []framework.Option{
-<<<<<<< HEAD
 		framework.WithProcesses(sen, e.scheduler, e.proxy, e.workflow),
-=======
-		framework.WithProcesses(e.scheduler, e.proxy, e.workflow),
->>>>>>> upstream/release-1.18
 	}
 }
 

@@ -15,10 +15,7 @@ package proxy
 
 import (
 	"context"
-<<<<<<< HEAD
 	"crypto/tls"
-=======
->>>>>>> upstream/release-1.18
 	"errors"
 	"io"
 	"net"
@@ -27,19 +24,19 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
-<<<<<<< HEAD
 	"google.golang.org/grpc/credentials"
-=======
->>>>>>> upstream/release-1.18
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
 
 	schedulerv1pb "github.com/dapr/dapr/pkg/proto/scheduler/v1"
+	"github.com/dapr/dapr/tests/integration/framework/listener"
 	"github.com/dapr/dapr/tests/integration/framework/process/ports"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
 )
@@ -54,10 +51,8 @@ const (
 	MethodDeleteByMetadata   = "DeleteByMetadata"
 	MethodDeleteByNamePrefix = "DeleteByNamePrefix"
 	MethodWatchHosts         = "WatchHosts"
-<<<<<<< HEAD
 	MethodWatchJobs          = "WatchJobs"
-=======
->>>>>>> upstream/release-1.18
+	MethodReportActorTypes   = "ReportActorTypes"
 )
 
 type Proxy struct {
@@ -65,20 +60,18 @@ type Proxy struct {
 
 	sched *scheduler.Scheduler
 
-	port     int
-	listener net.Listener
-	grpcSrv  *grpc.Server
-	upstream *grpc.ClientConn
-	client   schedulerv1pb.SchedulerClient
+	port      int
+	listener  net.Listener
+	blackhole *listener.Blackhole
+	grpcSrv   *grpc.Server
+	upstream  *grpc.ClientConn
+	client    schedulerv1pb.SchedulerClient
 
-<<<<<<< HEAD
 	// serverCreds and upstreamTLS are set by WithSentry to interpose on an
 	// mTLS control plane; nil means plaintext on both legs.
 	serverCreds credentials.TransportCredentials
 	upstreamTLS *tls.Config
 
-=======
->>>>>>> upstream/release-1.18
 	runOnce  sync.Once
 	done     chan struct{}
 	serveErr chan error
@@ -86,6 +79,8 @@ type Proxy struct {
 	mu       sync.Mutex
 	armed    map[string]armConfig
 	failures atomic.Int32
+
+	partitioned atomic.Bool
 }
 
 // armConfig captures the per-method failure injection state.
@@ -101,34 +96,25 @@ type armConfig struct {
 // framework process ordering. daprd should be configured with
 // daprd.WithSchedulerAddresses(proxy.Address()) instead of pointing at the
 // scheduler directly.
-<<<<<<< HEAD
 func New(t *testing.T, sched *scheduler.Scheduler, fopts ...Option) *Proxy {
-=======
-func New(t *testing.T, sched *scheduler.Scheduler) *Proxy {
->>>>>>> upstream/release-1.18
 	t.Helper()
 	lis := ports.Reserve(t, 1).Listener(t)
 	tcp, ok := lis.Addr().(*net.TCPAddr)
 	require.True(t, ok)
-<<<<<<< HEAD
+	bh := listener.NewBlackhole(lis)
 	p := &Proxy{
-=======
-	return &Proxy{
->>>>>>> upstream/release-1.18
-		sched:    sched,
-		port:     tcp.Port,
-		listener: lis,
-		armed:    make(map[string]armConfig),
-		done:     make(chan struct{}),
-		serveErr: make(chan error, 1),
+		sched:     sched,
+		port:      tcp.Port,
+		listener:  bh,
+		blackhole: bh,
+		armed:     make(map[string]armConfig),
+		done:      make(chan struct{}),
+		serveErr:  make(chan error, 1),
 	}
-<<<<<<< HEAD
 	for _, fopt := range fopts {
 		fopt(p)
 	}
 	return p
-=======
->>>>>>> upstream/release-1.18
 }
 
 // waitReady blocks until conn is Ready, returning false if the connection is
@@ -154,17 +140,12 @@ func (p *Proxy) Run(t *testing.T, ctx context.Context) {
 	p.runOnce.Do(func() {
 		p.sched.WaitUntilRunning(t, ctx)
 
-<<<<<<< HEAD
 		upstreamCreds := insecure.NewCredentials()
 		if p.upstreamTLS != nil {
 			upstreamCreds = credentials.NewTLS(p.upstreamTLS.Clone())
 		}
 		conn, err := grpc.NewClient(p.sched.Address(),
 			grpc.WithTransportCredentials(upstreamCreds),
-=======
-		conn, err := grpc.NewClient(p.sched.Address(),
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
->>>>>>> upstream/release-1.18
 		)
 		require.NoError(t, err)
 		if !waitReady(ctx, conn) {
@@ -178,15 +159,16 @@ func (p *Proxy) Run(t *testing.T, ctx context.Context) {
 		p.upstream = conn
 		p.client = schedulerv1pb.NewSchedulerClient(conn)
 
-<<<<<<< HEAD
-		if p.serverCreds != nil {
-			p.grpcSrv = grpc.NewServer(grpc.Creds(p.serverCreds))
-		} else {
-			p.grpcSrv = grpc.NewServer()
+		sopts := []grpc.ServerOption{
+			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+				MinTime:             time.Second * 5,
+				PermitWithoutStream: true,
+			}),
 		}
-=======
-		p.grpcSrv = grpc.NewServer()
->>>>>>> upstream/release-1.18
+		if p.serverCreds != nil {
+			sopts = append(sopts, grpc.Creds(p.serverCreds))
+		}
+		p.grpcSrv = grpc.NewServer(sopts...)
 		schedulerv1pb.RegisterSchedulerServer(p.grpcSrv, p)
 
 		go func() {
@@ -198,7 +180,12 @@ func (p *Proxy) Run(t *testing.T, ctx context.Context) {
 
 func (p *Proxy) Cleanup(t *testing.T) {
 	if p.grpcSrv != nil {
-		p.grpcSrv.GracefulStop()
+		if p.partitioned.Load() {
+			// A partitioned client never sees the GOAWAY.
+			p.grpcSrv.Stop()
+		} else {
+			p.grpcSrv.GracefulStop()
+		}
 		<-p.done
 		if err := <-p.serveErr; err != nil && !errors.Is(err, grpc.ErrServerStopped) {
 			require.NoError(t, err)
@@ -208,9 +195,18 @@ func (p *Proxy) Cleanup(t *testing.T) {
 		// Close explicitly so the port is released even when Run never executed.
 		_ = p.listener.Close()
 	}
-	if p.upstream != nil {
+	if p.upstream != nil && !p.partitioned.Load() {
 		require.NoError(t, p.upstream.Close())
 	}
+}
+
+// Partition blackholes all daprd connections to this proxy and closes the
+// upstream, so the scheduler evicts the hosts. It cannot be undone.
+func (p *Proxy) Partition(t *testing.T) {
+	t.Helper()
+	p.partitioned.Store(true)
+	p.blackhole.Enable()
+	require.NoError(t, p.upstream.Close())
 }
 
 func (p *Proxy) Port() int        { return p.port }
@@ -316,13 +312,10 @@ func (p *Proxy) DeleteByNamePrefix(ctx context.Context, req *schedulerv1pb.Delet
 // the shared context to unblock the other goroutine and drain its error so
 // no goroutine leaks.
 func (p *Proxy) WatchJobs(stream schedulerv1pb.Scheduler_WatchJobsServer) error {
-<<<<<<< HEAD
 	if code, ok := p.takeFailure(MethodWatchJobs, ""); ok {
 		return injected(MethodWatchJobs, code)
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
 
@@ -368,6 +361,57 @@ func (p *Proxy) WatchJobs(stream schedulerv1pb.Scheduler_WatchJobsServer) error 
 		return nil
 	}
 	return first
+}
+
+func (p *Proxy) ReportActorTypes(stream schedulerv1pb.Scheduler_ReportActorTypesServer) error {
+	if code, ok := p.takeFailure(MethodReportActorTypes, ""); ok {
+		return injected(MethodReportActorTypes, code)
+	}
+
+	ctx, cancel := context.WithCancel(stream.Context())
+	defer cancel()
+
+	upstream, err := p.client.ReportActorTypes(ctx)
+	if err != nil {
+		return err
+	}
+
+	errCh := make(chan error, 2)
+
+	go func() {
+		for {
+			msg, rerr := stream.Recv()
+			if rerr != nil {
+				errCh <- rerr
+				return
+			}
+			if serr := upstream.Send(msg); serr != nil {
+				errCh <- serr
+				return
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			msg, rerr := upstream.Recv()
+			if rerr != nil {
+				errCh <- rerr
+				return
+			}
+			if serr := stream.Send(msg); serr != nil {
+				errCh <- serr
+				return
+			}
+		}
+	}()
+
+	// Return without waiting on the other direction. The daprd side Recv only
+	// unblocks once this handler returns, and daprd rarely sends.
+	if first := <-errCh; !errors.Is(first, io.EOF) {
+		return first
+	}
+	return nil
 }
 
 // WatchHosts forwards host updates from the upstream scheduler, rewriting

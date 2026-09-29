@@ -135,7 +135,6 @@ func (s *streamer) handleJob(ctx context.Context, job *schedulerv1pb.WatchJobsRe
 		return schedulerv1pb.WatchJobsRequestResultStatus_SUCCESS
 
 	case *schedulerv1pb.JobTargetMetadata_Actor:
-<<<<<<< HEAD
 		// The generated getters are nil-safe on messages but not on the oneof
 		// wrapper: a typed-nil wrapper or a missing actor payload would
 		// nil-dereference below. Reject the job instead of panicking. FAILED
@@ -149,11 +148,6 @@ func (s *streamer) handleJob(ctx context.Context, job *schedulerv1pb.WatchJobsRe
 		actorType := t.Actor.GetType()
 
 		err := s.invokeActorReminder(ctx, job, t.Actor)
-=======
-		actorType := meta.GetTarget().GetActor().GetType()
-
-		err := s.invokeActorReminder(ctx, job)
->>>>>>> upstream/release-1.18
 		if err == nil {
 			return schedulerv1pb.WatchJobsRequestResultStatus_SUCCESS
 		}

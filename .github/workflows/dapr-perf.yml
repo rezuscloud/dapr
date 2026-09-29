@@ -488,15 +488,11 @@ jobs:
       - name: Deploy dapr to AKS cluster
         if: env.TEST_PREFIX != ''
         env:
-<<<<<<< HEAD
           # scheduler_placement=true runs the identical perf suite with actor
           # placement served by the Scheduler (rendezvous hashing) instead of
           # the standalone placement service (consistent hash ring), for
           # comparing the two placement authorities on unchanged tests.
           ADDITIONAL_HELM_SET: "dapr_operator.logLevel=debug,dapr_operator.watchInterval=20s,dapr_scheduler.securityContext.fsGroup=65532,global.scheduler.placement.enabled=${{ matrix.scheduler_placement }}"
-=======
-          ADDITIONAL_HELM_SET: "dapr_operator.logLevel=debug,dapr_operator.watchInterval=20s"
->>>>>>> upstream/release-1.18
         run: make docker-deploy-k8s
       - name: Deploy test components
         if: env.TEST_PREFIX != ''

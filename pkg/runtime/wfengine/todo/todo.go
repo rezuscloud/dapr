@@ -34,7 +34,6 @@ const (
 	ExecuteActivityMethod             = "Execute"
 
 	MetadataActivityReminderDueTime = "dueTime"
-<<<<<<< HEAD
 	// MetadataActivityLocalDrive certifies to the activity host that the
 	// dispatching orchestrator has its janitor backstop armed, so the host
 	// may elide the durable run-activity reminder and drive the execution
@@ -47,23 +46,16 @@ const (
 	MetadataActivityJanitorRedispatch = "janitorRedispatch"
 	MetadataPurgeRetentionCall        = "PurgeRetentionCall"
 	MetadataPurgeForce                = "PurgeForce"
-=======
-	MetadataPurgeRetentionCall      = "PurgeRetentionCall"
-	MetadataPurgeForce              = "PurgeForce"
->>>>>>> upstream/release-1.18
 	// Set on a WaitForRuntimeStatus call to request that a terminal workflow
 	// also verify all of its child workflows, recursively, are terminal
 	// before replying. Ignored by daprds that predate the flag.
 	MetadataCheckSubtreeTerminal = "CheckSubtreeTerminal"
-<<<<<<< HEAD
 	// Set on a WaitForRuntimeStatus call to request a one-shot metadata fetch:
 	// reply immediately with the current metadata, or ErrInstanceNotFound when
 	// the instance does not exist, instead of parking the stream to wait for a
 	// status change. Used for cross-app GetWorkflowMetadata. Daprds that
 	// predate the flag ignore it, degrading to a wait rather than a failure.
 	MetadataFetchOnly = "MetadataFetchOnly"
-=======
->>>>>>> upstream/release-1.18
 
 	// MetadataSenderInstanceID carries the instance ID of the child workflow
 	// delivering its completion, so the parent can drop a completion for a

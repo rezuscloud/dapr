@@ -80,16 +80,12 @@ func (o *orchestrator) loadInternalState(ctx context.Context) (*wfenginestate.St
 	// nothing to validate and the history-index build is pure waste. Skip
 	// when the workflow is already terminal, so we don't re-detect the same
 	// condition on every load.
-<<<<<<< HEAD
 	// The unstartable shape (inbox events, empty history, no pending start)
 	// is exempt: with no signed history there is no attestation for inbox
 	// events to violate, and tombstoning it appends a completion without a
 	// start event, masking the terminal status as PENDING. runWorkflow's
 	// unstartable classification fails it terminally instead.
 	if o.signer != nil && len(state.Inbox) > 0 && !state.IsCompleted() && !isUnstartableState(state) {
-=======
-	if o.signer != nil && len(state.Inbox) > 0 && !state.IsCompleted() {
->>>>>>> upstream/release-1.18
 		if filtered := filterValidInboxEvents(state); len(filtered) != len(state.Inbox) {
 			cause := fmt.Errorf("workflow actor '%s': inbox contained %d events that did not match signed history (state store tampering)",
 				o.actorID, len(state.Inbox)-len(filtered))
@@ -150,11 +146,6 @@ func (o *orchestrator) tombstoneTamperedState(ctx context.Context, opts wfengine
 	}
 	o.notifyStreams()
 
-	if o.eventSink != nil {
-		o.eventSink(o.ometa)
-	}
-	o.notifyStreams()
-
 	return failed, o.ometa, nil
 }
 
@@ -187,12 +178,9 @@ func (o *orchestrator) notifyStreams() {
 	}
 }
 
-<<<<<<< HEAD
 // commitTimeout bounds a state commit that has outlived its caller's context.
 const commitTimeout = 30 * time.Second
 
-=======
->>>>>>> upstream/release-1.18
 // signAndSaveState signs any newly added history events and then persists the
 // state. This is the single entry point for all state persistence; callers
 // must never call saveInternalState directly.
@@ -214,7 +202,6 @@ func (o *orchestrator) invalidateCachedState() {
 	o.ometa = nil
 }
 
-<<<<<<< HEAD
 // primeCachedState rebuilds the cached runtime-state and metadata views from
 // state. startEvent supplies the ExecutionStartedEvent the metadata falls back
 // to when the runtime state carries none of its own. The inverse is
@@ -225,8 +212,6 @@ func (o *orchestrator) primeCachedState(state *wfenginestate.State, startEvent *
 	o.ometa = o.ometaFromState(o.rstate, startEvent)
 }
 
-=======
->>>>>>> upstream/release-1.18
 // confirmCachedState re-reads the metadata row before a message is acked off
 // the cache without a write. A host that lost this actor to a peer would
 // otherwise ack from stale state, where a write would have failed on its
@@ -261,7 +246,6 @@ func (o *orchestrator) saveInternalState(ctx context.Context, state *wfenginesta
 
 	log.Debugf("Workflow actor '%s': saving %d keys to actor state store", o.actorID, len(req.Operations))
 
-<<<<<<< HEAD
 	// The commit must not be abandoned because the caller's context died. A
 	// turn dispatches its activities BEFORE it saves, so a host-level cancel
 	// (worker disconnect, placement churn, HaltAll) landing between the two
@@ -273,9 +257,6 @@ func (o *orchestrator) saveInternalState(ctx context.Context, state *wfenginesta
 	defer cancel()
 
 	if err = o.actorState.TransactionalStateOperation(cctx, true, req, false); err != nil {
-=======
-	if err = o.actorState.TransactionalStateOperation(ctx, true, req, false); err != nil {
->>>>>>> upstream/release-1.18
 		// ETagMismatch means a peer host wrote to this workflow's metadata
 		// row underneath us between our load and this save. The whole Multi
 		// rolled back atomically, so the durable state still reflects the

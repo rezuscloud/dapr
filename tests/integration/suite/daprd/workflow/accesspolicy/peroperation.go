@@ -39,10 +39,7 @@ import (
 	"github.com/dapr/durabletask-go/api/protos"
 	"github.com/dapr/durabletask-go/client"
 	"github.com/dapr/durabletask-go/task"
-<<<<<<< HEAD
 	"github.com/dapr/kit/ptr"
-=======
->>>>>>> upstream/release-1.18
 )
 
 func init() {
@@ -287,7 +284,6 @@ func (p *peroperation) Run(t *testing.T, ctx context.Context) {
 		assert.Contains(t, err.Error(), "access denied by workflow access policy")
 	})
 
-<<<<<<< HEAD
 	// The subtests below exercise the same per-operation policy decisions
 	// through the real cross-app client surfaces (the Dapr runtime API's
 	// app_id field and the durabletask SDK's With*AppID options) rather than
@@ -426,8 +422,6 @@ func (p *peroperation) Run(t *testing.T, ctx context.Context) {
 		assert.Contains(t, err.Error(), "denied by workflow access policy")
 	})
 
-=======
->>>>>>> upstream/release-1.18
 	p.applyPolicyAllowAll(t, ctx)
 }
 

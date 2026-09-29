@@ -79,13 +79,7 @@ func (w *workflowAccessPolicies) recompile(all []wfaclapi.WorkflowAccessPolicy) 
 	log.Infof("Recompiled %d workflow access policy resource(s) (of %d total)", len(scoped), len(all))
 }
 
-<<<<<<< HEAD
 func (w *workflowAccessPolicies) update(ctx context.Context, policy wfaclapi.WorkflowAccessPolicy) error {
-=======
-// The go inter does not yet understand that these functions are being used by
-// the generic reconciler.
-func (w *workflowAccessPolicies) update(ctx context.Context, policy wfaclapi.WorkflowAccessPolicy) {
->>>>>>> upstream/release-1.18
 	if err := validate.WorkflowAccessPolicy(ctx, &policy); err != nil {
 		log.Warnf("WorkflowAccessPolicy %q failed validation, skipping: %s", policy.Name, err)
 		return nil
@@ -107,16 +101,10 @@ func (w *workflowAccessPolicies) update(ctx context.Context, policy wfaclapi.Wor
 	}
 	w.recompile(all)
 	w.store.AddWorkflowAccessPolicy(policy)
-<<<<<<< HEAD
 	return nil
 }
 
 func (w *workflowAccessPolicies) delete(_ context.Context, policy wfaclapi.WorkflowAccessPolicy) error {
-=======
-}
-
-func (w *workflowAccessPolicies) delete(_ context.Context, policy wfaclapi.WorkflowAccessPolicy) {
->>>>>>> upstream/release-1.18
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
@@ -129,8 +117,5 @@ func (w *workflowAccessPolicies) delete(_ context.Context, policy wfaclapi.Workf
 	}
 	w.recompile(remaining)
 	w.store.DeleteWorkflowAccessPolicy(policy.Name)
-<<<<<<< HEAD
 	return nil
-=======
->>>>>>> upstream/release-1.18
 }

@@ -20,18 +20,12 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-<<<<<<< HEAD
 	"github.com/stretchr/testify/mock"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/stretchr/testify/require"
 	apiextv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-<<<<<<< HEAD
 	contribpubsub "github.com/dapr/components-contrib/pubsub"
-=======
->>>>>>> upstream/release-1.18
 	inmemory "github.com/dapr/components-contrib/state/in-memory"
 	actorsfake "github.com/dapr/dapr/pkg/actors/fake"
 	commonapi "github.com/dapr/dapr/pkg/apis/common"
@@ -47,7 +41,6 @@ import (
 	"github.com/dapr/dapr/pkg/runtime/processor"
 	"github.com/dapr/dapr/pkg/runtime/registry"
 	securityfake "github.com/dapr/dapr/pkg/security/fake"
-<<<<<<< HEAD
 	daprt "github.com/dapr/dapr/pkg/testing"
 	"github.com/dapr/kit/logger"
 )
@@ -106,10 +99,6 @@ func newComponentsGuardManager(t *testing.T) (*components, *processor.Processor,
 	return m, proc, cs, mockPubSub
 }
 
-=======
-)
-
->>>>>>> upstream/release-1.18
 // runProc starts the processor loop and registers cleanup. update/delete block
 // on the loop, so it must be running.
 func runProc(t *testing.T, proc *processor.Processor) context.Context {
@@ -196,11 +185,7 @@ func Test_components_actorStateStore(t *testing.T) {
 		ctx := runProc(t, proc)
 
 		// Add: an unmarked store does not occupy the actor slot or kick.
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", false, 1)))
-=======
-		m.update(ctx, actorStoreComp("mystore", false, 1))
->>>>>>> upstream/release-1.18
 		_, _, ok := cs.GetStateStoreActor()
 		assert.False(t, ok)
 		assert.Equal(t, int64(0), kicks.Load())
@@ -208,11 +193,7 @@ func Test_components_actorStateStore(t *testing.T) {
 		// Update to marked: slot occupied. Both the state processor (add
 		// side) and the reconciler (settle) notify; kicks coalesce in the
 		// real runtime.
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", true, 2)))
-=======
-		m.update(ctx, actorStoreComp("mystore", true, 2))
->>>>>>> upstream/release-1.18
 		_, name, ok := cs.GetStateStoreActor()
 		require.True(t, ok)
 		assert.Equal(t, "mystore", name)
@@ -226,22 +207,14 @@ func Test_components_actorStateStore(t *testing.T) {
 			Name:  "marker",
 			Value: commonapi.DynamicValue{JSON: apiextv1.JSON{Raw: []byte(`"x"`)}},
 		})
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, comp))
-=======
-		m.update(ctx, comp)
->>>>>>> upstream/release-1.18
 		_, name, ok = cs.GetStateStoreActor()
 		require.True(t, ok)
 		assert.Equal(t, "mystore", name)
 		assert.Equal(t, int64(4), kicks.Load())
 
 		// Delete: slot cleared, reconciler settle notifies.
-<<<<<<< HEAD
 		require.NoError(t, m.delete(ctx, comp))
-=======
-		m.delete(ctx, comp)
->>>>>>> upstream/release-1.18
 		_, _, ok = cs.GetStateStoreActor()
 		assert.False(t, ok)
 		_, exists := cs.GetComponent("mystore")
@@ -254,13 +227,8 @@ func Test_components_actorStateStore(t *testing.T) {
 		m, proc, cs := newComponentsActorStoreManager(t, &kicks)
 		ctx := runProc(t, proc)
 
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", true, 1)))
 		require.NoError(t, m.update(ctx, actorStoreComp("otherstore", true, 1)))
-=======
-		m.update(ctx, actorStoreComp("mystore", true, 1))
-		m.update(ctx, actorStoreComp("otherstore", true, 1))
->>>>>>> upstream/release-1.18
 
 		_, name, ok := cs.GetStateStoreActor()
 		require.True(t, ok)
@@ -270,11 +238,7 @@ func Test_components_actorStateStore(t *testing.T) {
 		assert.Equal(t, int64(2), kicks.Load())
 
 		// An unmarked second store is unaffected by the guard.
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("plainstore", false, 1)))
-=======
-		m.update(ctx, actorStoreComp("plainstore", false, 1))
->>>>>>> upstream/release-1.18
 		_, exists = cs.GetComponent("plainstore")
 		assert.True(t, exists)
 	})
@@ -287,21 +251,12 @@ func Test_components_actorStateStore(t *testing.T) {
 		// A rename delivered create-before-delete: the new store is skipped
 		// while the old one occupies the slot, and applied when the old one
 		// is deleted.
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", true, 1)))
 		require.NoError(t, m.update(ctx, actorStoreComp("otherstore", true, 1)))
 		_, exists := cs.GetComponent("otherstore")
 		require.False(t, exists)
 
 		require.NoError(t, m.delete(ctx, actorStoreComp("mystore", true, 2)))
-=======
-		m.update(ctx, actorStoreComp("mystore", true, 1))
-		m.update(ctx, actorStoreComp("otherstore", true, 1))
-		_, exists := cs.GetComponent("otherstore")
-		require.False(t, exists)
-
-		m.delete(ctx, actorStoreComp("mystore", true, 2))
->>>>>>> upstream/release-1.18
 
 		_, name, ok := cs.GetStateStoreActor()
 		require.True(t, ok)
@@ -317,17 +272,10 @@ func Test_components_actorStateStore(t *testing.T) {
 		m, proc, cs := newComponentsActorStoreManager(t, &kicks)
 		ctx := runProc(t, proc)
 
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", true, 1)))
 		require.NoError(t, m.update(ctx, actorStoreComp("otherstore", true, 1)))
 
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", false, 2)))
-=======
-		m.update(ctx, actorStoreComp("mystore", true, 1))
-		m.update(ctx, actorStoreComp("otherstore", true, 1))
-
-		m.update(ctx, actorStoreComp("mystore", false, 2))
->>>>>>> upstream/release-1.18
 
 		_, name, ok := cs.GetStateStoreActor()
 		require.True(t, ok)
@@ -341,7 +289,6 @@ func Test_components_actorStateStore(t *testing.T) {
 		m, proc, cs := newComponentsActorStoreManager(t, &kicks)
 		ctx := runProc(t, proc)
 
-<<<<<<< HEAD
 		require.NoError(t, m.update(ctx, actorStoreComp("mystore", true, 1)))
 		require.NoError(t, m.update(ctx, actorStoreComp("otherstore", true, 1)))
 
@@ -349,15 +296,6 @@ func Test_components_actorStateStore(t *testing.T) {
 		// a plain store and must not be replayed as the actor state store.
 		require.NoError(t, m.update(ctx, actorStoreComp("otherstore", false, 2)))
 		require.NoError(t, m.delete(ctx, actorStoreComp("mystore", true, 2)))
-=======
-		m.update(ctx, actorStoreComp("mystore", true, 1))
-		m.update(ctx, actorStoreComp("otherstore", true, 1))
-
-		// The skipped store is unmarked before the slot frees; it installs as
-		// a plain store and must not be replayed as the actor state store.
-		m.update(ctx, actorStoreComp("otherstore", false, 2))
-		m.delete(ctx, actorStoreComp("mystore", true, 2))
->>>>>>> upstream/release-1.18
 
 		_, _, ok := cs.GetStateStoreActor()
 		assert.False(t, ok)
@@ -365,7 +303,6 @@ func Test_components_actorStateStore(t *testing.T) {
 		assert.True(t, exists)
 	})
 }
-<<<<<<< HEAD
 
 // Test_components_update_generationGuard pins the behaviour of the
 // lower-generation reject in components.update, including the delete-then-stale
@@ -414,5 +351,3 @@ func Test_components_update_generationGuard(t *testing.T) {
 		mockPubSub.AssertNumberOfCalls(t, "Close", 1)
 	})
 }
-=======
->>>>>>> upstream/release-1.18

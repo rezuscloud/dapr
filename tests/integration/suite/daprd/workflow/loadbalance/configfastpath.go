@@ -11,7 +11,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package workflow
+package loadbalance
 
 import (
 	"testing"
@@ -20,7 +20,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
-<<<<<<<< HEAD:tests/integration/suite/daprd/workflow/loadbalance/configfastpath.go
 	"github.com/dapr/dapr/tests/integration/framework/process/exec"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 )
@@ -32,44 +31,17 @@ func newClusteredFastPathDeployment(t *testing.T, daprds int, extraEnv ...string
 		workflow.WithClusteredDeployment(true),
 		workflow.WithFastPath(true),
 	)
-========
-)
-
-// NewClustered returns a Workflow whose daprds share a single app ID with
-// WorkflowsClusteredDeployment enabled, representing a clustered deployment
-// behind a load balancer.
-func NewClustered(t *testing.T, daprds int, extraDaprdOpts ...daprd.Option) *Workflow {
-	t.Helper()
-
-	wopts := make([]Option, 0, 1+daprds)
-	wopts = append(wopts, WithDaprds(daprds))
-	config := `
-apiVersion: dapr.io/v1alpha1
-kind: Configuration
-metadata:
-    name: workflowsclustereddeployment
-spec:
-    features:
-    - name: WorkflowsClusteredDeployment
-      enabled: true
-`
->>>>>>>> upstream/release-1.18:tests/integration/framework/process/workflow/clustered.go
 	uid, err := uuid.NewRandom()
 	require.NoError(t, err)
 	appID := uid.String()
 
 	for i := range daprds {
-<<<<<<<< HEAD:tests/integration/suite/daprd/workflow/loadbalance/configfastpath.go
 		wopts = append(wopts, workflow.WithDaprdOptions(i,
 			daprd.WithAppID(appID),
 			daprd.WithExecOptions(exec.WithEnvVars(t,
 				append([]string{"DAPR_WORKFLOW_JANITOR_PERIOD", "2s"}, extraEnv...)...,
 			)),
 		))
-========
-		dopts := append([]daprd.Option{daprd.WithAppID(appID), daprd.WithConfigManifests(t, config)}, extraDaprdOpts...)
-		wopts = append(wopts, WithDaprdOptions(i, dopts...))
->>>>>>>> upstream/release-1.18:tests/integration/framework/process/workflow/clustered.go
 	}
-	return New(t, wopts...)
+	return workflow.New(t, wopts...)
 }

@@ -79,7 +79,6 @@ type Options struct {
 	// LOCK -> UPDATE -> UNLOCK round. If the round exceeds this, daprd
 	// resets its placement stream and halts hosted actors.
 	DisseminationTimeout time.Duration
-<<<<<<< HEAD
 
 	// SchedulerPlacement asks the scheduler whether it serves placement and,
 	// if so, uses it as this sidecar's placement authority. Otherwise the
@@ -94,8 +93,6 @@ type Options struct {
 	// PlacementStartupTimeout bounds the wait for a scheduler placement
 	// advertisement at startup while Addresses provides a fallback.
 	PlacementStartupTimeout time.Duration
-=======
->>>>>>> upstream/release-1.18
 }
 
 type placement struct {
@@ -239,7 +236,6 @@ func New(opts Options) (Interface, error) {
 			Namespace:  opts.Namespace,
 			Healthz:    opts.Healthz,
 			Connector:  conn,
-<<<<<<< HEAD
 			InitialReport: &loops.Report{
 				Address:   net.JoinHostPort(opts.Hostname, strconv.Itoa(opts.Port)),
 				AppID:     opts.AppID,
@@ -250,14 +246,6 @@ func New(opts Options) (Interface, error) {
 			Fallback:             fallback,
 			Leadership:           opts.SchedulerLeadership,
 			StartupTimeout:       opts.PlacementStartupTimeout,
-=======
-			InitialHost: &v1pb.Host{
-				Name:      net.JoinHostPort(opts.Hostname, strconv.Itoa(opts.Port)),
-				Id:        opts.AppID,
-				ApiLevel:  20,
-				Namespace: opts.Namespace,
-			},
->>>>>>> upstream/release-1.18
 			DisseminationTimeout: opts.DisseminationTimeout,
 		}),
 	}, nil

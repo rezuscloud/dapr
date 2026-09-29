@@ -128,11 +128,7 @@ func (a *App) runActorCallbackStream(t *testing.T) {
 		}
 		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-<<<<<<< HEAD
 			iowriter.Eventf(t, "procgrpcapp: failed to dial daprd at %s: %v", addr, err)
-=======
-			t.Logf("procgrpcapp: failed to dial daprd at %s: %v", addr, err)
->>>>>>> upstream/release-1.18
 			select {
 			case <-a.streamCtx.Done():
 				return
@@ -191,11 +187,7 @@ func (a *App) pumpActorCallbackStream(t *testing.T, conn *grpc.ClientConn) {
 		return
 	}
 	if resp.GetInitialResponse() == nil {
-<<<<<<< HEAD
 		iowriter.Eventf(t, "procgrpcapp: expected initial response, got %T", resp.GetResponseType())
-=======
-		t.Logf("procgrpcapp: expected initial response, got %T", resp.GetResponseType())
->>>>>>> upstream/release-1.18
 		return
 	}
 

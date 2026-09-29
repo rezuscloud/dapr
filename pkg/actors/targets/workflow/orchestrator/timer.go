@@ -28,10 +28,6 @@ import (
 
 	actorapi "github.com/dapr/dapr/pkg/actors/api"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
-<<<<<<< HEAD
-=======
-	commonv1pb "github.com/dapr/dapr/pkg/proto/common/v1"
->>>>>>> upstream/release-1.18
 	"github.com/dapr/durabletask-go/api/protos"
 	"github.com/dapr/durabletask-go/backend"
 )

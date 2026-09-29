@@ -64,18 +64,11 @@ type Options struct {
 	// signing is disabled.
 	Signer *signer.Signer
 
-<<<<<<< HEAD
-=======
-	// May be nil when the feature is disabled.
-	WorkflowAccessPolicies *workflowacl.Holder
-
->>>>>>> upstream/release-1.18
 	// MaxRequestBodySize is the gRPC server max message size in bytes. The
 	// orchestrator stalls workflows whose history payload would exceed this
 	// limit on the GetWorkItems stream.
 	MaxRequestBodySize int
 
-<<<<<<< HEAD
 	// May be nil when the feature is disabled.
 	WorkflowAccessPolicies *workflowacl.Holder
 
@@ -85,8 +78,6 @@ type Options struct {
 	// and the in-memory completions fold (fold.go).
 	FastPath bool
 
-=======
->>>>>>> upstream/release-1.18
 	// Detached runs work that must outlive an invocation or claim context, on
 	// the runtime lifetime rather than this registration's. Nil creates one
 	// bounded by ctx.
@@ -109,13 +100,8 @@ type factory struct {
 	actorTypeBuilder       *common.ActorTypeBuilder
 	retentionPolicy        *config.WorkflowStateRetentionPolicy
 	signer                 *signer.Signer
-<<<<<<< HEAD
 	maxRequestBodySize     int
 	workflowAccessPolicies *workflowacl.Holder
-=======
-	workflowAccessPolicies *workflowacl.Holder
-	maxRequestBodySize     int
->>>>>>> upstream/release-1.18
 
 	scheduler todo.WorkflowScheduler
 
@@ -154,8 +140,6 @@ type factory struct {
 	rootCtx  context.Context
 	detached *detached.Runner
 
-	detached *detached.Runner
-
 	table sync.Map
 	lock  sync.Mutex
 
@@ -187,25 +171,18 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 
 	deactivateCh := make(chan *orchestrator, 1024)
 
-<<<<<<< HEAD
 	wakeCtx, wakeCancel := context.WithCancel(context.Background())
 
-=======
->>>>>>> upstream/release-1.18
 	det := opts.Detached
 	if det == nil {
 		det = detached.New(ctx)
 	}
 
-<<<<<<< HEAD
 	reaperScanInterval := common.EnvDurationOr("DAPR_WORKFLOW_REAPER_SCAN_INTERVAL", 5*time.Second)
 	reaperIdleTTL := common.EnvDurationOr("DAPR_WORKFLOW_REAPER_IDLE_TTL", max(2*common.JanitorPeriod(), time.Minute))
 	foldWaitTimeout := common.EnvDurationOr("DAPR_WORKFLOW_FOLD_WAIT_TIMEOUT", 2*time.Minute)
 
 	f := &factory{
-=======
-	return &factory{
->>>>>>> upstream/release-1.18
 		appID:                  opts.AppID,
 		namespace:              opts.Namespace,
 		actorType:              opts.WorkflowActorType,
@@ -220,7 +197,6 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 		placement:              placement,
 		retentionPolicy:        opts.RetentionPolicy,
 		signer:                 opts.Signer,
-<<<<<<< HEAD
 		maxRequestBodySize:     opts.MaxRequestBodySize,
 		foldWaitTimeout:        foldWaitTimeout,
 		workflowAccessPolicies: opts.WorkflowAccessPolicies,
@@ -257,14 +233,6 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 	})
 
 	return f, nil
-=======
-		workflowAccessPolicies: opts.WorkflowAccessPolicies,
-		maxRequestBodySize:     opts.MaxRequestBodySize,
-		scheduler:              opts.Scheduler,
-		deactivateCh:           deactivateCh,
-		detached:               det,
-	}, nil
->>>>>>> upstream/release-1.18
 }
 
 func (f *factory) GetOrCreate(actorID string) targets.Interface {

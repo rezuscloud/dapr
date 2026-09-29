@@ -111,12 +111,3 @@ func (p *Processor) category(comp componentsapi.Component) components.Category {
 	}
 	return ""
 }
-
-// OnActorStateStoreChanged notifies the actor runtime that the actor state
-// store was added, removed, or replaced. Safe to call when no actor runtime
-// is configured.
-func (p *Processor) OnActorStateStoreChanged() {
-	if p.actors != nil {
-		p.actors.OnActorStateStoreChanged()
-	}
-}

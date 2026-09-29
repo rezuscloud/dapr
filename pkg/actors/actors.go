@@ -74,7 +74,6 @@ type Options struct {
 	// DisseminationTimeout is the daprd-side timeout for a placement
 	// LOCK -> UPDATE -> UNLOCK round.
 	DisseminationTimeout time.Duration
-<<<<<<< HEAD
 
 	PlacementStartupTimeout time.Duration
 
@@ -83,8 +82,6 @@ type Options struct {
 	// decision, read from the WatchHosts advertisement on startup. Actors
 	// are enabled even without placement addresses when set.
 	SchedulerPlacementEnabled bool
-=======
->>>>>>> upstream/release-1.18
 }
 
 type InitOptions struct {
@@ -92,13 +89,10 @@ type InitOptions struct {
 	GRPC              *manager.Manager
 	SchedulerClient   schedulerv1pb.SchedulerClient
 	SchedulerReloader schedclient.Reloader
-<<<<<<< HEAD
 
 	// SchedulerLeadership tracks the scheduler placement leader, used by the
 	// placement client when SchedulerPlacementEnabled is set.
 	SchedulerLeadership *leadership.Leadership
-=======
->>>>>>> upstream/release-1.18
 }
 
 // Interface is the main runtime for the actors subsystem.
@@ -135,17 +129,11 @@ type actors struct {
 	healthz            healthz.Healthz
 	compStore          *compstore.ComponentStore
 	// TODO: @joshvanl Remove in Dapr 1.12 when ActorStateTTL is finalized.
-<<<<<<< HEAD
 	stateTTLEnabled           bool
 	maxRequestBodySize        int
 	disseminationTimeout      time.Duration
 	placementStartupTimeout   time.Duration
 	schedulerPlacementEnabled bool
-=======
-	stateTTLEnabled      bool
-	maxRequestBodySize   int
-	disseminationTimeout time.Duration
->>>>>>> upstream/release-1.18
 
 	reminders       reminders.Interface
 	table           table.Interface
@@ -190,7 +178,6 @@ func New(opts Options) Interface {
 	}
 
 	return &actors{
-<<<<<<< HEAD
 		appID:                     opts.AppID,
 		namespace:                 opts.Namespace,
 		port:                      opts.Port,
@@ -214,29 +201,6 @@ func New(opts Options) Interface {
 		placementStartupTimeout:   opts.PlacementStartupTimeout,
 		schedulerPlacementEnabled: opts.SchedulerPlacementEnabled,
 		reentrancyStore:           reentrancystore.New(),
-=======
-		appID:                opts.AppID,
-		namespace:            opts.Namespace,
-		port:                 opts.Port,
-		placementAddresses:   opts.PlacementAddresses,
-		healthEndpoint:       opts.HealthEndpoint,
-		resiliency:           opts.Resiliency,
-		security:             opts.Security,
-		compStore:            opts.CompStore,
-		stateTTLEnabled:      opts.StateTTLEnabled,
-		clock:                clock.RealClock{},
-		disabled:             &disabled,
-		healthz:              opts.Healthz,
-		readyCh:              make(chan struct{}),
-		closedCh:             make(chan struct{}),
-		initDoneCh:           make(chan struct{}),
-		registerDoneCh:       make(chan struct{}),
-		storeKickCh:          make(chan struct{}, 1),
-		maxRequestBodySize:   opts.MaxRequestBodySize,
-		mode:                 opts.Mode,
-		disseminationTimeout: opts.DisseminationTimeout,
-		reentrancyStore:      reentrancystore.New(),
->>>>>>> upstream/release-1.18
 	}
 }
 
@@ -255,10 +219,7 @@ func (a *actors) Init(opts InitOptions) error {
 	a.table = table.New(table.Options{
 		ReentrancyStore: a.reentrancyStore,
 		StartSuspended:  !a.hostingActive,
-<<<<<<< HEAD
 		Timers:          func() internaltimers.Storage { return a.timerStorage },
-=======
->>>>>>> upstream/release-1.18
 	})
 
 	a.scheduler = scheduler.New(scheduler.Options{
@@ -274,7 +235,6 @@ func (a *actors) Init(opts InitOptions) error {
 
 	var err error
 	a.placement, err = placement.New(placement.Options{
-<<<<<<< HEAD
 		AppID:                   a.appID,
 		Addresses:               a.placementAddresses,
 		Security:                a.security,
@@ -289,19 +249,6 @@ func (a *actors) Init(opts InitOptions) error {
 		PlacementStartupTimeout: a.placementStartupTimeout,
 		SchedulerPlacement:      a.schedulerPlacementEnabled,
 		SchedulerLeadership:     opts.SchedulerLeadership,
-=======
-		AppID:                a.appID,
-		Addresses:            a.placementAddresses,
-		Security:             a.security,
-		Table:                a.table,
-		Namespace:            a.namespace,
-		Hostname:             opts.Hostname,
-		Port:                 a.port,
-		Healthz:              a.healthz,
-		Mode:                 a.mode,
-		Scheduler:            opts.SchedulerReloader,
-		DisseminationTimeout: a.disseminationTimeout,
->>>>>>> upstream/release-1.18
 	})
 	if err != nil {
 		return err

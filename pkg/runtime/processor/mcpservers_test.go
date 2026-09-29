@@ -14,10 +14,6 @@ limitations under the License.
 package processor
 
 import (
-<<<<<<< HEAD
-=======
-	"context"
->>>>>>> upstream/release-1.18
 	"testing"
 	"time"
 
@@ -40,10 +36,7 @@ import (
 // an unchanged secret-ref server is not reloaded on every reconcile tick.
 func TestProcessMCPServerResolvesSecrets(t *testing.T) {
 	proc, reg := newTestProc()
-<<<<<<< HEAD
 	startProc(t, proc)
-=======
->>>>>>> upstream/release-1.18
 
 	reg.SecretStores().RegisterComponent(
 		func(_ logger.Logger) secretstores.SecretStore {
@@ -52,11 +45,7 @@ func TestProcessMCPServerResolvesSecrets(t *testing.T) {
 		"kubernetesMock",
 	)
 
-<<<<<<< HEAD
 	require.NoError(t, proc.Init(t.Context(), componentsapi.Component{
-=======
-	require.NoError(t, proc.processComponentAndDependents(t.Context(), componentsapi.Component{
->>>>>>> upstream/release-1.18
 		ObjectMeta: metav1.ObjectMeta{Name: "mysecretstore"},
 		Spec: componentsapi.ComponentSpec{
 			Type:    "secretstores.kubernetesMock",
@@ -82,26 +71,9 @@ func TestProcessMCPServerResolvesSecrets(t *testing.T) {
 		},
 	}
 
-<<<<<<< HEAD
 	res := proc.AddPendingMCPServer(t.Context(), server)
 	require.NotNil(t, res)
 	require.NoError(t, <-res)
-=======
-	ctx, cancel := context.WithCancel(t.Context())
-	errCh := make(chan error)
-	go func() { errCh <- proc.Process(ctx) }()
-	t.Cleanup(func() {
-		cancel()
-		select {
-		case err := <-errCh:
-			require.NoError(t, err)
-		case <-time.After(5 * time.Second):
-			require.Fail(t, "timeout waiting for processor to return")
-		}
-	})
-
-	require.True(t, proc.AddPendingMCPServer(ctx, server))
->>>>>>> upstream/release-1.18
 
 	var stored mcpserverapi.MCPServer
 	require.EventuallyWithT(t, func(c *assert.CollectT) {

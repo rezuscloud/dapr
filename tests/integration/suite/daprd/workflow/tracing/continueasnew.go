@@ -24,10 +24,7 @@ import (
 	v1 "go.opentelemetry.io/proto/otlp/trace/v1"
 
 	"github.com/dapr/dapr/tests/integration/framework"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/otel"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 	"github.com/dapr/dapr/tests/integration/suite"
@@ -74,11 +71,7 @@ func (c *continueasnew) Run(t *testing.T, ctx context.Context) {
 		return nil, nil
 	})
 
-<<<<<<< HEAD
 	client := dworkflow.NewClientWithLogger(c.wf.Dapr().GRPCConn(t, ctx), logger.New(t))
-=======
-	client := dworkflow.NewClient(c.wf.Dapr().GRPCConn(t, ctx))
->>>>>>> upstream/release-1.18
 	require.NoError(t, client.StartWorker(ctx, reg))
 
 	id, err := client.ScheduleWorkflow(ctx, "can",

@@ -49,7 +49,6 @@ func (o *orchestrator) handleStream(ctx context.Context,
 
 	o.redriveOverduePendingStart(state)
 
-<<<<<<< HEAD
 	// A one-shot metadata fetch (cross-app GetWorkflowMetadata) must never
 	// park the stream: reply with the current metadata, or a not-found status
 	// when the instance does not exist. Nonexistence is conveyed in the
@@ -73,8 +72,6 @@ func (o *orchestrator) handleStream(ctx context.Context,
 		return false, err
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	// A caller gating instance ID reuse asks for the whole subtree to be
 	// verified terminal, not just this workflow: recurse into children before
 	// replying. Older daprds never send the flag and older callers are

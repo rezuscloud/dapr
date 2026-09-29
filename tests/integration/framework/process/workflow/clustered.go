@@ -20,22 +20,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:tests/integration/suite/daprd/workflow/loadbalance/configfastpath.go
-	"github.com/dapr/dapr/tests/integration/framework/process/exec"
-	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
-)
-
-func newClusteredFastPathDeployment(t *testing.T, daprds int, extraEnv ...string) *workflow.Workflow {
-	wopts := make([]workflow.Option, 0, 3+daprds)
-	wopts = append(wopts,
-		workflow.WithDaprds(daprds),
-		workflow.WithClusteredDeployment(true),
-		workflow.WithFastPath(true),
-	)
-========
->>>>>>> upstream/release-1.18
 )
 
 // NewClustered returns a Workflow whose daprds share a single app ID with
@@ -44,47 +28,16 @@ func newClusteredFastPathDeployment(t *testing.T, daprds int, extraEnv ...string
 func NewClustered(t *testing.T, daprds int, extraDaprdOpts ...daprd.Option) *Workflow {
 	t.Helper()
 
-<<<<<<< HEAD
-=======
-	wopts := make([]Option, 0, 1+daprds)
-	wopts = append(wopts, WithDaprds(daprds))
-	config := `
-apiVersion: dapr.io/v1alpha1
-kind: Configuration
-metadata:
-    name: workflowsclustereddeployment
-spec:
-    features:
-    - name: WorkflowsClusteredDeployment
-      enabled: true
-`
->>>>>>>> upstream/release-1.18:tests/integration/framework/process/workflow/clustered.go
->>>>>>> upstream/release-1.18
 	uid, err := uuid.NewRandom()
 	require.NoError(t, err)
 	appID := uid.String()
 
-<<<<<<< HEAD
 	wopts := make([]Option, 0, 2+daprds)
 	wopts = append(wopts, WithDaprds(daprds), WithClusteredDeployment(true))
 
 	for i := range daprds {
 		dopts := append([]daprd.Option{daprd.WithAppID(appID)}, extraDaprdOpts...)
 		wopts = append(wopts, WithDaprdOptions(i, dopts...))
-=======
-	for i := range daprds {
-<<<<<<<< HEAD:tests/integration/suite/daprd/workflow/loadbalance/configfastpath.go
-		wopts = append(wopts, workflow.WithDaprdOptions(i,
-			daprd.WithAppID(appID),
-			daprd.WithExecOptions(exec.WithEnvVars(t,
-				append([]string{"DAPR_WORKFLOW_JANITOR_PERIOD", "2s"}, extraEnv...)...,
-			)),
-		))
-========
-		dopts := append([]daprd.Option{daprd.WithAppID(appID), daprd.WithConfigManifests(t, config)}, extraDaprdOpts...)
-		wopts = append(wopts, WithDaprdOptions(i, dopts...))
->>>>>>>> upstream/release-1.18:tests/integration/framework/process/workflow/clustered.go
->>>>>>> upstream/release-1.18
 	}
 	return New(t, wopts...)
 }
