@@ -13,7 +13,6 @@ limitations under the License.
 
 package inflight
 
-<<<<<<< HEAD
 import (
 	"sync"
 	"sync/atomic"
@@ -80,19 +79,6 @@ func (c *Call) Settled() bool {
 	default:
 		return false
 	}
-=======
-import "sync"
-
-// Call tracks a single in-flight activity execution.
-type Call struct {
-	done chan struct{}
-	once sync.Once
-	err  error
-}
-
-func newCall() *Call {
-	return &Call{done: make(chan struct{})}
->>>>>>> upstream/release-1.18
 }
 
 // Done returns a channel that is closed when Finish has been called. After

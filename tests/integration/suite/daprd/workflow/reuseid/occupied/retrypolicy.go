@@ -105,7 +105,6 @@ func (r *retrypolicy) Run(t *testing.T, ctx context.Context) {
 	require.Eventually(t, childFailed.Load, time.Second*10, time.Millisecond*10)
 	close(releaseCh)
 
-<<<<<<< HEAD
 	// Under WorkflowsFastPath the child's re-claim after release rides retry
 	// backoff without per-event reminder pressure; give it more headroom
 	// under parallel suite load.
@@ -114,9 +113,6 @@ func (r *retrypolicy) Run(t *testing.T, ctx context.Context) {
 		waitTimeout = time.Second * 90
 	}
 	waitCtx, cancel := context.WithTimeout(ctx, waitTimeout)
-=======
-	waitCtx, cancel := context.WithTimeout(ctx, time.Second*30)
->>>>>>> upstream/release-1.18
 	t.Cleanup(cancel)
 	meta, err := client.WaitForWorkflowCompletion(waitCtx, parentID)
 	require.NoError(t, err)

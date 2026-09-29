@@ -33,10 +33,7 @@ import (
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/events"
 	commonv1pb "github.com/dapr/dapr/pkg/proto/common/v1"
 	wfenginestate "github.com/dapr/dapr/pkg/runtime/wfengine/state"
-<<<<<<< HEAD
 	"github.com/dapr/durabletask-go/api/protos"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/durabletask-go/backend"
 )
 
@@ -78,25 +75,12 @@ func (o *orchestrator) createRetentionReminder(ctx context.Context, name string,
 		ActorID:   o.actorID,
 		DueTime:   dueTime,
 		Name:      name,
-<<<<<<< HEAD
 		// One shot, retry forever, jittered interval.
 		FailurePolicy: common.RetryForeverPolicy(),
-=======
-		// One shot, retry forever, every second.
-		FailurePolicy: &commonv1pb.JobFailurePolicy{
-			Policy: &commonv1pb.JobFailurePolicy_Constant{
-				Constant: &commonv1pb.JobFailurePolicyConstant{
-					Interval:   durationpb.New(time.Second),
-					MaxRetries: nil,
-				},
-			},
-		},
->>>>>>> upstream/release-1.18
 	})
 }
 
 // assertStartReminder creates (or overwrites by name) the deterministic start
-<<<<<<< HEAD
 // reminder for a pending start and, under the fast path, drives a due-now
 // start locally. The durable reminder is then a dormant backstop: due one
 // redrive grace out so it cannot fire beside the local drive, yet recovers a
@@ -110,24 +94,10 @@ func (o *orchestrator) createRetentionReminder(ctx context.Context, name string,
 // incoming request's (a client retry regenerates the timestamp). The inbox row
 // is already committed, so a failed create is also handed to a detached retry
 // (see armDetachedOnCreateError) before the error is returned.
-=======
-// wake-up reminder for the ExecutionStarted event. The name is derived from
-// the event's build-time timestamp (start-es-<unixnano>), so retries of the
-// same server-side create collapse onto a single scheduler entry. A CLIENT
-// retry of the same logical create regenerates the event timestamp, so
-// callers re-driving a saved-but-never-run instance MUST pass the SAVED inbox
-// event, not the incoming request's.
-//
-// The Create retry stays bounded on the caller's context, which blocks the
-// client call. The inbox row is already committed, so a failed create is also
-// handed to a detached retry (see armDetachedOnCreateError) before the error
-// is returned.
->>>>>>> upstream/release-1.18
 func (o *orchestrator) assertStartReminder(ctx context.Context, startEvent *backend.HistoryEvent) error {
 	start := pendingstart.DueTime(startEvent)
 	workflowName := startEvent.GetExecutionStarted().GetName()
 	reminderName := events.EventReminderName(reminderPrefixStart, startEvent)
-<<<<<<< HEAD
 
 	due := start
 	if o.fastPath && !start.After(time.Now()) {
@@ -136,49 +106,8 @@ func (o *orchestrator) assertStartReminder(ctx context.Context, startEvent *back
 	if err := o.createWorkflowReminder(ctx, reminderName, nil, due, o.appID, &workflowName); err != nil {
 		o.armDetachedOnCreateError(reminderName, start, workflowName, startStillPending(reminderName), err)
 		return err
-=======
-	if err := o.createWorkflowReminderForever(ctx, reminderName, nil, start, o.appID, &workflowName); err != nil {
-		o.armDetachedOnCreateError(reminderName, start, workflowName, startStillPending(reminderName), err)
-		return err
 	}
-	return nil
-}
 
-// assertNewEventReminder creates (or overwrites by name) the deterministic
-// new-event wake-up reminder for the workflow actor that holds e in its inbox.
-func (o *orchestrator) assertNewEventReminder(ctx context.Context, e *backend.HistoryEvent, state *wfenginestate.State) error {
-	dueTime := e.Timestamp.AsTime()
-	if len(state.History) > 0 {
-		dueTime = state.History[0].Timestamp.AsTime()
-	}
-	wfName := o.getExecutionStartedEvent(state).GetName()
-	reminderName := events.EventReminderName(reminderPrefixNewEvent, e)
-	// Retry the Create forever (bounded by the actor context): the inbox event
-	// was saved before this call, so giving up after a bounded budget would
-	// leave a durable inbox row with no wake-up reminder to drive it. The
-	// reminder name is deterministic, so repeated Creates collapse onto a
-	// single scheduler entry. This is the workflow-actor-side durability that
-	// external events (RaiseEvent) lack on the sender side, unlike activity
-	// results.
-	if err := o.createWorkflowReminderForever(ctx, reminderName, nil, dueTime, o.appID, &wfName); err != nil {
-		o.armDetachedOnCreateError(reminderName, dueTime, wfName, inboxPending, err)
-		return err
-	}
-	return nil
-}
-
-// randomReminderName returns the prefix with a random suffix appended.
-// Use for reminders that have no stable identity to deduplicate retries by.
-func randomReminderName(prefix string) (string, error) {
-	b := make([]byte, 6)
-	if _, err := io.ReadFull(rand.Reader, b); err != nil {
-		return "", fmt.Errorf("failed to generate reminder ID: %w", err)
->>>>>>> upstream/release-1.18
-	}
-	return prefix + "-" + base64.RawURLEncoding.EncodeToString(b), nil
-}
-
-<<<<<<< HEAD
 	o.localDrive(reminderName, start)
 	return nil
 }
@@ -363,8 +292,6 @@ func randomReminderName(prefix string) (string, error) {
 	return prefix + "-" + base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-=======
->>>>>>> upstream/release-1.18
 func (o *orchestrator) createReminderWithType(ctx context.Context, reminderName string, data proto.Message, start time.Time, actorType string, concurrencyKey *string) error {
 	req, err := o.buildReminderRequest(reminderName, data, start, actorType, concurrencyKey)
 	if err != nil {

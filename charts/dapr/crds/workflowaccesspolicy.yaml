@@ -71,7 +71,6 @@ spec:
                           name:
                             description: Name is the exact name or glob pattern for
                               the activity.
-<<<<<<< HEAD
                             maxLength: 256
                             minLength: 1
                             type: string
@@ -123,13 +122,6 @@ spec:
                         - name
                         type: object
                       maxItems: 100
-=======
-                            minLength: 1
-                            type: string
-                        required:
-                        - name
-                        type: object
->>>>>>> upstream/release-1.18
                       type: array
                     callers:
                       description: |-
@@ -156,24 +148,17 @@ spec:
                       items:
                         description: |-
                           WorkflowRule grants the matched callers access to the listed operations on
-<<<<<<< HEAD
                           workflows whose name matches Name (exact or glob). An optional `requires`
                           gate may be attached, but only when the rule's sole operation is
                           `schedule` — schedule is the only operation that carries propagated
                           workflow history to check against. Express OR across prerequisite sets by
                           listing multiple workflow rules with the same Name, each with its own
                           `requires`; access is granted if any matching rule is satisfied.
-=======
-                          workflows whose name matches Name (exact or glob).
->>>>>>> upstream/release-1.18
                         properties:
                           name:
                             description: Name is the exact name or glob pattern for
                               the workflow.
-<<<<<<< HEAD
                             maxLength: 256
-=======
->>>>>>> upstream/release-1.18
                             minLength: 1
                             type: string
                           operations:
@@ -192,7 +177,6 @@ spec:
                               - get
                               - rerun
                               type: string
-<<<<<<< HEAD
                             maxItems: 8
                             minItems: 1
                             type: array
@@ -242,24 +226,16 @@ spec:
                               type: object
                             maxItems: 20
                             type: array
-=======
-                            minItems: 1
-                            type: array
-                            x-kubernetes-list-type: set
->>>>>>> upstream/release-1.18
                         required:
                         - name
                         - operations
                         type: object
-<<<<<<< HEAD
                         x-kubernetes-validations:
                         - message: requires is only valid when the rule's only operation
                             is 'schedule'
                           rule: '!has(self.requires) || size(self.requires) == 0 ||
                             (size(self.operations) == 1 && self.operations[0] == ''schedule'')'
                       maxItems: 100
-=======
->>>>>>> upstream/release-1.18
                       type: array
                   required:
                   - callers
@@ -269,10 +245,7 @@ spec:
                       a rule
                     rule: (has(self.workflows) && size(self.workflows) > 0) || (has(self.activities)
                       && size(self.activities) > 0)
-<<<<<<< HEAD
                 maxItems: 100
-=======
->>>>>>> upstream/release-1.18
                 type: array
             type: object
         type: object

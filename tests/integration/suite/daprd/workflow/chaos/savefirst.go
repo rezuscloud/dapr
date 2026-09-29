@@ -29,10 +29,7 @@ import (
 	"github.com/dapr/dapr/tests/integration/framework/os"
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/statestore"
 	"github.com/dapr/dapr/tests/integration/framework/process/statestore/fault"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
@@ -64,13 +61,10 @@ type savefirst struct {
 func (s *savefirst) Setup(t *testing.T) []framework.Option {
 	os.SkipWindows(t)
 
-<<<<<<< HEAD
 	if workflow.FastPathFromEnv() {
 		t.Skip("WorkflowsFastPath folds activity results into the turn commit, so the inbox-save fault injection premise no longer holds; the chaos scenario needs a redesign against the fold path")
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	s.store = fault.New(t)
 
 	sock := socket.New(t)
@@ -79,7 +73,6 @@ func (s *savefirst) Setup(t *testing.T) []framework.Option {
 		statestore.WithStateStore(s.store),
 	)
 
-<<<<<<< HEAD
 	sen := sentry.New(t)
 	s.sched = scheduler.New(t,
 		scheduler.WithSentry(sen),
@@ -92,11 +85,6 @@ func (s *savefirst) Setup(t *testing.T) []framework.Option {
 		// rows mid-commit and the retried completion would be classified as
 		// tampering instead of retried. mTLS itself is unaffected.
 		workflow.WithSigningDisabledN(0),
-=======
-	s.sched = scheduler.New(t)
-
-	s.workflow = workflow.New(t,
->>>>>>> upstream/release-1.18
 		workflow.WithNoDB(),
 		workflow.WithSchedulerInstance(s.sched),
 		workflow.WithDaprdOptions(0,
@@ -117,11 +105,7 @@ spec:
 	)
 
 	return []framework.Option{
-<<<<<<< HEAD
 		framework.WithProcesses(sen, s.sched, s.ss, s.workflow),
-=======
-		framework.WithProcesses(s.sched, s.ss, s.workflow),
->>>>>>> upstream/release-1.18
 	}
 }
 

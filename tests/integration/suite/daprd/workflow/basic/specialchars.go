@@ -25,18 +25,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/dapr/durabletask-go/api"
-<<<<<<< HEAD
-=======
-	"github.com/dapr/durabletask-go/backend"
->>>>>>> upstream/release-1.18
 	"github.com/dapr/durabletask-go/client"
 	"github.com/dapr/durabletask-go/task"
 
 	"github.com/dapr/dapr/tests/integration/framework"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	prochttp "github.com/dapr/dapr/tests/integration/framework/process/http"
 	"github.com/dapr/dapr/tests/integration/framework/process/placement"
@@ -109,11 +102,7 @@ func (s *specialchars) Run(t *testing.T, ctx context.Context) {
 	require.NoError(t, err)
 	t.Cleanup(func() { require.NoError(t, conn.Close()) })
 
-<<<<<<< HEAD
 	backendClient := client.NewTaskHubGrpcClient(conn, logger.New(t))
-=======
-	backendClient := client.NewTaskHubGrpcClient(conn, backend.DefaultLogger())
->>>>>>> upstream/release-1.18
 
 	taskhubCtx, cancelTaskhub := context.WithCancel(ctx)
 	require.NoError(t, backendClient.StartWorkItemListener(taskhubCtx, r))

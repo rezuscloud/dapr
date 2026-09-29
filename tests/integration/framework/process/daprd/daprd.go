@@ -176,12 +176,9 @@ spec:
 	if opts.actorsDisseminateTimeout != nil {
 		args = append(args, "--actors-disseminate-timeout="+opts.actorsDisseminateTimeout.String())
 	}
-<<<<<<< HEAD
 	if opts.placementStartupTimeout != nil {
 		args = append(args, "--actors-placement-startup-timeout="+opts.placementStartupTimeout.String())
 	}
-=======
->>>>>>> upstream/release-1.18
 	if opts.hotReloadReconcileInterval != nil {
 		args = append(args, "--hot-reload-reconcile-interval="+opts.hotReloadReconcileInterval.String())
 	}
@@ -534,10 +531,7 @@ type Metadata struct {
 	Workflows              *MetadataWorkflows                   `json:"workflows"`
 	WorkflowAccessPolicies []*rtv1.MetadataWorkflowAccessPolicy `json:"workflowAccessPolicies,omitempty"`
 	Resiliencies           []*rtv1.MetadataResiliency           `json:"resiliencies,omitempty"`
-<<<<<<< HEAD
 	EnabledFeatures        []string                             `json:"enabledFeatures,omitempty"`
-=======
->>>>>>> upstream/release-1.18
 }
 
 // MetadataResponsePubsubSubscription copied from pkg/api/http/metadata.go:172 to be able to use in integration tests until we move to Proto format

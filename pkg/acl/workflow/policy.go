@@ -15,12 +15,9 @@ package workflow
 
 import (
 	"path"
-<<<<<<< HEAD
 	"sync/atomic"
 
 	"google.golang.org/protobuf/proto"
-=======
->>>>>>> upstream/release-1.18
 
 	wfaclapi "github.com/dapr/dapr/pkg/apis/workflowaccesspolicy/v1alpha1"
 	"github.com/dapr/durabletask-go/api/protos"
@@ -47,12 +44,9 @@ const (
 // are loaded, in which case all calls are allowed.
 type CompiledPolicies struct {
 	rules []compiledRule
-<<<<<<< HEAD
 	// AppIDs named by any requires entry. Chunks from other apps are
 	// skipped without decoding.
 	requiresAppIDs map[string]struct{}
-=======
->>>>>>> upstream/release-1.18
 }
 
 type compiledRule struct {
@@ -64,10 +58,7 @@ type compiledOp struct {
 	opType    OperationType
 	operation wfaclapi.WorkflowOperation
 	pattern   string
-<<<<<<< HEAD
 	requires  []wfaclapi.RequiredEvent
-=======
->>>>>>> upstream/release-1.18
 }
 
 func Compile(policies []wfaclapi.WorkflowAccessPolicy) *CompiledPolicies {
@@ -103,7 +94,6 @@ func Compile(policies []wfaclapi.WorkflowAccessPolicy) *CompiledPolicies {
 					continue
 				}
 
-<<<<<<< HEAD
 				for _, op := range wf.Operations {
 					var requires []wfaclapi.RequiredEvent
 					if len(wf.Requires) > 0 {
@@ -121,13 +111,6 @@ func Compile(policies []wfaclapi.WorkflowAccessPolicy) *CompiledPolicies {
 						operation: op,
 						pattern:   wf.Name,
 						requires:  requires,
-=======
-				for _, operation := range wf.Operations {
-					cr.operations = append(cr.operations, compiledOp{
-						opType:    OperationTypeWorkflow,
-						operation: operation,
-						pattern:   wf.Name,
->>>>>>> upstream/release-1.18
 					})
 				}
 			}
@@ -138,20 +121,14 @@ func Compile(policies []wfaclapi.WorkflowAccessPolicy) *CompiledPolicies {
 					continue
 				}
 
-<<<<<<< HEAD
 				for k := range act.Requires {
 					requiresAppIDs[act.Requires[k].AppID] = struct{}{}
 				}
-=======
->>>>>>> upstream/release-1.18
 				cr.operations = append(cr.operations, compiledOp{
 					opType:    OperationTypeActivity,
 					operation: wfaclapi.WorkflowOperationSchedule,
 					pattern:   act.Name,
-<<<<<<< HEAD
 					requires:  act.Requires,
-=======
->>>>>>> upstream/release-1.18
 				})
 			}
 
@@ -161,7 +138,6 @@ func Compile(policies []wfaclapi.WorkflowAccessPolicy) *CompiledPolicies {
 		}
 	}
 
-<<<<<<< HEAD
 	return &CompiledPolicies{rules: rules, requiresAppIDs: requiresAppIDs}
 }
 
@@ -173,20 +149,10 @@ func Compile(policies []wfaclapi.WorkflowAccessPolicy) *CompiledPolicies {
 // but its Requires wasn't satisfied, else NotAllowed. A nil *CompiledPolicies
 // allows all calls.
 func (cp *CompiledPolicies) Evaluate(callerAppID string, opType OperationType, operation wfaclapi.WorkflowOperation, opName string, history *protos.PropagatedHistory, signingEnabled bool) (bool, DenialReason) {
-=======
-	return &CompiledPolicies{rules: rules}
-}
-
-// Evaluate returns true if any rule grants the caller access to perform the
-// operation on opName. A nil *CompiledPolicies means no policies are loaded
-// and all calls are allowed.
-func (cp *CompiledPolicies) Evaluate(callerAppID string, opType OperationType, operation wfaclapi.WorkflowOperation, opName string) bool {
->>>>>>> upstream/release-1.18
 	if cp == nil {
 		return true, DenialReasonNone
 	}
 
-<<<<<<< HEAD
 	var (
 		chunks        []decodedChunk
 		chunksDecoded bool
@@ -194,8 +160,6 @@ func (cp *CompiledPolicies) Evaluate(callerAppID string, opType OperationType, o
 	)
 
 	var requiresNotMet bool
-=======
->>>>>>> upstream/release-1.18
 	for i := range cp.rules {
 		rule := &cp.rules[i]
 
@@ -211,7 +175,6 @@ func (cp *CompiledPolicies) Evaluate(callerAppID string, opType OperationType, o
 			}
 
 			matched, err := path.Match(op.pattern, opName)
-<<<<<<< HEAD
 			if err != nil || !matched {
 				continue
 			}
@@ -233,17 +196,12 @@ func (cp *CompiledPolicies) Evaluate(callerAppID string, opType OperationType, o
 					requiresNotMet = true
 					continue
 				}
-=======
-			if err == nil && matched {
-				return true
->>>>>>> upstream/release-1.18
 			}
 
 			return true, DenialReasonNone
 		}
 	}
 
-<<<<<<< HEAD
 	if requiresNotMet {
 		return false, DenialReasonRequiresUnmet
 	}
@@ -397,23 +355,5 @@ func eventStatusMatches(req *wfaclapi.RequiredEvent, e *protos.HistoryEvent, dc 
 		er := e.GetEventRaised()
 		return er != nil && er.GetName() == req.Name
 	}
-=======
-	return false
-}
-
-// ListsCaller reports whether any compiled rule names appID in its Callers
-// list. Per-actor enforcement uses this on the self-call exemption path to
-// detect a misconfigured policy that lists the local appID — that listing
-// has no effect because same-app calls are always exempt.
-func (cp *CompiledPolicies) ListsCaller(appID string) bool {
-	if cp == nil {
-		return false
-	}
-	for i := range cp.rules {
-		if _, ok := cp.rules[i].callerAppIDs[appID]; ok {
-			return true
-		}
-	}
->>>>>>> upstream/release-1.18
 	return false
 }

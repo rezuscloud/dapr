@@ -33,11 +33,7 @@ func init() {
 
 // colonid pins that an activity of an instance whose ID contains the activity
 // actor ID separator ("::") reports its result to that instance: the parent
-<<<<<<< HEAD
 // ID is everything before the last two separators, not the first.
-=======
-// ID is everything before the last separator, not the first.
->>>>>>> upstream/release-1.18
 type colonid struct {
 	workflow *workflow.Workflow
 }
@@ -69,11 +65,7 @@ func (c *colonid) Run(t *testing.T, ctx context.Context) {
 	})
 	cl := c.workflow.BackendClient(t, ctx)
 
-<<<<<<< HEAD
 	for _, id := range []api.InstanceID{"colon::id", "a::b::c", "trailing::", "collide::0"} {
-=======
-	for _, id := range []api.InstanceID{"colon::id", "a::b::c", "trailing::"} {
->>>>>>> upstream/release-1.18
 		_, err := cl.ScheduleNewWorkflow(ctx, "withactivity", api.WithInstanceID(id))
 		require.NoError(t, err)
 		meta, err := cl.WaitForWorkflowCompletion(ctx, id)

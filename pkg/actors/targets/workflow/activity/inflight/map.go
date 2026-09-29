@@ -37,7 +37,6 @@ func (m *Map) Acquire(key string) (call *Call, owner bool) {
 	return actual.(*Call), !loaded
 }
 
-<<<<<<< HEAD
 // Peek returns the inflight call for key without creating one.
 func (m *Map) Peek(key string) (*Call, bool) {
 	v, ok := m.m.Load(key)
@@ -54,8 +53,6 @@ func (m *Map) Range(fn func(key string, call *Call) bool) {
 	})
 }
 
-=======
->>>>>>> upstream/release-1.18
 // Release removes the inflight entry for key if it still matches call.
 // CompareAndDelete protects against clobbering a follow-on dispatch that
 // legitimately reused the slot.

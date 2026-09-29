@@ -102,13 +102,10 @@ func (m *mcpserver) Run(t *testing.T, ctx context.Context) {
 	})
 
 	t.Run("delete MCPServer removes from metadata", func(t *testing.T) {
-<<<<<<< HEAD
 		// Drop it from the operator's list before sending the delete event, so a
 		// concurrent reconcile (periodic tick or stream reconnect) re-listing the
 		// operator cannot resurrect it after the delete is applied.
 		m.operator.SetMCPServers()
-=======
->>>>>>> upstream/release-1.18
 		m.operator.MCPServerUpdateEvent(t, ctx, &operator.MCPServerUpdateEvent{
 			MCPServer: &weatherMCP,
 			EventType: operatorv1.ResourceEventType_DELETED,

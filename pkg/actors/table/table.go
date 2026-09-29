@@ -59,13 +59,10 @@ type Options struct {
 	// ResumeHosting is called. Used when no actor state store is configured at
 	// startup.
 	StartSuspended bool
-<<<<<<< HEAD
 
 	// Timers is a closure because the timer storage is constructed after the
 	// table.
 	Timers func() internaltimers.Storage
-=======
->>>>>>> upstream/release-1.18
 }
 
 type ActorTypeFactory struct {
@@ -91,10 +88,7 @@ type table struct {
 
 	reentrancyStore *reentrancystore.Store
 	clock           clock.Clock
-<<<<<<< HEAD
 	timers          func() internaltimers.Storage
-=======
->>>>>>> upstream/release-1.18
 
 	// suspended hides all registered actor types from advertisement and
 	// blocks actor instance creation, without removing the registered

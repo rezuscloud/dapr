@@ -106,18 +106,11 @@ func (i *inboxoverload) Run(t *testing.T, ctx context.Context) {
 	actorType := "dapr.internal.default." + appID + ".workflow"
 	actorID := "inboxoverloadi"
 
-<<<<<<< HEAD
-=======
-	// Inject the deactivation reminder via the scheduler directly: the
-	// daprd RegisterActorReminder API rejects "dapr.internal.*" actor
-	// types because they are reserved for the workflow runtime.
->>>>>>> upstream/release-1.18
 	_, err = i.workflow.Scheduler().Client(t, ctx).ScheduleJob(ctx,
 		i.workflow.Scheduler().JobNowActor("new-event-deactivate", "default", appID, actorType, actorID))
 	require.NoError(t, err)
 
 	require.EventuallyWithT(t, func(c *assert.CollectT) {
-<<<<<<< HEAD
 		var count int
 		for _, key := range i.workflow.Scheduler().ListAllKeys(t, ctx, "dapr/jobs") {
 			if strings.Contains(key, "new-event-deactivate") {
@@ -139,19 +132,6 @@ func (i *inboxoverload) Run(t *testing.T, ctx context.Context) {
 		}
 	}
 	require.True(t, found, "workflow actor type %q must be active; absence means it was deactivated", actorType)
-=======
-		meta := i.workflow.Dapr().GetMetadata(c, ctx)
-		if !assert.NotNil(c, meta.ActorRuntime) {
-			return
-		}
-		for _, a := range meta.ActorRuntime.ActiveActors {
-			if a.Type == actorType {
-				assert.Zero(c, a.Count, "workflow actor %q still has %d active instance(s)", actorType, a.Count)
-				return
-			}
-		}
-	}, 10*time.Second, 50*time.Millisecond)
->>>>>>> upstream/release-1.18
 
 	db := i.workflow.DB().GetConnection(t)
 	tableName := i.workflow.DB().TableName()

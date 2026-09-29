@@ -42,10 +42,7 @@ type options struct {
 	appID                      string
 	namespace                  *string
 	appPort                    *int
-<<<<<<< HEAD
 	appMaxConcurrency          *int
-=======
->>>>>>> upstream/release-1.18
 	grpcPort                   int
 	httpPort                   int
 	internalGRPCPort           int
@@ -60,10 +57,7 @@ type options struct {
 	resourceFiles              []string
 	resourceDirs               []string
 	configs                    []string
-<<<<<<< HEAD
 	features                   []string
-=======
->>>>>>> upstream/release-1.18
 	placementAddresses         []string
 	logLevel                   string
 	mode                       string
@@ -75,10 +69,7 @@ type options struct {
 	gracefulShutdownSeconds    *int
 	blockShutdownDuration      *string
 	actorsDisseminateTimeout   *time.Duration
-<<<<<<< HEAD
 	placementStartupTimeout    *time.Duration
-=======
->>>>>>> upstream/release-1.18
 	hotReloadReconcileInterval *time.Duration
 	controlPlaneTrustDomain    *string
 	appBindingOptionsTimeout   *time.Duration
@@ -364,15 +355,12 @@ func WithActorsDisseminateTimeout(timeout time.Duration) Option {
 	}
 }
 
-<<<<<<< HEAD
 func WithActorsPlacementStartupTimeout(timeout time.Duration) Option {
 	return func(o *options) {
 		o.placementStartupTimeout = &timeout
 	}
 }
 
-=======
->>>>>>> upstream/release-1.18
 func WithHotReloadReconcileInterval(interval time.Duration) Option {
 	return func(o *options) {
 		o.hotReloadReconcileInterval = &interval

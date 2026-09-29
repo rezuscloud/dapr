@@ -24,10 +24,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
-<<<<<<< HEAD
-=======
-	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/events"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/messages"
 	invokev1 "github.com/dapr/dapr/pkg/messaging/v1"
@@ -125,30 +121,7 @@ func (o *orchestrator) callChildWorkflows(ctx context.Context, startEventName, p
 // taskScheduledID is the correlation ID that the parent orchestrator engine
 // uses to match this failure with the original sub-orchestration request.
 func (o *orchestrator) failChildWorkflowTask(ctx context.Context, taskScheduledID int32, errorType, errorMessage string) error {
-<<<<<<< HEAD
 	return o.failTaskViaReminder(ctx, &protos.HistoryEvent{
 		EventType: events.NewChildWorkflowFailedEventType(taskScheduledID, errorType, errorMessage, false),
 	})
-=======
-	failedEvent := &protos.HistoryEvent{
-		EventId:   -1,
-		Timestamp: timestamppb.New(time.Now()),
-		Router:    &protos.TaskRouter{SourceAppID: o.appID},
-		EventType: events.NewChildWorkflowFailedEventType(taskScheduledID, errorType, errorMessage, false),
-	}
-
-	// Create a reminder that carries the failure event. When this
-	// reminder fires (in a fresh execution cycle after the current run
-	// completes), handleReminder routes it to addWorkflowEvent which
-	// adds the event to the inbox and triggers re-execution.
-	reminderName, err := randomReminderName(common.ReminderPrefixActivityResult)
-	if err != nil {
-		return fmt.Errorf("failed to create failure reminder: %w", err)
-	}
-	if err := o.createWorkflowReminder(ctx, reminderName, failedEvent, time.Now(), o.appID, nil); err != nil {
-		return fmt.Errorf("failed to create failure reminder: %w", err)
-	}
-
-	return nil
->>>>>>> upstream/release-1.18
 }

@@ -20,19 +20,12 @@ import (
 
 	"google.golang.org/grpc"
 
-<<<<<<< HEAD
-=======
-	"github.com/dapr/components-contrib/workflows"
->>>>>>> upstream/release-1.18
 	mcpserverapi "github.com/dapr/dapr/pkg/apis/mcpserver/v1alpha1"
 	runtimev1pb "github.com/dapr/dapr/pkg/proto/runtime/v1"
 	"github.com/dapr/dapr/pkg/runtime/compstore"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/inprocess"
 	"github.com/dapr/dapr/pkg/security"
-<<<<<<< HEAD
 	"github.com/dapr/durabletask-go/backend"
-=======
->>>>>>> upstream/release-1.18
 )
 
 type Fake struct {

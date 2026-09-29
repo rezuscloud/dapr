@@ -130,28 +130,12 @@ type Processor struct {
 
 	// workflowBackend is held only to satisfy the WorkflowBackend accessor.
 	workflowBackend WorkflowBackendManager
-<<<<<<< HEAD
-=======
-	security        security.Handler
-	subscriber      *subscriber.Subscriber
-	reporter        registry.Reporter
-	resiliency      resiliency.Provider
-
-	// actors is notified of actor state store changes by the hot reload
-	// reconciler. May be nil in tests.
-	actors actors.Interface
-
-	// kubernetesMode is true when running in Kubernetes mode.
-	// Used to reject configurations that are unsafe in a cluster (e.g. stdio transport).
-	kubernetesMode bool
->>>>>>> upstream/release-1.18
 
 	// kubernetesMode is true when running in Kubernetes mode. Used by MCPServer
 	// security validation to reject configurations that are unsafe in a
 	// cluster.
 	kubernetesMode bool
 
-<<<<<<< HEAD
 	// inProcessWorkflows is installed after the workflow engine is created via
 	// SetInProcessWorkflows and is used to register workflows when MCPServer
 	// resources are loaded or hot-reloaded. Read under inProcessWorkflowsLock
@@ -178,36 +162,6 @@ type Processor struct {
 
 	running atomic.Bool
 	closed  atomic.Bool
-=======
-	lock     sync.RWMutex
-	chlock   sync.RWMutex
-	running  atomic.Bool
-	shutdown atomic.Bool
-	closedCh chan struct{}
-
-	// inProcessWorkflows is set after the workflow engine is created via SetInProcessWorkflows.
-	// Used to register in-process workflows when resources are loaded or hot-reloaded.
-	inProcessWorkflowsLock sync.RWMutex
-	inProcessWorkflows     wfregistrar.Registrar
-
-	// mcpMu serializes Add (channel reader) vs Delete (called externally
-	// from the hot-reload reconciler) on compStore + registrar state.
-	mcpMu sync.Mutex
-}
-
-// SetInProcessWorkflows installs the in-process workflow wfregistrar.
-func (p *Processor) SetInProcessWorkflows(r wfregistrar.Registrar) {
-	p.inProcessWorkflowsLock.Lock()
-	defer p.inProcessWorkflowsLock.Unlock()
-	p.inProcessWorkflows = r
-}
-
-// getInProcessWorkflows returns the wfregistrar, or nil if it has not been set yet.
-func (p *Processor) getInProcessWorkflows() wfregistrar.Registrar {
-	p.inProcessWorkflowsLock.RLock()
-	defer p.inProcessWorkflowsLock.RUnlock()
-	return p.inProcessWorkflows
->>>>>>> upstream/release-1.18
 }
 
 type inlineManager interface {
@@ -253,11 +207,7 @@ func New(opts Options) *Processor {
 		Security:       opts.Security,
 	})
 
-<<<<<<< HEAD
 	bindingProc := binding.New(binding.Options{
-=======
-	binding := binding.New(binding.Options{
->>>>>>> upstream/release-1.18
 		Registry:                 opts.Registry.Bindings(),
 		ComponentStore:           opts.ComponentStore,
 		Meta:                     opts.Meta,
@@ -267,7 +217,6 @@ func New(opts Options) *Processor {
 		TracingSpec:              opts.GlobalConfig.Spec.TracingSpec,
 		Channels:                 opts.Channels,
 		AppBindingOptionsTimeout: opts.AppBindingOptionsTimeout,
-<<<<<<< HEAD
 	})
 
 	pubsubProc := pubsub.New(pubsub.Options{
@@ -302,8 +251,6 @@ func New(opts Options) *Processor {
 		Meta:     opts.Meta,
 		Registry: opts.Registry.Conversations(),
 		Store:    opts.ComponentStore,
-=======
->>>>>>> upstream/release-1.18
 	})
 
 	reporter := DefaultReporter
@@ -311,7 +258,6 @@ func New(opts Options) *Processor {
 		reporter = opts.Reporter
 	}
 
-<<<<<<< HEAD
 	p := &Processor{
 		appID:          opts.ID,
 		kubernetesMode: opts.Mode == modes.KubernetesMode,
@@ -333,62 +279,6 @@ func New(opts Options) *Processor {
 			components.CategorySecretStore:    secretProc,
 			components.CategoryStateStore:     stateProc,
 			components.CategoryConversation:   convProc,
-=======
-	return &Processor{
-		appID:                      opts.ID,
-		kubernetesMode:             opts.Mode == modes.KubernetesMode,
-		pendingHTTPEndpoints:       make(chan httpendpointsapi.HTTPEndpoint),
-		pendingMCPServers:          make(chan mcpserverapi.MCPServer),
-		pendingComponents:          make(chan componentsapi.Component),
-		pendingComponentDependents: make(map[string][]componentsapi.Component),
-		subErrCh:                   make(chan error),
-		closedCh:                   make(chan struct{}),
-		compStore:                  opts.ComponentStore,
-		state:                      state,
-		binding:                    binding,
-		secret:                     secret,
-		security:                   opts.Security,
-		subscriber:                 subscriber,
-		reporter:                   reporter,
-		resiliency:                 opts.Resiliency,
-		actors:                     opts.Actors,
-		managers: map[components.Category]manager{
-			components.CategoryBindings: binding,
-			components.CategoryConfiguration: configuration.New(configuration.Options{
-				Registry:       opts.Registry.Configurations(),
-				ComponentStore: opts.ComponentStore,
-				Meta:           opts.Meta,
-			}),
-			components.CategoryCryptoProvider: crypto.New(crypto.Options{
-				Registry:       opts.Registry.Crypto(),
-				ComponentStore: opts.ComponentStore,
-				Meta:           opts.Meta,
-			}),
-			components.CategoryLock: lock.New(lock.Options{
-				Registry:       opts.Registry.Locks(),
-				ComponentStore: opts.ComponentStore,
-				Meta:           opts.Meta,
-			}),
-			components.CategoryPubSub: pubsub.New(pubsub.Options{
-				AppID:          opts.ID,
-				Registry:       opts.Registry.PubSubs(),
-				Meta:           opts.Meta,
-				ComponentStore: opts.ComponentStore,
-				Subscriber:     subscriber,
-			}),
-			components.CategorySecretStore: secret,
-			components.CategoryStateStore:  state,
-			components.CategoryMiddleware: middleware.New(middleware.Options{
-				Meta:         opts.Meta,
-				RegistryHTTP: opts.Registry.HTTPMiddlewares(),
-				HTTP:         opts.MiddlewareHTTP,
-			}),
-			components.CategoryConversation: conversation.New(conversation.Options{
-				Meta:     opts.Meta,
-				Registry: opts.Registry.Conversations(),
-				Store:    opts.ComponentStore,
-			}),
->>>>>>> upstream/release-1.18
 		},
 	}
 

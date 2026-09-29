@@ -68,7 +68,6 @@ const (
 	// history events are signed using the app's X.509 SVID identity,
 	// creating a verifiable chain of signatures. Disabled by default.
 	WorkflowHistorySigning Feature = "WorkflowHistorySigning"
-<<<<<<< HEAD
 
 	// WorkflowsFastPath enables the workflow scheduler fast-path stack:
 	// wake-ups drive eagerly on the arming host instead of creating a
@@ -87,8 +86,6 @@ const (
 	// limits gate per job delivery, which local drives bypass. Preview
 	// feature; disabled by default.
 	WorkflowsFastPath Feature = "WorkflowsFastPath"
-=======
->>>>>>> upstream/release-1.18
 )
 
 // end feature flags section

@@ -17,10 +17,7 @@ import (
 	"context"
 	"strings"
 	"testing"
-<<<<<<< HEAD
 	"time"
-=======
->>>>>>> upstream/release-1.18
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,10 +47,7 @@ func (r *restartresume) Setup(t *testing.T) []framework.Option {
 	r.workflow = workflow.New(t,
 		workflow.WithDaprdOptions(0,
 			daprd.WithMaxBodySize("1Mi"),
-<<<<<<< HEAD
 			daprd.WithWorkflowJanitorPeriod(t, time.Millisecond*500),
-=======
->>>>>>> upstream/release-1.18
 		),
 	)
 	return []framework.Option{

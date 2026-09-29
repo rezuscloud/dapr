@@ -17,10 +17,7 @@ package actors
 import (
 	"context"
 	"errors"
-<<<<<<< HEAD
 	"fmt"
-=======
->>>>>>> upstream/release-1.18
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -44,7 +41,6 @@ type ClusterTasksBackendOptions struct {
 	Pending           *pending.Pending
 }
 
-<<<<<<< HEAD
 // ClusterTasksBackend rendezvouses pending work-item waiters with the
 // completions reported by the application when daprd runs behind a load
 // balancer (WorkflowsClusteredDeployment): the completion RPC can land on any
@@ -60,19 +56,12 @@ type ClusterTasksBackendOptions struct {
 // actor is kept as a fallback for waiters whose executor actor is not local
 // (legacy-format activity reminders created by pre-upgrade daprds, placement
 // disagreement windows).
-=======
-// ClusterTasksBackend rendezvouses work-item waiters with completions that
-// may arrive on any daprd (WorkflowsClusteredDeployment), through the executor
-// actor keyed by the work item. The waiter registers on that actor before the
-// engine dispatches the work item (see executor.MethodRegister).
->>>>>>> upstream/release-1.18
 type ClusterTasksBackend struct {
 	actors            actors.Interface
 	executorActorType string
 	pending           *pending.Pending
 }
 
-<<<<<<< HEAD
 func NewClusterTasksBackend(opts ClusterTasksBackendOptions) (*ClusterTasksBackend, error) {
 	if opts.Pending == nil {
 		// A silently defaulted map would deliver into a different instance
@@ -80,12 +69,6 @@ func NewClusterTasksBackend(opts ClusterTasksBackendOptions) (*ClusterTasksBacke
 		// completion; fail fast at construction instead.
 		return nil, errors.New("pending rendezvous is required and must be the same instance passed to executor.Options.Pending")
 	}
-=======
-// registerTimeout bounds the registration call, which has no caller context.
-const registerTimeout = 30 * time.Second
-
-func NewClusterTasksBackend(opts ClusterTasksBackendOptions) *ClusterTasksBackend {
->>>>>>> upstream/release-1.18
 	return &ClusterTasksBackend{
 		actors:            opts.Actors,
 		executorActorType: opts.ExecutorActorType,
@@ -113,64 +96,7 @@ func (be *ClusterTasksBackend) CancelActivityTask(ctx context.Context, id api.In
 		taskID,
 	)
 
-<<<<<<< HEAD
 	return be.cancelTask(ctx, executor.TaskTypeActivity, key)
-=======
-	req := internalsv1pb.
-		NewInternalInvokeRequest(executor.MethodCancel).
-		WithActor(be.executorActorType, key).
-		WithContentType(invokev1.ProtobufContentType)
-
-	_, err = router.Call(ctx, req)
-
-	return err
-}
-
-func (be *ClusterTasksBackend) WaitForActivityCompletion(req *protos.ActivityRequest) func(context.Context) (*protos.ActivityResponse, error) {
-	key := backend.GetActivityExecutionKey(
-		req.GetWorkflowInstance().GetInstanceId(),
-		req.GetTaskId(),
-	)
-
-	// Called by the engine before the work item is dispatched.
-	be.register(key)
-
-	return func(ctx context.Context) (*protos.ActivityResponse, error) {
-		router, err := be.actors.Router(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		sreq := internalsv1pb.
-			NewInternalInvokeRequest(executor.MethodWatchComplete).
-			WithActor(be.executorActorType, key).
-			WithContentType(invokev1.ProtobufContentType)
-
-		var resp protos.ActivityResponse
-
-		err = router.CallStream(ctx, sreq, func(res *internalsv1pb.InternalInvokeResponse) (bool, error) {
-			if res == nil {
-				return false, errors.New("received nil response from activity completion")
-			}
-
-			if res.GetStatus().GetCode() == int32(codes.Aborted) {
-				return false, api.ErrTaskCancelled
-			}
-
-			err = proto.Unmarshal(res.GetMessage().GetData().GetValue(), &resp)
-			if err != nil {
-				return false, err
-			}
-
-			return true, nil
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		return &resp, nil
-	}
->>>>>>> upstream/release-1.18
 }
 
 func (be *ClusterTasksBackend) CompleteWorkflowTask(ctx context.Context, resp *protos.WorkflowResponse) error {
@@ -240,24 +166,12 @@ func (be *ClusterTasksBackend) cancelTask(ctx context.Context, taskType, key str
 	return err
 }
 
-<<<<<<< HEAD
 // OnActivityCompletion implements backend.CompletionCallbackBackend.
 func (be *ClusterTasksBackend) OnActivityCompletion(req *protos.ActivityRequest, cb func(*protos.ActivityResponse, error)) func() {
 	key := common.ActivityActorID(
 		req.GetWorkflowInstance().GetInstanceId(),
 		req.GetTaskId(),
 	)
-=======
-func (be *ClusterTasksBackend) WaitForWorkflowTaskCompletion(req *protos.WorkflowRequest) func(context.Context) (*protos.WorkflowResponse, error) {
-	// Called by the engine before the work item is dispatched.
-	be.register(req.GetInstanceId())
-
-	return func(ctx context.Context) (*protos.WorkflowResponse, error) {
-		router, err := be.actors.Router(ctx)
-		if err != nil {
-			return nil, err
-		}
->>>>>>> upstream/release-1.18
 
 	return be.onCompletion(executor.TaskTypeActivity, key,
 		func() proto.Message { return new(protos.ActivityResponse) },
@@ -371,7 +285,6 @@ func (be *ClusterTasksBackend) claimParked(ctx context.Context, taskType, key st
 	}
 }
 
-<<<<<<< HEAD
 // executorLocal reports whether placement resolves the executor actor for
 // key to this daprd.
 func (be *ClusterTasksBackend) executorLocal(ctx context.Context, key string) bool {
@@ -433,25 +346,4 @@ func (be *ClusterTasksBackend) watchCompletion(ctx context.Context, taskType, ke
 
 		return true, nil
 	})
-=======
-// register arms the executor actor for key so the next completion is held for
-// this waiter and a stale one is discarded rather than delivered to it. Best
-// effort: on failure (including an executor hosted by a daprd that predates
-// Register) the watch stream alone rendezvouses, as before.
-func (be *ClusterTasksBackend) register(key string) {
-	ctx, cancel := context.WithTimeout(context.Background(), registerTimeout)
-	defer cancel()
-
-	router, err := be.actors.Router(ctx)
-	if err == nil {
-		req := internalsv1pb.
-			NewInternalInvokeRequest(executor.MethodRegister).
-			WithActor(be.executorActorType, key).
-			WithContentType(invokev1.ProtobufContentType)
-		_, err = router.Call(ctx, req)
-	}
-	if err != nil {
-		log.Warnf("Failed to register completion waiter for '%s', relying on the watch stream alone: %v", key, err)
-	}
->>>>>>> upstream/release-1.18
 }

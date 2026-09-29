@@ -1347,7 +1347,6 @@ func TestGetSaveRequest_MetadataIncludesExternalCertLength(t *testing.T) {
 	assert.Equal(t, uint64(2), meta.GetExternalSigningCertificateLength())
 }
 
-<<<<<<< HEAD
 // TestCustomStatusChangeTracking pins the skip-unchanged custom status
 // persistence: the first history-bearing save writes the key even when the
 // status never changed (so a loader never misses it), an unchanged status is
@@ -1438,8 +1437,6 @@ func TestCustomStatusChangeTracking(t *testing.T) {
 	})
 }
 
-=======
->>>>>>> upstream/release-1.18
 func TestGetSaveRequest_ParentNotify(t *testing.T) {
 	t.Parallel()
 

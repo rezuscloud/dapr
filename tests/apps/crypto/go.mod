@@ -4,11 +4,7 @@ go 1.26.6
 
 require (
 	github.com/dapr/go-sdk v1.8.0
-<<<<<<< HEAD
 	github.com/go-chi/chi/v5 v5.2.4
-=======
-	github.com/go-chi/chi/v5 v5.0.10
->>>>>>> upstream/release-1.18
 	github.com/google/uuid v1.6.0
 	google.golang.org/grpc v1.82.1
 	google.golang.org/protobuf v1.36.11

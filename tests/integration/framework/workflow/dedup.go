@@ -53,7 +53,6 @@ func InjectInboxEvent(t *testing.T, ctx context.Context, db *sqlite.SQLite, dapr
 	db.WriteStateValue(t, ctx, key, updated)
 }
 
-<<<<<<< HEAD
 // InsertHistoryEvent inserts evt into the workflow actor's persisted history
 // immediately before the first event matching pred, shifting that event and
 // all later history-* keys up by one. The metadata's HistoryLength is
@@ -109,8 +108,6 @@ func IsEventRaisedFor(name string) func(*protos.HistoryEvent) bool {
 	}
 }
 
-=======
->>>>>>> upstream/release-1.18
 // RemoveHistoryEvent deletes the first history event matching pred and
 // renumbers any subsequent history-* keys to keep the sequence contiguous.
 // The metadata's HistoryLength is decremented by one.

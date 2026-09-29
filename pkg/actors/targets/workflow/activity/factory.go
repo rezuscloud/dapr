@@ -27,10 +27,7 @@ import (
 	"github.com/dapr/dapr/pkg/actors/internal/scheduler"
 	"github.com/dapr/dapr/pkg/actors/router"
 	"github.com/dapr/dapr/pkg/actors/targets"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/claim"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/activity/inflight"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common/detached"
@@ -40,15 +37,6 @@ import (
 	"github.com/dapr/kit/crypto/spiffe/signer"
 )
 
-<<<<<<< HEAD
-=======
-func newActivity() *activity {
-	return &activity{
-		lock: lock.New(),
-	}
-}
-
->>>>>>> upstream/release-1.18
 type Options struct {
 	AppID             string
 	Namespace         string
@@ -100,10 +88,6 @@ type factory struct {
 	workflowsRemoteActivityReminder bool
 
 	router                 router.Interface
-<<<<<<< HEAD
-=======
-	state                  state.Interface
->>>>>>> upstream/release-1.18
 	reminders              scheduler.Interface
 	placement              placement.Interface
 	actorTypeBuilder       *common.ActorTypeBuilder
@@ -115,7 +99,6 @@ type factory struct {
 	table sync.Map
 	lock  sync.Mutex
 
-<<<<<<< HEAD
 	// executionHeld and staleClaimAfter power the stale-claim eviction (see
 	// execute.go). staleClaimAfter is a field only so unit tests can compress
 	// the grace; it is set once in New.
@@ -173,13 +156,6 @@ var inflightMaps sync.Map
 func inflightFor(actorType string) *inflight.Map {
 	m, _ := inflightMaps.LoadOrStore(actorType, new(inflight.Map))
 	return m.(*inflight.Map)
-=======
-	// inflight tracks activity executions whose WorkItem is currently in
-	// the durabletask queue or being processed by the SDK. Keyed by the
-	// composite (activity actor ID, TaskExecutionId) value produced by
-	// inflight.Key. See the inflight subpackage for semantics.
-	inflight inflight.Map
->>>>>>> upstream/release-1.18
 }
 
 func New(ctx context.Context, opts Options) (targets.Factory, error) {
@@ -224,7 +200,6 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 	), common.JanitorPeriod())
 
 	return &factory{
-<<<<<<< HEAD
 		appID:            opts.AppID,
 		actorType:        opts.ActivityActorType,
 		inflight:         inflightFor(opts.ActivityActorType),
@@ -245,10 +220,6 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 		driveCancel:            driveCancel,
 		rootCtx:                ctx,
 		detached:               det,
-=======
-		appID:                  opts.AppID,
-		actorType:              opts.ActivityActorType,
->>>>>>> upstream/release-1.18
 		router:                 router,
 		reminders:              sreminders,
 		scheduler:              opts.Scheduler,
@@ -256,10 +227,6 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 		workflowActorType:      opts.WorkflowActorType,
 		actorTypeBuilder:       opts.ActorTypeBuilder,
 		workflowAccessPolicies: opts.WorkflowAccessPolicies,
-<<<<<<< HEAD
-=======
-		state:                  state,
->>>>>>> upstream/release-1.18
 
 		signing: &signing.Signing{
 			Signer:    opts.Signer,
@@ -273,14 +240,7 @@ func New(ctx context.Context, opts Options) (targets.Factory, error) {
 func (f *factory) GetOrCreate(actorID string) targets.Interface {
 	a, ok := f.table.Load(actorID)
 	if !ok {
-<<<<<<< HEAD
 		a, _ = f.table.LoadOrStore(actorID, &activity{factory: f, actorID: actorID, lock: lock.New()})
-=======
-		fresh := newActivity()
-		fresh.factory = f
-		fresh.actorID = actorID
-		a, _ = f.table.LoadOrStore(actorID, fresh)
->>>>>>> upstream/release-1.18
 	}
 
 	return a.(*activity)

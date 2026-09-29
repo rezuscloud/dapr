@@ -97,11 +97,7 @@ func (w *workflow) Run(t *testing.T, ctx context.Context) {
 	r.AddWorkflowN("waiter", func(ctx *task.WorkflowContext) (any, error) {
 		return nil, ctx.WaitForSingleEvent("never", time.Hour).Await(nil)
 	})
-<<<<<<< HEAD
 	taskhubClient := client.NewTaskHubGrpcClient(w.daprd.GRPCConn(t, ctx), logger.New(t))
-=======
-	taskhubClient := client.NewTaskHubGrpcClient(w.daprd.GRPCConn(t, ctx), backend.DefaultLogger())
->>>>>>> upstream/release-1.18
 	taskhubClient.StartWorkItemListener(ctx, r)
 
 	t.Run("successful workflow execution", func(t *testing.T) {

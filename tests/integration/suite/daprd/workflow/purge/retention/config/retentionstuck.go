@@ -23,10 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dapr/dapr/tests/integration/framework"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 	"github.com/dapr/dapr/tests/integration/suite"
@@ -68,11 +65,7 @@ func (r *retentionstuck) Run(t *testing.T, ctx context.Context) {
 		return nil, nil
 	})
 
-<<<<<<< HEAD
 	client := dworkflow.NewClientWithLogger(r.workflow.Dapr().GRPCConn(t, ctx), logger.New(t))
-=======
-	client := dworkflow.NewClient(r.workflow.Dapr().GRPCConn(t, ctx))
->>>>>>> upstream/release-1.18
 	require.NoError(t, client.StartWorker(ctx, reg))
 
 	const instanceID = "retentionstuck-claim-eval"
@@ -91,15 +84,11 @@ func (r *retentionstuck) Run(t *testing.T, ctx context.Context) {
 	require.NoError(t, client.RaiseEvent(ctx, id, "Continue"))
 	_, err = client.WaitForWorkflowCompletion(ctx, id)
 	require.NoError(t, err)
-<<<<<<< HEAD
 	// The retention reminder is created after the terminal state commits
 	// that the completion wait observes.
 	require.EventuallyWithT(t, func(c *assert.CollectT) {
 		assert.Len(c, r.workflow.Scheduler().ListAllKeys(t, ctx, retentionPrefix), 1)
 	}, 10*time.Second, 10*time.Millisecond)
-=======
-	require.Len(t, r.workflow.Scheduler().ListAllKeys(t, ctx, retentionPrefix), 1)
->>>>>>> upstream/release-1.18
 
 	_, err = client.ScheduleWorkflow(ctx, "foo", dworkflow.WithInstanceID(instanceID))
 	require.NoError(t, err)

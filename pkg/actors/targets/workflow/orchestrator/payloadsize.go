@@ -42,19 +42,12 @@ const (
 
 // workflowPayloadOversize reports whether the WorkflowRequest the executor
 // will build for this run would exceed the gRPC stream's send threshold.
-<<<<<<< HEAD
 // folded carries the fold-held completions taken into this turn: they ride
 // the request but never live in state.Inbox, so they must be counted here.
 // A non-positive maxRequestBodySize signals "no limit" (matching the dapr
 // HTTP server's convention) and disables both the stall check and the
 // size-ratio metric (the ratio is undefined without a limit).
 func (o *orchestrator) workflowPayloadOversize(ctx context.Context, state *wfenginestate.State, folded []*backend.HistoryEvent, workflowName string) (protos.StalledReason, string, bool) {
-=======
-// A non-positive maxRequestBodySize signals "no limit" (matching the dapr
-// HTTP server's convention) and disables both the stall check and the
-// size-ratio metric (the ratio is undefined without a limit).
-func (o *orchestrator) workflowPayloadOversize(ctx context.Context, state *wfenginestate.State, workflowName string) (protos.StalledReason, string, bool) {
->>>>>>> upstream/release-1.18
 	if o.maxRequestBodySize <= 0 {
 		return 0, "", false
 	}
@@ -66,12 +59,9 @@ func (o *orchestrator) workflowPayloadOversize(ctx context.Context, state *wfeng
 	for _, e := range state.Inbox {
 		size += proto.Size(e)
 	}
-<<<<<<< HEAD
 	for _, e := range folded {
 		size += proto.Size(e)
 	}
-=======
->>>>>>> upstream/release-1.18
 
 	diag.DefaultWorkflowMonitoring.WorkflowPayloadSizeRatio(ctx, workflowName, float64(size)/float64(o.maxRequestBodySize))
 

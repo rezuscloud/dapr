@@ -29,10 +29,7 @@ import (
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
 	"github.com/dapr/dapr/tests/integration/suite"
 	"github.com/dapr/durabletask-go/client"
@@ -60,7 +57,6 @@ type start struct {
 
 func (s *start) Setup(t *testing.T) []framework.Option {
 	s.appID = uuid.New().String()
-<<<<<<< HEAD
 	sen := sentry.New(t)
 	s.scheduler = scheduler.New(t,
 		scheduler.WithSentry(sen),
@@ -69,21 +65,12 @@ func (s *start) Setup(t *testing.T) []framework.Option {
 	s.proxy = proxy.New(t, s.scheduler, proxy.WithSentry(t, sen, "default", s.appID))
 	s.workflow = workflow.New(t,
 		workflow.WithSentryInstance(sen),
-=======
-	s.scheduler = scheduler.New(t)
-	s.proxy = proxy.New(t, s.scheduler)
-	s.workflow = workflow.New(t,
->>>>>>> upstream/release-1.18
 		workflow.WithSchedulerInstance(s.scheduler),
 		workflow.WithSchedulerAddress(s.proxy.Address()),
 		workflow.WithDaprdOptions(0, daprd.WithAppID(s.appID)),
 	)
 	return []framework.Option{
-<<<<<<< HEAD
 		framework.WithProcesses(sen, s.scheduler, s.proxy, s.workflow),
-=======
-		framework.WithProcesses(s.scheduler, s.proxy, s.workflow),
->>>>>>> upstream/release-1.18
 	}
 }
 
@@ -98,11 +85,7 @@ func (s *start) Run(t *testing.T, ctx context.Context) {
 	s.workflow.BackendClient(t, ctx)
 	gclient := s.workflow.GRPCClient(t, ctx)
 
-<<<<<<< HEAD
 	startVersion := s.workflow.PlacementVersion(t, ctx)
-=======
-	startVersion := s.workflow.Placement().PlacementTables(t, ctx).Tables["default"].Version
->>>>>>> upstream/release-1.18
 
 	// Scheduler outage: every ScheduleJob fails with a transient code, which
 	// the create retries with backoff, and every GetJob fails too, so the
@@ -137,7 +120,6 @@ func (s *start) Run(t *testing.T, ctx context.Context) {
 	// A second daprd for the same app changes the workflow actor type's hash
 	// ring: dissemination cancels the in-flight claim context the create is
 	// running under.
-<<<<<<< HEAD
 	extraDopts := []daprd.Option{
 		daprd.WithAppID(s.appID),
 		daprd.WithSchedulerAddressesReset(s.proxy.Address()),
@@ -147,14 +129,6 @@ func (s *start) Run(t *testing.T, ctx context.Context) {
 		extraDopts = append(extraDopts, daprd.WithPlacementAddresses(s.workflow.Placement().Address()))
 	}
 	extra := daprd.New(t, append(extraDopts, s.workflow.JoinOptions(t)...)...)
-=======
-	extra := daprd.New(t,
-		daprd.WithAppID(s.appID),
-		daprd.WithPlacementAddresses(s.workflow.Placement().Address()),
-		daprd.WithSchedulerAddressesReset(s.proxy.Address()),
-		daprd.WithResourceFiles(s.workflow.DB().GetComponent(t)),
-	)
->>>>>>> upstream/release-1.18
 	extra.Run(t, ctx)
 	t.Cleanup(func() { extra.Cleanup(t) })
 	extra.WaitUntilRunning(t, ctx)
@@ -165,16 +139,8 @@ func (s *start) Run(t *testing.T, ctx context.Context) {
 	require.NoError(t, extraClient.StartWorkItemListener(ctx, registry))
 
 	require.EventuallyWithT(t, func(c *assert.CollectT) {
-<<<<<<< HEAD
 		assert.Greater(c, s.workflow.PlacementVersion(t, ctx), startVersion,
 			"the placement authority must disseminate for the new daprd")
-=======
-		table := s.workflow.Placement().PlacementTables(t, ctx).Tables["default"]
-		if !assert.NotNil(c, table) {
-			return
-		}
-		assert.Greater(c, table.Version, startVersion, "placement table version must advance for the new daprd")
->>>>>>> upstream/release-1.18
 	}, 15*time.Second, 10*time.Millisecond)
 
 	// The claim cancel abandons the create and its retries cannot register

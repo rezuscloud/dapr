@@ -73,63 +73,8 @@ func reconcileIntervalOrDefault(d time.Duration) time.Duration {
 
 type manager[T differ.Resource] interface {
 	loader.Loader[T]
-<<<<<<< HEAD
 	update(context.Context, T) error
 	delete(context.Context, T) error
-=======
-	update(context.Context, T)
-	delete(context.Context, T)
-}
-
-func NewComponents(opts Options[compapi.Component]) *Reconciler[compapi.Component] {
-	r := &Reconciler[compapi.Component]{
-		kind:     compapi.Kind,
-		htarget:  opts.Healthz.AddTarget("component-reconciler"),
-		interval: opts.ReconcileInterval,
-		clock:    clock.RealClock{},
-		manager: &components{
-			Loader: opts.Loader.Components(),
-			store:  opts.CompStore,
-			proc:   opts.Processor,
-			auth:   opts.Authorizer,
-		},
-	}
-	r.loop = loopFactory.NewLoop(r)
-	return r
-}
-
-func NewMCPServers(opts Options[mcpserverapi.MCPServer]) *Reconciler[mcpserverapi.MCPServer] {
-	r := &Reconciler[mcpserverapi.MCPServer]{
-		kind:     mcpserverapi.Kind,
-		htarget:  opts.Healthz.AddTarget("mcpserver-reconciler"),
-		interval: opts.ReconcileInterval,
-		clock:    clock.RealClock{},
-		manager: &mcpservers{
-			Loader: opts.Loader.MCPServers(),
-			store:  opts.CompStore,
-			proc:   opts.Processor,
-			auth:   opts.Authorizer,
-		},
-	}
-	r.loop = loopFactory.NewLoop(r)
-	return r
-}
-
-func NewSubscriptions(opts Options[subapi.Subscription]) *Reconciler[subapi.Subscription] {
-	r := &Reconciler[subapi.Subscription]{
-		kind:     subapi.Kind,
-		htarget:  opts.Healthz.AddTarget("subscription-reconciler"),
-		interval: opts.ReconcileInterval,
-		clock:    clock.RealClock{},
-		manager: &subscriptions{
-			Loader: opts.Loader.Subscriptions(),
-			store:  opts.CompStore,
-			proc:   opts.Processor,
-		},
-	}
-	r.loop = loopFactory.NewLoop(r)
-	return r
->>>>>>> upstream/release-1.18
 }
 
 func (r *Reconciler[T]) Run(ctx context.Context) error {

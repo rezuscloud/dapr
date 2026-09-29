@@ -129,13 +129,6 @@ func Test_CreateReminderWithRetryForever_ResourceExhausted(t *testing.T) {
 
 	req := &actorapi.CreateReminderRequest{Name: "start-es-1", ActorType: "wf", ActorID: "id"}
 	creator := &failNCreator{n: 2, err: status.Error(codes.ResourceExhausted, "quota")}
-<<<<<<< HEAD
 	require.NoError(t, CreateReminderWithRetryForever(t.Context(), creator, req))
 	assert.Equal(t, 3, creator.calls)
-=======
-	err := CreateReminderWithRetryForever(t.Context(), creator, req)
-	require.Error(t, err)
-	assert.Equal(t, codes.ResourceExhausted, status.Code(err))
-	assert.Equal(t, 1, creator.calls)
->>>>>>> upstream/release-1.18
 }

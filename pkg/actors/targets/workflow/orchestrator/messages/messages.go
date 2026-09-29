@@ -48,17 +48,12 @@ type Messages struct {
 	FailChildWorkflowTask func(ctx context.Context, taskScheduledID int32, errorType, errorMessage string) error
 }
 
-<<<<<<< HEAD
 func (m *Messages) CallCreateWorkflowStateMessage(ctx context.Context, events []*backend.WorkflowRuntimeStateMessage, newEvents []*backend.HistoryEvent) DispatchResult {
-=======
-func (m *Messages) CallCreateWorkflowStateMessage(ctx context.Context, events []*backend.WorkflowRuntimeStateMessage) DispatchResult {
->>>>>>> upstream/release-1.18
 	msgs := make([]proto.Message, len(events))
 	historyEvents := make([]*backend.HistoryEvent, len(events))
 	targets := make([]string, len(events))
 	actionIDs := make([]int32, len(events))
 
-<<<<<<< HEAD
 	// Detached spawns dispatch a fresh ExecutionStartedEvent (EventId=-1, no
 	// ParentInstance) but the caller-side action is recorded as a
 	// DetachedWorkflowInstanceCreatedEvent whose EventId is the originating
@@ -77,8 +72,6 @@ func (m *Messages) CallCreateWorkflowStateMessage(ctx context.Context, events []
 		}
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	for i, msg := range events {
 		req := &backend.CreateWorkflowInstanceRequest{StartEvent: msg.GetHistoryEvent()}
 		if ph := msg.GetPropagatedHistory(); ph != nil {
@@ -90,7 +83,6 @@ func (m *Messages) CallCreateWorkflowStateMessage(ctx context.Context, events []
 		msgs[i] = req
 		historyEvents[i] = msg.GetHistoryEvent()
 		targets[i] = msg.GetTargetInstanceId()
-<<<<<<< HEAD
 		switch {
 		case msg.GetHistoryEvent().GetExecutionStarted().GetParentInstance() != nil:
 			actionIDs[i] = msg.GetHistoryEvent().GetExecutionStarted().GetParentInstance().GetTaskScheduledId()
@@ -101,11 +93,6 @@ func (m *Messages) CallCreateWorkflowStateMessage(ctx context.Context, events []
 				actionIDs[i] = msg.GetHistoryEvent().GetEventId()
 			}
 		default:
-=======
-		if es := msg.GetHistoryEvent().GetExecutionStarted(); es != nil && es.GetParentInstance() != nil {
-			actionIDs[i] = es.GetParentInstance().GetTaskScheduledId()
-		} else {
->>>>>>> upstream/release-1.18
 			actionIDs[i] = msg.GetHistoryEvent().GetEventId()
 		}
 	}
@@ -206,18 +193,13 @@ func (m *Messages) callStateMessage(ctx context.Context, msg proto.Message, hist
 		// we can correlate the failure to a parent task via ParentInstance.
 		permissionDenied := IsPermissionDenied(err)
 		if (permissionDenied || IsAlreadyExists(err)) && historyEvent != nil {
-<<<<<<< HEAD
 			if es := historyEvent.GetExecutionStarted(); es != nil {
-=======
-			if es := historyEvent.GetExecutionStarted(); es != nil && es.GetParentInstance() != nil {
->>>>>>> upstream/release-1.18
 				errorType := ErrorTypeAlreadyExists
 				errorMessage := GRPCStatusMessage(err)
 				if permissionDenied {
 					errorType = ErrorTypeAccessPolicyDenied
 					errorMessage = ErrorMessageAccessPolicyDenied
 				}
-<<<<<<< HEAD
 
 				if es.GetParentInstance() != nil {
 					log.Warnf("Workflow actor '%s': failing child workflow task for '%s': %v", m.ActorID, target, err)
@@ -238,12 +220,6 @@ func (m *Messages) callStateMessage(ctx context.Context, msg proto.Message, hist
 					targetAppID = r.GetTargetAppID()
 				}
 				log.Warnf("Workflow actor '%s': detached workflow spawn '%s' rejected on target app '%s': %v", m.ActorID, target, targetAppID, err)
-=======
-				log.Warnf("Workflow actor '%s': failing child workflow task for '%s': %v", m.ActorID, target, err)
-				if fErr := m.FailChildWorkflowTask(ctx, es.GetParentInstance().GetTaskScheduledId(), errorType, errorMessage); fErr != nil {
-					return fmt.Errorf("failed to record child workflow failure: %w (original: %v)", fErr, err)
-				}
->>>>>>> upstream/release-1.18
 				return nil
 			}
 		}

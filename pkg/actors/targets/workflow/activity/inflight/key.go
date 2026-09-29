@@ -13,7 +13,6 @@ limitations under the License.
 
 package inflight
 
-<<<<<<< HEAD
 import (
 	"strconv"
 
@@ -26,16 +25,12 @@ import (
 func KeyPrefix(actorID string) string {
 	return strconv.Itoa(len(actorID)) + "|" + actorID + "::"
 }
-=======
-import "github.com/dapr/durabletask-go/backend"
->>>>>>> upstream/release-1.18
 
 // Key returns the inflight Map key for an activity invocation. It pairs the
 // activity actor ID with the TaskExecutionId from the TaskScheduled event so
 // retries of the same scheduled task share a cache entry while a new workflow
 // run that re-uses the same instance ID (and therefore the same activity actor
 // ID) gets a fresh entry.
-<<<<<<< HEAD
 //
 // SDKs that predate TaskExecutionId leave it empty; the event's timestamp is
 // used instead. The timestamp is part of the persisted event carried by the
@@ -56,13 +51,4 @@ func Key(actorID string, taskEvent *backend.HistoryEvent) string {
 		return prefix + strconv.FormatInt(ts.GetSeconds(), 10) + "." + strconv.FormatInt(int64(ts.GetNanos()), 10)
 	}
 	return prefix
-=======
-func Key(actorID string, taskEvent *backend.HistoryEvent) string {
-	if ts := taskEvent.GetTaskScheduled(); ts != nil {
-		if id := ts.GetTaskExecutionId(); id != "" {
-			return actorID + "::" + id
-		}
-	}
-	return actorID
->>>>>>> upstream/release-1.18
 }

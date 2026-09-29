@@ -70,20 +70,8 @@ func (o *orchestrator) createWorkflowInstance(ctx context.Context, request []byt
 	// orchestration didn't exist
 	// create a new state entry if one doesn't already exist
 	if state == nil {
-<<<<<<< HEAD
 		state = wfenginestate.NewState(o.stateOptions())
 		o.primeCachedState(state, startEvent.GetExecutionStarted())
-=======
-		state = wfenginestate.NewState(wfenginestate.Options{
-			AppID:             o.appID,
-			Namespace:         o.namespace,
-			WorkflowActorType: o.actorType,
-			ActivityActorType: o.activityActorType,
-			Signer:            o.signer,
-		})
-		o.rstate = runtimestate.NewWorkflowRuntimeState(o.actorID, state.CustomStatus, state.History)
-		o.ometa = o.ometaFromState(o.rstate, startEvent.GetExecutionStarted())
->>>>>>> upstream/release-1.18
 
 		if propagatedHistory != nil {
 			if err := o.signing.VerifyAndAbsorbPropagatedHistory(propagatedHistory, state); err != nil {
@@ -148,7 +136,6 @@ func (o *orchestrator) createIfCompleted(ctx context.Context, rs *backend.Workfl
 		return status.Errorf(codes.AlreadyExists, "an active workflow with ID '%s' already exists", o.actorID)
 	}
 
-<<<<<<< HEAD
 	// The create asked for instance ID uniqueness: a completed instance blocks
 	// recreation just like an active one. The recovery paths above stay honoured
 	// regardless, as they are idempotent retries of the same create, not new
@@ -157,8 +144,6 @@ func (o *orchestrator) createIfCompleted(ctx context.Context, rs *backend.Workfl
 		return status.Errorf(codes.AlreadyExists, "a workflow with ID '%s' already exists and the create enforces instance ID uniqueness", o.actorID)
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	if o.activityResultAwaited.Load() {
 		return fmt.Errorf("a terminated workflow with ID '%s' is already awaiting an activity result", o.actorID)
 	}
@@ -266,13 +251,9 @@ func (o *orchestrator) startReminderMissing(ctx context.Context, saved *backend.
 		ActorID:   o.actorID,
 	})
 	if err != nil {
-<<<<<<< HEAD
 		// The contract is (nil, nil) for a missing reminder, but tolerate a
 		// client surfacing NotFound as an error: treating it as retryable
 		// would strand the pending instance permanently.
-=======
-		// Missing is contractually (nil, nil), but tolerate NotFound-as-error.
->>>>>>> upstream/release-1.18
 		if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
 			return true, nil
 		}
@@ -281,7 +262,6 @@ func (o *orchestrator) startReminderMissing(ctx context.Context, saved *backend.
 	return rem == nil, nil
 }
 
-<<<<<<< HEAD
 // isSameLogicalStart reports whether an incoming ExecutionStarted event
 // describes the same logical creation as the saved pending one. Per-attempt
 // volatile fields (Timestamp, the child's own WorkflowInstance.ExecutionId,
@@ -291,12 +271,6 @@ func (o *orchestrator) startReminderMissing(ctx context.Context, saved *backend.
 // ContinueAsNew or recreate), so it is compared when present on both sides. A
 // mismatch means a genuinely conflicting create, which keeps today's
 // AlreadyExists behavior.
-=======
-// isSameLogicalStart reports whether the incoming ExecutionStarted describes
-// the same logical creation as the saved pending one, ignoring per-attempt
-// volatile fields (Timestamp, own ExecutionId, trace context). The parent's
-// ExecutionId is not volatile and is compared when present on both sides.
->>>>>>> upstream/release-1.18
 func isSameLogicalStart(saved, incoming *protos.ExecutionStartedEvent) bool {
 	if saved.GetName() != incoming.GetName() {
 		return false

@@ -90,7 +90,6 @@ type disseminator struct {
 	// in that case, the final UNLOCK must release every type accumulated
 	// across the compressed rounds, not just the most recent UPDATE.
 	roundChangedTypes map[string]struct{}
-<<<<<<< HEAD
 
 	// v2 speaks the v2 (scheduler placement) protocol.
 	schedulerPlacement bool
@@ -100,8 +99,6 @@ type disseminator struct {
 
 	// v2Completed are the seqs of rounds completed on this stream.
 	v2Completed map[uint64]struct{}
-=======
->>>>>>> upstream/release-1.18
 }
 
 func New(ctx context.Context, opts Options) loop.Interface[loops.EventDiss] {
@@ -116,12 +113,9 @@ func New(ctx context.Context, opts Options) loop.Interface[loops.EventDiss] {
 	diss.currentVersion = 0
 	diss.timeoutVersion = 0
 	diss.roundChangedTypes = make(map[string]struct{})
-<<<<<<< HEAD
 	diss.schedulerPlacement = opts.SchedulerPlacement
 	diss.v2Rounds = make(map[uint64]*v2Round)
 	diss.v2Completed = make(map[uint64]struct{})
-=======
->>>>>>> upstream/release-1.18
 	diss.healthTarget = opts.HTarget
 	diss.ready = opts.Ready
 

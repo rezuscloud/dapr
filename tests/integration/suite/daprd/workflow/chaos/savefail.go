@@ -56,13 +56,10 @@ type savefail struct {
 func (s *savefail) Setup(t *testing.T) []framework.Option {
 	os.SkipWindows(t)
 
-<<<<<<< HEAD
 	if workflow.FastPathFromEnv() {
 		t.Skip("WorkflowsFastPath folds activity results into the turn commit, so the standalone inbox save this test arms a fault on fires unreliably")
 	}
 
-=======
->>>>>>> upstream/release-1.18
 	s.store = fault.New(t)
 
 	sock := socket.New(t)
@@ -72,13 +69,10 @@ func (s *savefail) Setup(t *testing.T) []framework.Option {
 	)
 
 	s.workflow = workflow.New(t,
-<<<<<<< HEAD
 		// Keep the signing feature off in signing mode: the armed store fault
 		// rolls back signed rows mid-commit and the retried completion would be
 		// classified as tampering instead of retried. mTLS itself is unaffected.
 		workflow.WithSigningDisabledN(0),
-=======
->>>>>>> upstream/release-1.18
 		workflow.WithNoDB(),
 		workflow.WithDaprdOptions(0,
 			daprd.WithSocket(t, sock),

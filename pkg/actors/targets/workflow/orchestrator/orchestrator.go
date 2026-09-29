@@ -26,10 +26,7 @@ import (
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common/lock"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/messages"
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/orchestrator/signing"
-<<<<<<< HEAD
 	diag "github.com/dapr/dapr/pkg/diagnostics"
-=======
->>>>>>> upstream/release-1.18
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 	wfenginestate "github.com/dapr/dapr/pkg/runtime/wfengine/state"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/todo"
@@ -51,7 +48,6 @@ type orchestrator struct {
 	ometa  *backend.WorkflowMetadata
 
 	activityResultAwaited atomic.Bool
-<<<<<<< HEAD
 	// janitorAsserted tracks whether the per-instance janitor backstop
 	// reminder was ensured this actor residency (WorkflowsFastPath).
 	janitorAsserted atomic.Bool
@@ -101,8 +97,6 @@ type orchestrator struct {
 	// reapEscalatedCompletions). Same guard and generation scope as
 	// janitorRedispatched.
 	janitorEscalated map[int32]*backend.HistoryEvent
-=======
->>>>>>> upstream/release-1.18
 	// lastStartRedrive is the UnixNano of the most recent overdue pending
 	// start re-drive.
 	lastStartRedrive atomic.Int64
