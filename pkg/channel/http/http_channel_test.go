@@ -938,6 +938,7 @@ func TestConstructRequestInjectsBaggage(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "key=value", channelReq.Header.Get("baggage"))
 }
+<<<<<<< HEAD
 
 func TestConcurrencyLimiterContext(t *testing.T) {
 	t.Run("invokeMethodV1 acquire respects context cancellation", func(t *testing.T) {
@@ -996,3 +997,5 @@ func TestConcurrencyLimiterContext(t *testing.T) {
 		}
 	})
 }
+=======
+>>>>>>> upstream/release-1.18
