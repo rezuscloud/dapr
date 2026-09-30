@@ -19,6 +19,10 @@ import (
 	"encoding/json"
 	"fmt"
 	nethttp "net/http"
+<<<<<<< HEAD
+=======
+	"strings"
+>>>>>>> upstream/release-1.18
 	"testing"
 	"time"
 
@@ -97,7 +101,12 @@ func (p *pubsubHTTP) Run(t *testing.T, ctx context.Context) {
 	select {
 	case headers := <-p.headerCh:
 		assert.Equal(t, "vendor=value", headers.Get("tracestate"))
+<<<<<<< HEAD
 		assert.Equal(t, "key1=value1,key2=value2", headers.Get("baggage"))
+=======
+		// Baggage is re-serialized from a map on delivery, so member order is not stable.
+		assert.ElementsMatch(t, []string{"key1=value1", "key2=value2"}, strings.Split(headers.Get("baggage"), ","))
+>>>>>>> upstream/release-1.18
 	case <-time.After(time.Second * 10):
 		assert.Fail(t, "timed out waiting for pubsub event to be delivered to app")
 	}
