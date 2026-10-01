@@ -40,10 +40,7 @@ import (
 	"github.com/dapr/dapr/tests/integration/framework/process/logline"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler/proxy"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
-=======
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/statestore"
 	"github.com/dapr/dapr/tests/integration/framework/process/statestore/fault"
 	"github.com/dapr/dapr/tests/integration/framework/process/workflow"
@@ -86,17 +83,12 @@ func (s *staleevent) Setup(t *testing.T) []framework.Option {
 	os.SkipWindows(t)
 
 	appID := uuid.New().String()
-<<<<<<< HEAD
 	sen := sentry.New(t)
 	s.sched = scheduler.New(t,
 		scheduler.WithSentry(sen),
 		scheduler.WithID("dapr-scheduler-server-0"),
 	)
 	s.proxy = proxy.New(t, s.sched, proxy.WithSentry(t, sen, "default", appID))
-=======
-	s.sched = scheduler.New(t, scheduler.WithID("dapr-scheduler-server-0"))
-	s.proxy = proxy.New(t, s.sched)
->>>>>>> upstream/release-1.18
 
 	s.store = fault.New(t)
 	sock := socket.New(t)
@@ -108,10 +100,7 @@ func (s *staleevent) Setup(t *testing.T) []framework.Option {
 	s.logline = logline.New(t, logline.WithCaptureAll())
 	s.workflow = workflow.New(t,
 		workflow.WithNoDB(),
-<<<<<<< HEAD
 		workflow.WithSentryInstance(sen),
-=======
->>>>>>> upstream/release-1.18
 		workflow.WithSchedulerInstance(s.sched),
 		workflow.WithSchedulerAddress(s.proxy.Address()),
 		workflow.WithDaprdOptions(0,
@@ -134,11 +123,7 @@ spec:
 	)
 
 	return []framework.Option{
-<<<<<<< HEAD
 		framework.WithProcesses(s.logline, sen, s.sched, s.proxy, s.ss, s.workflow),
-=======
-		framework.WithProcesses(s.logline, s.sched, s.proxy, s.ss, s.workflow),
->>>>>>> upstream/release-1.18
 	}
 }
 
