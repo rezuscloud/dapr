@@ -19,10 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync/atomic"
-<<<<<<< HEAD
 	"time"
-=======
->>>>>>> upstream/release-1.18
 
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -350,7 +347,6 @@ func (o *orchestrator) saveInternalState(ctx context.Context, state *wfenginesta
 func (o *orchestrator) cleanupWorkflowStateInternal(ctx context.Context, state *wfenginestate.State, includeRetentionReminder bool) error {
 	// Once a purge has been attempted the next load must come from the store,
 	// whatever else failed: the deactivation below is asynchronous and the
-<<<<<<< HEAD
 	// actor stays tabled until it runs. Nothing is owed for an instance that
 	// no longer exists either, so the reuse guard goes with the cache: a late
 	// result for the purged instance is judged before this actor is reaped
@@ -361,15 +357,6 @@ func (o *orchestrator) cleanupWorkflowStateInternal(ctx context.Context, state *
 	// still owed: clear it only once the rows are actually gone, or a purge
 	// that failed to delete anything would let a create through while the
 	// instance and its outstanding activity are both still live.
-=======
-	// actor stays tabled until it runs, so anything that takes the lock first
-	// would otherwise be served the rows this just deleted.
-	//
-	// The reuse guard is different: it only holds an ID while a result is
-	// still owed, so it clears only once the rows are actually gone. A purge
-	// that deleted nothing must not let a create through while the instance
-	// and its outstanding activity are both still live.
->>>>>>> upstream/release-1.18
 	var rowsDeleted atomic.Bool
 	defer func() {
 		o.invalidateCachedState()
