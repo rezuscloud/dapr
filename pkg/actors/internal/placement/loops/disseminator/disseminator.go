@@ -42,7 +42,11 @@ var (
 )
 
 type Options struct {
+<<<<<<< HEAD
 	Channel       transport.Transport
+=======
+	Channel       v1pb.Placement_ReportDaprStatusClient
+>>>>>>> upstream/release-1.18
 	StreamCancel  context.CancelFunc
 	PlacementLoop loop.Interface[loops.EventPlace]
 	ActorTable    table.Interface

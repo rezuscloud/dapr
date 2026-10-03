@@ -34,14 +34,22 @@ var (
 )
 
 type Options struct {
+<<<<<<< HEAD
 	Channel       transport.Transport
+=======
+	Channel       v1pb.Placement_ReportDaprStatusClient
+>>>>>>> upstream/release-1.18
 	Cancel        context.CancelFunc
 	PlacementLoop loop.Interface[loops.EventPlace]
 	IDx           uint64
 }
 
 type stream struct {
+<<<<<<< HEAD
 	channel   transport.Transport
+=======
+	channel   v1pb.Placement_ReportDaprStatusClient
+>>>>>>> upstream/release-1.18
 	cancel    context.CancelFunc
 	placeLoop loop.Interface[loops.EventPlace]
 	idx       uint64
