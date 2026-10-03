@@ -19,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/dapr/dapr/pkg/actors/internal/placement/loops"
 	"github.com/dapr/kit/events/loop/fake"
 )
@@ -30,10 +31,28 @@ type stuckTransport struct {
 }
 
 func (s *stuckTransport) Recv() (*loops.Order, error) {
+=======
+	"google.golang.org/grpc"
+
+	"github.com/dapr/dapr/pkg/actors/internal/placement/loops"
+	v1pb "github.com/dapr/dapr/pkg/proto/placement/v1"
+	"github.com/dapr/kit/events/loop/fake"
+)
+
+// stuckStream simulates a peer that never answers: Recv only returns once
+// its context is cancelled, never on its own.
+type stuckStream struct {
+	grpc.ClientStream
+	ctx context.Context
+}
+
+func (s *stuckStream) Recv() (*v1pb.PlacementOrder, error) {
+>>>>>>> upstream/release-1.18
 	<-s.ctx.Done()
 	return nil, s.ctx.Err()
 }
 
+<<<<<<< HEAD
 func (s *stuckTransport) SendReport(*loops.Report) error { return nil }
 func (s *stuckTransport) SendAck(*loops.Ack) error       { return nil }
 func (s *stuckTransport) CloseSend() error               { return nil }
@@ -44,6 +63,17 @@ func TestHandleShutdownAbortsStuckRecv(t *testing.T) {
 
 	l := New(context.Background(), Options{
 		Channel:       &stuckTransport{ctx: streamCtx},
+=======
+func (s *stuckStream) Send(*v1pb.Host) error { return nil }
+func (s *stuckStream) CloseSend() error      { return nil }
+
+func TestHandleShutdownAbortsStuckRecv(t *testing.T) {
+	streamCtx, streamCancel := context.WithCancel(t.Context())
+	defer streamCancel()
+
+	l := New(t.Context(), Options{
+		Channel:       &stuckStream{ctx: streamCtx},
+>>>>>>> upstream/release-1.18
 		Cancel:        streamCancel,
 		PlacementLoop: fake.New[loops.EventPlace](),
 		IDx:           1,
@@ -51,7 +81,11 @@ func TestHandleShutdownAbortsStuckRecv(t *testing.T) {
 
 	runDone := make(chan error, 1)
 	go func() {
+<<<<<<< HEAD
 		runDone <- l.Run(context.Background())
+=======
+		runDone <- l.Run(t.Context())
+>>>>>>> upstream/release-1.18
 	}()
 
 	// Let recvLoop actually call Recv() and start blocking on it.
