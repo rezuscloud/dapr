@@ -1,6 +1,6 @@
 module github.com/dapr/dapr
 
-go 1.26.6
+go 1.26.9
 
 require (
 	connectrpc.com/connect v1.19.1
@@ -12,18 +12,12 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0
 	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/coreos/go-oidc/v3 v3.17.0
-<<<<<<< HEAD
-	github.com/dapr/components-contrib v1.18.0-rc.1.0.20260924175451-6a7838d26286
-	github.com/dapr/durabletask-go v0.14.2-0.20260930152504-a90f95c3898d
+	github.com/dapr/components-contrib v1.18.0-rc.1.0.20261007102524-0c7fecba3db7
+	github.com/dapr/durabletask-go v0.15.0
 	github.com/dapr/kit v0.18.3-0.20261002162430-f2a7561ba0de
-=======
-	github.com/dapr/components-contrib v1.18.5
-	github.com/dapr/durabletask-go v0.12.5
-	github.com/dapr/kit v0.18.4
->>>>>>> upstream/release-1.18
 	github.com/diagridio/go-etcd-cron v0.12.10
 	github.com/evanphx/json-patch/v5 v5.9.0
-	github.com/go-chi/chi/v5 v5.2.4
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/go-chi/cors v1.2.1
 	github.com/go-logr/logr v1.4.4
 	github.com/golang/mock v1.7.0-rc.1
@@ -63,7 +57,6 @@ require (
 	go.etcd.io/etcd/server/v3 v3.5.33
 	go.mongodb.org/mongo-driver v1.17.7
 	go.opencensus.io v0.24.0
-<<<<<<< HEAD
 	go.opentelemetry.io/contrib/bridges/otellogrus v0.18.0
 	go.opentelemetry.io/otel v1.45.0
 	go.opentelemetry.io/otel/bridge/opencensus v1.45.0
@@ -71,29 +64,23 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp v0.19.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.45.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.45.0
-=======
-	go.opentelemetry.io/otel v1.45.0
->>>>>>> upstream/release-1.18
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.45.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.45.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.45.0
 	go.opentelemetry.io/otel/exporters/zipkin v1.45.0
 	go.opentelemetry.io/otel/sdk v1.45.0
-<<<<<<< HEAD
 	go.opentelemetry.io/otel/sdk/log v0.19.0
 	go.opentelemetry.io/otel/sdk/metric v1.45.0
-=======
->>>>>>> upstream/release-1.18
 	go.opentelemetry.io/otel/trace v1.45.0
 	go.opentelemetry.io/proto/otlp v1.11.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/ratelimit v0.3.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.56.0
-	golang.org/x/net v0.58.0
+	golang.org/x/crypto v0.57.0
+	golang.org/x/net v0.60.0
 	golang.org/x/oauth2 v0.36.0
-	golang.org/x/sync v0.22.0
-	golang.org/x/sys v0.47.0
+	golang.org/x/sync v0.23.0
+	golang.org/x/sys v0.48.0
 	gonum.org/v1/plot v0.16.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d
@@ -450,7 +437,7 @@ require (
 	github.com/tchap/go-patricia/v2 v2.3.2 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.128 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssm v1.3.128 // indirect
-	github.com/tetratelabs/wazero v1.8.0 // indirect
+	github.com/tetratelabs/wazero v1.12.0 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
@@ -483,21 +470,16 @@ require (
 	go.opentelemetry.io/contrib/detectors/gcp v1.44.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.61.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0 // indirect
-<<<<<<< HEAD
 	go.opentelemetry.io/otel/log v0.19.0 // indirect
 	go.opentelemetry.io/otel/metric v1.45.0 // indirect
-=======
-	go.opentelemetry.io/otel/metric v1.45.0 // indirect
-	go.opentelemetry.io/otel/sdk/metric v1.45.0 // indirect
->>>>>>> upstream/release-1.18
 	go.starlark.net v0.0.0-20230525235612-a134d8f9ddca // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
-	golang.org/x/image v0.43.0 // indirect
-	golang.org/x/mod v0.40.0 // indirect
-	golang.org/x/term v0.45.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/image v0.45.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.49.0 // indirect
 	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect

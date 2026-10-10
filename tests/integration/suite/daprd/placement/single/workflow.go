@@ -68,11 +68,7 @@ func (w *workflow) Run(t *testing.T, ctx context.Context) {
 	}
 
 	assert.EventuallyWithT(t, func(c *assert.CollectT) {
-<<<<<<< HEAD
 		assert.Equal(c, expTable, w.actors.PlacementTables(t, ctx))
-=======
-		assert.Equal(c, expTable, w.actors.Placement().PlacementTables(t, ctx))
->>>>>>> upstream/release-1.18
 	}, time.Second*10, time.Millisecond*10)
 
 	client := dworkflow.NewClientWithLogger(w.actors.Daprd().GRPCConn(t, ctx), logger.New(t))
