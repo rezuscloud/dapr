@@ -232,11 +232,7 @@ func (p *placement) handleLockRequest(req *loops.LockRequest) {
 }
 
 func (p *placement) handleReconnect(ctx context.Context, recon *loops.PlacementReconnect) error {
-<<<<<<< HEAD
 	var client transport.Transport
-=======
-	var client v1pb.Placement_ReportDaprStatusClient
->>>>>>> upstream/release-1.18
 	var streamCancel context.CancelFunc
 	var err error
 	var unavailableLogged bool
@@ -253,7 +249,6 @@ func (p *placement) handleReconnect(ctx context.Context, recon *loops.PlacementR
 	}
 
 	for {
-<<<<<<< HEAD
 		cctx := ctx
 		var ccancel context.CancelCauseFunc
 		var timer *time.Timer
@@ -265,9 +260,6 @@ func (p *placement) handleReconnect(ctx context.Context, recon *loops.PlacementR
 		if timer != nil {
 			timer.Stop()
 		}
-=======
-		client, streamCancel, err = p.tryConnect(ctx)
->>>>>>> upstream/release-1.18
 		if err == nil {
 			break
 		}
@@ -483,23 +475,14 @@ func (p *placement) handleSetDrainOngoingCallTimeout(event *loops.SetDrainOngoin
 	p.inflight.SetDrainOngoingCallTimeout(event.Drain, event.Timeout)
 }
 
-<<<<<<< HEAD
 func (p *placement) tryConnect(ctx, connectCtx context.Context) (transport.Transport, context.CancelFunc, error) {
 	conn, err := p.connector.Connect(connectCtx)
-=======
-func (p *placement) tryConnect(ctx context.Context) (v1pb.Placement_ReportDaprStatusClient, context.CancelFunc, error) {
-	conn, err := p.connector.Connect(ctx)
->>>>>>> upstream/release-1.18
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to connect to placement service: %w", err)
 	}
 
 	streamCtx, streamCancel := context.WithCancel(ctx)
-<<<<<<< HEAD
 	client, err := p.streamFactory(streamCtx, conn)
-=======
-	client, err := v1pb.NewPlacementClient(conn).ReportDaprStatus(streamCtx)
->>>>>>> upstream/release-1.18
 	if err != nil {
 		streamCancel()
 		return nil, nil, fmt.Errorf("failed to open stream to placement service: %w", err)
