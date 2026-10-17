@@ -27,7 +27,10 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	internalv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
+<<<<<<< HEAD
 	runtimev1pb "github.com/dapr/dapr/pkg/proto/runtime/v1"
+=======
+>>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework"
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
 	"github.com/dapr/dapr/tests/integration/framework/process/daprd"
@@ -224,7 +227,10 @@ func (p *peroperation) Run(t *testing.T, ctx context.Context) {
 	// (it targets the local daprd), so we bypass the SDK and craft raw actor
 	// calls. The public actor invoke API rejects reserved actor types, so they
 	// go to the target's internal API with the caller's identity.
+<<<<<<< HEAD
 	callerActorClient := runtimev1pb.NewDaprClient(p.caller.GRPCConn(t, ctx))
+=======
+>>>>>>> upstream/release-1.18
 	callerInternalClient := p.target.InternalGRPCClient(t, ctx, p.sentry, p.caller.AppID(), p.caller.Namespace())
 	targetWorkflowActorType := "dapr.internal.default." + peropTargetAppID + ".workflow"
 

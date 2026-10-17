@@ -152,6 +152,7 @@ func (o *orchestrator) createIfCompleted(ctx context.Context, rs *backend.Workfl
 		return nil
 	}
 
+<<<<<<< HEAD
 	// The create asked for instance ID uniqueness: a completed instance blocks
 	// recreation just like an active one. The recovery paths above stay honoured
 	// regardless, as they are idempotent retries of the same create, not new
@@ -160,6 +161,8 @@ func (o *orchestrator) createIfCompleted(ctx context.Context, rs *backend.Workfl
 		return status.Errorf(codes.AlreadyExists, "a workflow with ID '%s' already exists and the create enforces instance ID uniqueness", o.actorID)
 	}
 
+=======
+>>>>>>> upstream/release-1.18
 	if o.activityResultAwaited.Load() {
 		return fmt.Errorf("a terminated workflow with ID '%s' is already awaiting an activity result", o.actorID)
 	}

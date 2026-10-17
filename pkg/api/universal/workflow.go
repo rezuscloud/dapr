@@ -179,6 +179,7 @@ func (a *Universal) StartWorkflow(ctx context.Context, in *runtimev1pb.StartWork
 	policyRunner := resiliency.NewRunner[api.InstanceID](ctx,
 		a.resiliency.BuiltInPolicy(resiliency.BuiltInActorRetries),
 	)
+<<<<<<< HEAD
 	workflowID, err := policyRunner(func(ctx context.Context) (api.InstanceID, error) {
 		id, serr := a.workflowEngine.Client().ScheduleNewWorkflow(ctx, in.GetWorkflowName(), opts...)
 		if serr != nil {
@@ -190,6 +191,15 @@ func (a *Universal) StartWorkflow(ctx context.Context, in *runtimev1pb.StartWork
 			return id, werr
 		}
 		return id, nil
+=======
+	resp, err := policyRunner(func(ctx context.Context) (*workflows.StartResponse, error) {
+		resp, serr := a.workflowEngine.Client().Start(ctx, &req)
+		// A retry mints a new ExecutionId that recreates a completed instance.
+		if status.Code(serr) == codes.AlreadyExists {
+			return resp, backoff.Permanent(serr)
+		}
+		return resp, serr
+>>>>>>> upstream/release-1.18
 	})
 	if err != nil {
 		err := messages.ErrStartWorkflow.WithFormat(in.GetWorkflowName(), err)

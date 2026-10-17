@@ -253,7 +253,10 @@ func (o *orchestrator) Deactivate(ctx context.Context) error {
 	o.retireLock.Lock()
 	o.retired = true
 	o.retireLock.Unlock()
+<<<<<<< HEAD
 	o.foldFlush()
+=======
+>>>>>>> upstream/release-1.18
 	for _, stream := range o.streamFns {
 		stream.errCh <- targeterrors.NewClosed("deactivated")
 	}
