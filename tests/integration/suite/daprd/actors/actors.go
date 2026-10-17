@@ -1,5 +1,3 @@
-//go:build !windows
-
 /*
 Copyright 2026 The Dapr Authors
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +11,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package dirdata
+package actors
 
-// isDeletePending is always false away from Windows, where unlinking a file
-// takes effect immediately and a delete observed mid scan surfaces as
-// fs.ErrNotExist.
-func isDeletePending(error) bool {
-	return false
-}
+import (
+	_ "github.com/dapr/dapr/tests/integration/suite/daprd/actors/restart"
+)
