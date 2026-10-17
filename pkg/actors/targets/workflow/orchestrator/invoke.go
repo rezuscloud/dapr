@@ -150,7 +150,11 @@ func (o *orchestrator) handleReminder(ctx context.Context, reminder *actorapi.Re
 		// The Scheduler lets any app in the namespace create a reminder
 		// under this name on this actor. Only an activity result belongs
 		// here, plus the child failure this app synthesises for itself
+<<<<<<< HEAD
 		// (failTaskViaReminder): anything else (a raised event, a
+=======
+		// (failChildWorkflowTask): anything else (a raised event, a
+>>>>>>> upstream/release-1.18
 		// termination, a timer firing that the persistable inbox cannot
 		// hold) is acked and dropped, whoever sent it.
 		_, _, isResolution := activityResolution(&ev)
@@ -160,10 +164,14 @@ func (o *orchestrator) handleReminder(ctx context.Context, reminder *actorapi.Re
 			log.Warnf("Workflow actor '%s': dropping activity-result reminder '%s' from app '%s': payload is not an activity result (%T)", o.actorID, reminder.Name, reminder.SourceAppID, ev.GetEventType())
 			return nil
 		}
+<<<<<<< HEAD
 		sender := completionSender{
 			parentExecutionID: common.ActivityResultParentExecutionID(reminder.Name),
 			appID:             reminder.SourceAppID,
 		}
+=======
+		sender := completionSender{appID: reminder.SourceAppID}
+>>>>>>> upstream/release-1.18
 		err := o.addWorkflowEvent(ctx, &ev, sender)
 		if common.IsSchedulingNotDurable(err) {
 			// This reminder IS the retry chain for the refusal, and it
@@ -171,8 +179,12 @@ func (o *orchestrator) handleReminder(ctx context.Context, reminder *actorapi.Re
 			// across the store's lag. Bounded, though: a completion whose
 			// scheduling is still committing resolves within the commit
 			// timeout, and one still refused past it is not ahead of its row
+<<<<<<< HEAD
 			// but a straggler no history will ever admit. Unbounded, it is a
 			// permanent storm of full state loads under the turn lock.
+=======
+			// but a straggler no history will ever admit.
+>>>>>>> upstream/release-1.18
 			//
 			// The timestamp is stamped by the host that ran the activity, so
 			// it is read against another clock; at this granularity skew is
@@ -180,9 +192,15 @@ func (o *orchestrator) handleReminder(ctx context.Context, reminder *actorapi.Re
 			// dropped, which is the safe direction. The creator chooses the
 			// stamp, though, and any app in the namespace may create this
 			// reminder: a stamp far in the future would otherwise never
+<<<<<<< HEAD
 			// leave the window and keep the storm going forever, so one more
 			// than the window ahead of this clock is as expired as one more
 			// than the window behind it.
+=======
+			// leave the window and keep the retries going forever, so one
+			// more than the window ahead of this clock is as expired as one
+			// more than the window behind it.
+>>>>>>> upstream/release-1.18
 			o.invalidateCachedState()
 			window := common.SchedulingDurableWindow()
 			if age := time.Since(ev.GetTimestamp().AsTime()); -window < age && age < window {

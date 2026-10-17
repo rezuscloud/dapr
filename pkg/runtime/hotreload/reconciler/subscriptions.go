@@ -80,7 +80,11 @@ func (s *subscriptions) update(ctx context.Context, sub subapi.Subscription) err
 
 	if !s.auth.IsObjectAuthorized(sub) {
 		log.Debugf("Subscription not scoped to this app, ignored: %s", sub.Name)
+<<<<<<< HEAD
 		return nil
+=======
+		return
+>>>>>>> upstream/release-1.18
 	}
 
 	log.Infof("Adding Subscription for processing: %s", sub.Name)

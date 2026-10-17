@@ -21,12 +21,14 @@ import (
 	"sync/atomic"
 	"time"
 
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	contribstate "github.com/dapr/components-contrib/state"
 	actorsapi "github.com/dapr/dapr/pkg/actors/api"
+	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
 	commonv1pb "github.com/dapr/dapr/pkg/proto/common/v1"
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
 	wfengerrors "github.com/dapr/dapr/pkg/runtime/wfengine/errors"
@@ -231,7 +233,7 @@ func (o *orchestrator) confirmCachedState(ctx context.Context, state *wfenginest
 		o.invalidateCachedState()
 		return api.ErrInstanceNotFound
 	}
-	if cur, have := res.ETag, state.MetadataETag(); cur != nil && have != nil && *cur != *have {
+	if _, ok := rowDescribesCache(res, state); !ok {
 		o.invalidateCachedState()
 		return wfengerrors.NewRecoverable(errors.New("cached state is stale; reloading"))
 	}
@@ -381,14 +383,14 @@ func (o *orchestrator) cleanupWorkflowStateInternal(ctx context.Context, state *
 			return nil
 		},
 		func(ctx context.Context) error {
-			return o.reminders.DeleteByActorID(ctx, &actorsapi.DeleteRemindersByActorIDRequest{
+			return common.DeleteRemindersWithRetry(ctx, o.reminders, &actorsapi.DeleteRemindersByActorIDRequest{
 				ActorType:       o.actorType,
 				ActorID:         o.actorID,
 				MatchIDAsPrefix: false,
 			})
 		},
 		func(ctx context.Context) error {
-			return o.reminders.DeleteByActorID(ctx, &actorsapi.DeleteRemindersByActorIDRequest{
+			return common.DeleteRemindersWithRetry(ctx, o.reminders, &actorsapi.DeleteRemindersByActorIDRequest{
 				ActorType:       o.activityActorType,
 				ActorID:         o.actorID + "::",
 				MatchIDAsPrefix: true,
@@ -398,7 +400,7 @@ func (o *orchestrator) cleanupWorkflowStateInternal(ctx context.Context, state *
 
 	if includeRetentionReminder {
 		runners = append(runners, func(ctx context.Context) error {
-			return o.reminders.DeleteByActorID(ctx, &actorsapi.DeleteRemindersByActorIDRequest{
+			return common.DeleteRemindersWithRetry(ctx, o.reminders, &actorsapi.DeleteRemindersByActorIDRequest{
 				ActorType:       o.retentionActorType,
 				ActorID:         o.actorID,
 				MatchIDAsPrefix: false,
@@ -508,4 +510,44 @@ func (o *orchestrator) getExecutionStartedEvent(state *wfenginestate.State) *pro
 		}
 	}
 	return &protos.ExecutionStartedEvent{}
+}
+
+// cachedInboxCurrent reports whether the store agrees with the cached state
+// that nothing waits in the inbox: its metadata row (one read, not the whole
+// history) describes the cached state and holds an empty inbox. A cache or a
+// row without an ETag cannot be confirmed.
+func (o *orchestrator) cachedInboxCurrent(ctx context.Context, state *wfenginestate.State) (bool, error) {
+	if state.MetadataETag() == nil {
+		return false, nil
+	}
+	res, err := o.actorState.Get(ctx, &actorsapi.GetStateRequest{
+		ActorType: o.actorType,
+		ActorID:   o.actorID,
+		Key:       wfenginestate.MetadataKey,
+	}, false)
+	if err != nil {
+		return false, err
+	}
+	if res == nil || len(res.Data) == 0 || res.ETag == nil {
+		return false, nil
+	}
+	meta, ok := rowDescribesCache(res, state)
+	return ok && meta.GetInboxLength() == 0, nil
+}
+
+// rowDescribesCache reports whether a metadata row read from the store
+// describes the cached state: the same generation and history length, and the
+// same ETag when both carry one. The ETag alone is not enough: the post-save
+// refresh can record a peer's newer ETag, and some stores restart a row's
+// version when the row is recreated. An unreadable row does not.
+func rowDescribesCache(res *actorsapi.StateResponse, state *wfenginestate.State) (*backend.BackendWorkflowStateMetadata, bool) {
+	if cur, have := res.ETag, state.MetadataETag(); cur != nil && have != nil && *cur != *have {
+		return nil, false
+	}
+	var meta backend.BackendWorkflowStateMetadata
+	if err := proto.Unmarshal(res.Data, &meta); err != nil {
+		return nil, false
+	}
+	return &meta, meta.GetGeneration() == state.Generation &&
+		meta.GetHistoryLength() == uint64(len(state.History))
 }

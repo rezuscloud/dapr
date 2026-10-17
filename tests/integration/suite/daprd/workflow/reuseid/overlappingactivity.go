@@ -44,7 +44,10 @@ type overlappingactivity struct {
 
 func (o *overlappingactivity) Setup(t *testing.T) []framework.Option {
 	o.workflow = workflow.New(t,
+<<<<<<< HEAD
 		workflow.WithClusteredDeployment(false),
+=======
+>>>>>>> upstream/release-1.18
 		workflow.WithDaprdOptions(0, daprd.WithConfigManifests(t, `apiVersion: dapr.io/v1alpha1
 kind: Configuration
 metadata:

@@ -14,6 +14,7 @@ limitations under the License.
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -43,6 +44,7 @@ type Reminder struct {
 	IsTimer        bool           `json:"-"`
 	IsRemote       bool           `json:"-"`
 	SkipLock       bool           `json:"-"`
+<<<<<<< HEAD
 	// SkipRetries opts this call out of the router's built-in
 	// actor-not-found retry wrapper (constant 1s backoff): a transient
 	// resolution failure surfaces to the caller immediately. For callers
@@ -51,10 +53,27 @@ type Reminder struct {
 	// second-scale tail latency. Unlike SkipLock it does not affect the
 	// placement claim or target locking.
 	SkipRetries bool `json:"-"`
+=======
+>>>>>>> upstream/release-1.18
 	// SourceAppID is the app that created the reminder, as verified by the
 	// Scheduler against the creator's identity when the job was scheduled.
 	// Empty when unknown (state store reminders, timers, older Schedulers).
 	SourceAppID string `json:"-"`
+<<<<<<< HEAD
+	// Removed is cancelled when the timer is deleted or replaced.
+	Removed context.Context `json:"-"`
+}
+
+// UntilRemoved merges Removed into ctx until removed is called.
+func (r *Reminder) UntilRemoved(ctx context.Context) (wctx context.Context, removed func() bool, cancel context.CancelFunc) {
+	if r.Removed == nil {
+		return ctx, func() bool { return false }, func() {}
+	}
+	wctx, cancel = context.WithCancel(ctx)
+	stop := context.AfterFunc(r.Removed, cancel)
+	return wctx, func() bool { return !stop() }, cancel
+=======
+>>>>>>> upstream/release-1.18
 }
 
 // ActorKey returns the key of the actor for this reminder.

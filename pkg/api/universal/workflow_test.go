@@ -23,7 +23,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+<<<<<<< HEAD
 	"google.golang.org/protobuf/types/known/wrapperspb"
+=======
+>>>>>>> upstream/release-1.18
 
 	actorsfake "github.com/dapr/dapr/pkg/actors/fake"
 	"github.com/dapr/dapr/pkg/messages"
@@ -127,10 +130,17 @@ func TestStartWorkflowRetries(t *testing.T) {
 			fakeAPI := &Universal{
 				logger:     logger.NewLogger("test"),
 				resiliency: resiliency.FromConfigurations(logger.NewLogger("test")),
+<<<<<<< HEAD
 				workflowEngine: fake.New().WithClient(func() backend.TaskHubClient {
 					return fake.NewClient().WithScheduleNewWorkflow(func(context.Context, any, ...api.NewWorkflowOptions) (api.InstanceID, error) {
 						attempts.Add(1)
 						return "", fmt.Errorf("failed to start workflow: %w", status.Error(tc.code, "create failed"))
+=======
+				workflowEngine: fake.New().WithClient(func() workflows.Workflow {
+					return fake.NewClient().WithStart(func(context.Context, *workflows.StartRequest) (*workflows.StartResponse, error) {
+						attempts.Add(1)
+						return nil, fmt.Errorf("unable to start workflow: %w", status.Error(tc.code, "create failed"))
+>>>>>>> upstream/release-1.18
 					})
 				}),
 				actors: actorsfake.New(),
