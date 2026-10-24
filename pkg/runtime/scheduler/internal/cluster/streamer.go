@@ -58,7 +58,6 @@ func (s *streamer) run(ctx context.Context) error {
 // reminder based on the job metadata.
 // It must not call CloseSend; outgoing owns the send side.
 func (s *streamer) receive(ctx context.Context) error {
-<<<<<<< HEAD
 	// Jobs also stop when the stream ends. A job can wait on something only a
 	// reconnected stream provides, such as actor placement when the scheduler
 	// hosts it, and waiting for that job here would stop the reconnect.
@@ -66,8 +65,6 @@ func (s *streamer) receive(ctx context.Context) error {
 	defer cancel()
 	stop := context.AfterFunc(s.stream.Context(), cancel)
 	defer stop()
-=======
->>>>>>> upstream/release-1.18
 	defer s.wg.Wait()
 
 	for {

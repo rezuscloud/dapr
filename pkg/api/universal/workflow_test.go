@@ -23,15 +23,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-<<<<<<< HEAD
 	"google.golang.org/protobuf/types/known/wrapperspb"
-=======
->>>>>>> upstream/release-1.18
 
 	actorsfake "github.com/dapr/dapr/pkg/actors/fake"
 	"github.com/dapr/dapr/pkg/messages"
 	runtimev1pb "github.com/dapr/dapr/pkg/proto/runtime/v1"
 	"github.com/dapr/dapr/pkg/resiliency"
+	wferrors "github.com/dapr/dapr/pkg/runtime/wfengine/errors"
 	"github.com/dapr/dapr/pkg/runtime/wfengine/fake"
 	"github.com/dapr/durabletask-go/api"
 	"github.com/dapr/durabletask-go/api/protos"
@@ -117,11 +115,19 @@ func TestStartWorkflowAPI(t *testing.T) {
 
 func TestStartWorkflowRetries(t *testing.T) {
 	tests := map[string]struct {
-		code         codes.Code
+		err          error
 		wantAttempts int32
 	}{
-		"already exists is not retried": {code: codes.AlreadyExists, wantAttempts: 1},
-		"unavailable is retried":        {code: codes.Unavailable, wantAttempts: 4},
+		"already exists is not retried": {err: status.Error(codes.AlreadyExists, "create failed"), wantAttempts: 1},
+		"unavailable is retried":        {err: status.Error(codes.Unavailable, "create failed"), wantAttempts: 4},
+		"no worker connected is not retried": {
+			err:          fmt.Errorf("%w for app 'x': failed to lookup actor: %w", wferrors.ErrNoWorkerConnected, messages.ErrActorNoAddress.WithFormat("x")),
+			wantAttempts: 1,
+		},
+		"no worker connected on a remote host is not retried": {
+			err:          fmt.Errorf("%w for app 'x': %w", wferrors.ErrNoWorkerConnected, status.Error(codes.FailedPrecondition, "failed to lookup actor: did not find address for actor 'x'")),
+			wantAttempts: 1,
+		},
 	}
 
 	for name, tc := range tests {
@@ -130,17 +136,10 @@ func TestStartWorkflowRetries(t *testing.T) {
 			fakeAPI := &Universal{
 				logger:     logger.NewLogger("test"),
 				resiliency: resiliency.FromConfigurations(logger.NewLogger("test")),
-<<<<<<< HEAD
 				workflowEngine: fake.New().WithClient(func() backend.TaskHubClient {
 					return fake.NewClient().WithScheduleNewWorkflow(func(context.Context, any, ...api.NewWorkflowOptions) (api.InstanceID, error) {
 						attempts.Add(1)
-						return "", fmt.Errorf("failed to start workflow: %w", status.Error(tc.code, "create failed"))
-=======
-				workflowEngine: fake.New().WithClient(func() workflows.Workflow {
-					return fake.NewClient().WithStart(func(context.Context, *workflows.StartRequest) (*workflows.StartResponse, error) {
-						attempts.Add(1)
-						return nil, fmt.Errorf("unable to start workflow: %w", status.Error(tc.code, "create failed"))
->>>>>>> upstream/release-1.18
+						return "", fmt.Errorf("failed to start workflow: %w", tc.err)
 					})
 				}),
 				actors: actorsfake.New(),

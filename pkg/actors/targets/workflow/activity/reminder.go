@@ -88,22 +88,9 @@ func (f *factory) createWorkflowResultReminder(ctx context.Context, wfActorType,
 		ActorID:   wfActorID,
 		DueTime:   activityResultDueTime(),
 		Name:      reminderName,
-<<<<<<< HEAD
 		// One shot, retry forever, jittered interval.
 		FailurePolicy: common.RetryForeverPolicy(),
 		Data:          anydata,
-=======
-		// One shot, retry forever, every second.
-		FailurePolicy: &commonv1pb.JobFailurePolicy{
-			Policy: &commonv1pb.JobFailurePolicy_Constant{
-				Constant: &commonv1pb.JobFailurePolicyConstant{
-					Interval:   durationpb.New(time.Second),
-					MaxRetries: nil,
-				},
-			},
-		},
-		Data: anydata,
->>>>>>> upstream/release-1.18
 		// The Scheduler only lets another app's result reminder be created,
 		// never replaced; the name is random, so a retry of an unacked
 		// create is the only AlreadyExists, and the retry helper treats it

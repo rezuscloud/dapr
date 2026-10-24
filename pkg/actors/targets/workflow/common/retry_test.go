@@ -151,7 +151,6 @@ func Test_CreateReminderWithRetry_AlreadyExistsIsSuccess(t *testing.T) {
 	assert.Equal(t, 1, creator.calls)
 }
 
-<<<<<<< HEAD
 // failNDeleter fails the first n DeleteByActorID calls with err, then succeeds.
 type failNDeleter struct {
 	n     int
@@ -221,22 +220,4 @@ func Test_DeleteRemindersWithRetry(t *testing.T) {
 		d := &failNDeleter{n: 100, err: status.Error(codes.Unavailable, "down")}
 		require.ErrorIs(t, DeleteRemindersWithRetry(ctx, d, req), context.Canceled)
 	})
-=======
-// A create without overwrite answers AlreadyExists when a retry follows a
-// create whose success was lost in transit: the reminder is there, so both
-// helpers report success instead of spinning on the retry.
-func Test_CreateReminderWithRetry_AlreadyExistsIsSuccess(t *testing.T) {
-	t.Parallel()
-
-	req := &actorapi.CreateReminderRequest{Name: "activity-result-abc", ActorType: "wf", ActorID: "id"}
-	exists := status.Error(codes.AlreadyExists, "job already exists")
-
-	creator := &failNCreator{n: 10, err: exists}
-	require.NoError(t, CreateReminderWithRetry(t.Context(), creator, req))
-	assert.Equal(t, 1, creator.calls)
-
-	creator = &failNCreator{n: 10, err: exists}
-	require.NoError(t, CreateReminderWithRetryForever(t.Context(), creator, req))
-	assert.Equal(t, 1, creator.calls)
->>>>>>> upstream/release-1.18
 }

@@ -32,6 +32,7 @@ import (
 	"github.com/dapr/dapr/pkg/messages"
 	runtimev1pb "github.com/dapr/dapr/pkg/proto/runtime/v1"
 	"github.com/dapr/dapr/pkg/resiliency"
+	wferrors "github.com/dapr/dapr/pkg/runtime/wfengine/errors"
 	"github.com/dapr/durabletask-go/api"
 )
 
@@ -179,7 +180,6 @@ func (a *Universal) StartWorkflow(ctx context.Context, in *runtimev1pb.StartWork
 	policyRunner := resiliency.NewRunner[api.InstanceID](ctx,
 		a.resiliency.BuiltInPolicy(resiliency.BuiltInActorRetries),
 	)
-<<<<<<< HEAD
 	workflowID, err := policyRunner(func(ctx context.Context) (api.InstanceID, error) {
 		id, serr := a.workflowEngine.Client().ScheduleNewWorkflow(ctx, in.GetWorkflowName(), opts...)
 		if serr != nil {
@@ -188,18 +188,14 @@ func (a *Universal) StartWorkflow(ctx context.Context, in *runtimev1pb.StartWork
 			if status.Code(serr) == codes.AlreadyExists {
 				return id, backoff.Permanent(werr)
 			}
+			// No workflow worker is connected: the backend has already waited
+			// out the actor not found retries.
+			if errors.Is(serr, wferrors.ErrNoWorkerConnected) {
+				return id, backoff.Permanent(werr)
+			}
 			return id, werr
 		}
 		return id, nil
-=======
-	resp, err := policyRunner(func(ctx context.Context) (*workflows.StartResponse, error) {
-		resp, serr := a.workflowEngine.Client().Start(ctx, &req)
-		// A retry mints a new ExecutionId that recreates a completed instance.
-		if status.Code(serr) == codes.AlreadyExists {
-			return resp, backoff.Permanent(serr)
-		}
-		return resp, serr
->>>>>>> upstream/release-1.18
 	})
 	if err != nil {
 		err := messages.ErrStartWorkflow.WithFormat(in.GetWorkflowName(), err)

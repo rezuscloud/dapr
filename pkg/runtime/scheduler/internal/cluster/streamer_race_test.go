@@ -300,7 +300,6 @@ func Test_streamer_parentCancel_bufconn(t *testing.T) {
 		cleanup()
 	}
 }
-<<<<<<< HEAD
 
 // A job blocked on something only a reconnected stream can provide must not
 // stop the streamer from returning once the stream ends.
@@ -338,5 +337,3 @@ func Test_streamer_streamEnd_cancelsBlockedJob(t *testing.T) {
 		require.FailNow(t, "streamer did not return after the stream ended while a job was blocked")
 	}
 }
-=======
->>>>>>> upstream/release-1.18

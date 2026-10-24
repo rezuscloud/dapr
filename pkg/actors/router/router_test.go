@@ -15,10 +15,7 @@ package router_test
 
 import (
 	"context"
-<<<<<<< HEAD
 	"errors"
-=======
->>>>>>> upstream/release-1.18
 	"net"
 	"testing"
 	"time"
@@ -26,7 +23,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-<<<<<<< HEAD
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -40,14 +36,6 @@ import (
 	tablefake "github.com/dapr/dapr/pkg/actors/table/fake"
 	"github.com/dapr/dapr/pkg/actors/targets"
 	targetsfake "github.com/dapr/dapr/pkg/actors/targets/fake"
-=======
-	"google.golang.org/protobuf/types/known/emptypb"
-
-	"github.com/dapr/dapr/pkg/actors/api"
-	placementfake "github.com/dapr/dapr/pkg/actors/internal/placement/fake"
-	"github.com/dapr/dapr/pkg/actors/router"
-	tablefake "github.com/dapr/dapr/pkg/actors/table/fake"
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/pkg/api/grpc/manager"
 	"github.com/dapr/dapr/pkg/modes"
 	internalv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
@@ -56,7 +44,6 @@ import (
 	"github.com/dapr/kit/logger"
 )
 
-<<<<<<< HEAD
 type localTimerRouter struct {
 	router.Interface
 	lookups, releases, creates, invokes int
@@ -301,8 +288,6 @@ func TestCallReminderNonLocalRemoteReminderErrors(t *testing.T) {
 	require.ErrorContains(t, err, "remote actor moved")
 }
 
-=======
->>>>>>> upstream/release-1.18
 // A fired reminder forwarded to the actor's owner carries the creator the
 // Scheduler verified, so the owner can judge it as if delivered directly.
 func TestCallReminderRemoteForwardsSourceAppID(t *testing.T) {
@@ -367,7 +352,6 @@ func (s *reminderSink) CallActorReminder(_ context.Context, in *internalv1pb.Rem
 	s.received <- in
 	return new(emptypb.Empty), nil
 }
-<<<<<<< HEAD
 
 func TestIsRetryableRemoteError(t *testing.T) {
 	tests := map[string]struct {
@@ -388,5 +372,3 @@ func TestIsRetryableRemoteError(t *testing.T) {
 		})
 	}
 }
-=======
->>>>>>> upstream/release-1.18
