@@ -11,7 +11,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<< HEAD
 // Package hostauthz authorizes an actor host report against the caller's
 // SPIFFE identity, shared by the placement service and the scheduler's
 // placement server.
@@ -82,17 +81,6 @@ func Authorize(ctx context.Context, sec security.Handler, r Report) error {
 	return nil
 }
 
-=======
-// Package hostauthz decides which app owns a reserved internal actor type.
-package hostauthz
-
-import (
-	"strings"
-)
-
-const internalActorTypePrefix = "dapr.internal."
-
->>>>>>> upstream/release-1.18
 // InternalActorType reports whether actorType is a reserved internal actor
 // type (dapr.internal.*) and, if so, whether it belongs to appID in namespace
 // ns, that is whether it is "dapr.internal.<ns>.<appID>" or starts with it

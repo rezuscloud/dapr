@@ -92,18 +92,13 @@ func CreateReminderWithRetryForever(ctx context.Context, r reminderCreator, req 
 		if isCreated(err) {
 			return nil
 		}
-<<<<<<< HEAD
 		if IsPermanentCreateError(err) {
-=======
-		if IsPermanentCreateError(err) || status.Code(err) == codes.ResourceExhausted {
->>>>>>> upstream/release-1.18
 			return backoff.Permanent(err)
 		}
 		return err
 	}, backoff.WithContext(bo, ctx))
 }
 
-<<<<<<< HEAD
 // reminderDeleter is the minimal interface needed by DeleteRemindersWithRetry.
 // It is satisfied by both reminders.Interface and scheduler.Interface.
 type reminderDeleter interface {
@@ -138,8 +133,6 @@ func DeleteRemindersWithRetry(ctx context.Context, r reminderDeleter, req *actor
 	}, backoff.WithContext(bo, ctx))
 }
 
-=======
->>>>>>> upstream/release-1.18
 // isCreated reports whether a Create left the reminder in place. A create
 // without overwrite answers AlreadyExists when a retry follows a create whose
 // success was lost in transit; the reminder is there, which is the goal.

@@ -19,42 +19,25 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-<<<<<<< HEAD
 	"google.golang.org/grpc/codes"
 
 	targeterrors "github.com/dapr/dapr/pkg/actors/targets/errors"
 	internalsv1pb "github.com/dapr/dapr/pkg/proto/internals/v1"
-=======
-
-	targeterrors "github.com/dapr/dapr/pkg/actors/targets/errors"
->>>>>>> upstream/release-1.18
 )
 
 func Test_Deactivate_concurrentInvocations(t *testing.T) {
 	t.Parallel()
 
 	for i := range 300 {
-<<<<<<< HEAD
 		e, f := newClaimTestExecutor(t)
-=======
-		f := newTestFactory(t)
-		e := f.GetOrCreate(testActorID).(*executor)
->>>>>>> upstream/release-1.18
 
 		var wg sync.WaitGroup
 		start := make(chan struct{})
 		for range 4 {
 			wg.Go(func() {
 				<-start
-<<<<<<< HEAD
 				_, err := e.InvokeMethod(t.Context(), claimReq(TaskTypeWorkflow))
 				assert.NoError(t, err, "iteration %d", i)
-=======
-				_, err := e.InvokeMethod(t.Context(), methodReq(MethodRegister))
-				if err != nil {
-					assert.True(t, targeterrors.IsClosed(err), "iteration %d: %v", i, err)
-				}
->>>>>>> upstream/release-1.18
 			})
 		}
 		wg.Go(func() {
@@ -64,21 +47,15 @@ func Test_Deactivate_concurrentInvocations(t *testing.T) {
 		close(start)
 		wg.Wait()
 
-<<<<<<< HEAD
 		assert.True(t, e.closed.Load(), "iteration %d", i)
 		_, ok := f.table.Load("abc")
 		assert.False(t, ok, "iteration %d", i)
-=======
-		assert.True(t, e.isClosed(), "iteration %d", i)
-		assert.False(t, f.Exists(testActorID), "iteration %d", i)
->>>>>>> upstream/release-1.18
 	}
 }
 
 func Test_Deactivate_refusesLaterCalls(t *testing.T) {
 	t.Parallel()
 
-<<<<<<< HEAD
 	e, _ := newClaimTestExecutor(t)
 	require.NoError(t, e.Deactivate(t.Context()))
 
@@ -108,15 +85,3 @@ func Test_Deactivate_claimDoesNotServeHandedOffCancel(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, int32(codes.NotFound), res.GetStatus().GetCode())
 }
-=======
-	f := newTestFactory(t)
-	e := f.GetOrCreate(testActorID).(*executor)
-	require.NoError(t, e.Deactivate(t.Context()))
-
-	_, err := e.InvokeMethod(t.Context(), methodReq("unknown"))
-	assert.True(t, targeterrors.IsClosed(err), "got %v", err)
-
-	err = e.InvokeStream(t.Context(), methodReq("unknown"), nil)
-	assert.True(t, targeterrors.IsClosed(err), "got %v", err)
-}
->>>>>>> upstream/release-1.18

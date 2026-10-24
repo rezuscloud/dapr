@@ -23,18 +23,10 @@ import (
 	"github.com/stretchr/testify/require"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/protobuf/types/known/anypb"
-<<<<<<< HEAD
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/dapr/dapr/pkg/actors/targets/workflow/common"
-=======
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
-
-	commonv1pb "github.com/dapr/dapr/pkg/proto/common/v1"
->>>>>>> upstream/release-1.18
 	schedulerv1pb "github.com/dapr/dapr/pkg/proto/scheduler/v1"
 	"github.com/dapr/dapr/tests/integration/framework"
 	"github.com/dapr/dapr/tests/integration/framework/iowriter/logger"
@@ -189,19 +181,9 @@ func (f *forgedresult) Run(t *testing.T, ctx context.Context) {
 		_, err = other.ScheduleJob(ctx, &schedulerv1pb.ScheduleJobRequest{
 			Name: name,
 			Job: &schedulerv1pb.Job{
-<<<<<<< HEAD
 				DueTime:       new("0s"),
 				Data:          data,
 				FailurePolicy: common.RetryForeverPolicy(),
-=======
-				DueTime: new("0s"),
-				Data:    data,
-				FailurePolicy: &commonv1pb.JobFailurePolicy{
-					Policy: &commonv1pb.JobFailurePolicy_Constant{
-						Constant: &commonv1pb.JobFailurePolicyConstant{Interval: durationpb.New(time.Second)},
-					},
-				},
->>>>>>> upstream/release-1.18
 			},
 			Metadata: &schedulerv1pb.JobMetadata{
 				AppId:     "other",

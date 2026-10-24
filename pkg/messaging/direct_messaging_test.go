@@ -98,7 +98,6 @@ func TestCallerAndCalleeHeaders(t *testing.T) {
 			"Other":                        {"kept"},
 		}, got)
 	})
-<<<<<<< HEAD
 }
 
 func TestInvokeLocalCallerAndCalleeHeaders(t *testing.T) {
@@ -174,8 +173,6 @@ func TestInvokeLocalCallerAndCalleeHeaders(t *testing.T) {
 		assert.Equal(t, appID, got.Metadata()[invokev1.CallerIDHeader].GetValues()[0])
 		assert.Equal(t, appID, got.Metadata()[invokev1.CalleeIDHeader].GetValues()[0])
 	})
-=======
->>>>>>> upstream/release-1.18
 }
 
 func TestForwardedHeaders(t *testing.T) {

@@ -84,7 +84,6 @@ type executor struct {
 
 func (e *executor) InvokeMethod(ctx context.Context, req *internalsv1pb.InternalInvokeRequest) (*internalsv1pb.InternalInvokeResponse, error) {
 	if err := e.enter(); err != nil {
-<<<<<<< HEAD
 		if req.GetMessage().GetMethod() == MethodClaim {
 			return &internalsv1pb.InternalInvokeResponse{
 				Status: &internalsv1pb.Status{Code: int32(codes.NotFound)},
@@ -102,10 +101,6 @@ func (e *executor) InvokeMethod(ctx context.Context, req *internalsv1pb.Internal
 			run()
 		}
 	}()
-=======
-		return nil, err
-	}
->>>>>>> upstream/release-1.18
 	defer e.wg.Done()
 
 	switch req.GetMessage().GetMethod() {
@@ -449,18 +444,6 @@ func (e *executor) enter() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.closedLocked() {
-		return targeterrors.NewClosed("executor")
-	}
-	e.wg.Add(1)
-	return nil
-}
-
-// enter adds a call to wg unless the actor is closed. It holds mu, under
-// which deactivate closes the actor, so no Add can race wg.Wait.
-func (e *executor) enter() error {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	if e.closed {
 		return targeterrors.NewClosed("executor")
 	}
 	e.wg.Add(1)

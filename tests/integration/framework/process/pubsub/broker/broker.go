@@ -151,7 +151,6 @@ func (b *Broker) PublishHelloWorld(topic string) <-chan *compv1.PullMessagesRequ
 	return b.pmrReqCh
 }
 
-<<<<<<< HEAD
 // helloWorldCloudEvent returns a cloud event with ID id, published to topic.
 func helloWorldCloudEvent(id, topic string) []byte {
 	return fmt.Appendf(nil,
@@ -224,8 +223,6 @@ func (b *Broker) NextPublishedCloudEvent(t *testing.T, ctx context.Context) (str
 	return "", ""
 }
 
-=======
->>>>>>> upstream/release-1.18
 // DropStream ends the in-flight PullMessages stream, cancelling the context
 // the component gave the runtime's inbound handler. Stands in for a Kafka
 // consumer group rebalance.

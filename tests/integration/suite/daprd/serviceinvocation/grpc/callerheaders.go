@@ -38,11 +38,7 @@ import (
 	"github.com/dapr/dapr/tests/integration/framework/process/grpc/app"
 	testpb "github.com/dapr/dapr/tests/integration/framework/process/grpc/app/proto"
 	httpapp "github.com/dapr/dapr/tests/integration/framework/process/http/app"
-<<<<<<< HEAD
 	"github.com/dapr/dapr/tests/integration/framework/process/scheduler"
-=======
-	"github.com/dapr/dapr/tests/integration/framework/process/placement"
->>>>>>> upstream/release-1.18
 	"github.com/dapr/dapr/tests/integration/framework/process/sentry"
 	"github.com/dapr/dapr/tests/integration/suite"
 )
@@ -59,11 +55,7 @@ type callerheaders struct {
 	plainCallee *daprd.Daprd
 	ch          chan metadata.MD
 
-<<<<<<< HEAD
 	sched       *scheduler.Scheduler
-=======
-	place       *placement.Placement
->>>>>>> upstream/release-1.18
 	actorHost   *daprd.Daprd
 	actorCaller *daprd.Daprd
 	actorCh     chan http.Header
@@ -107,41 +99,25 @@ func (c *callerheaders) Setup(t *testing.T) []framework.Option {
 			c.actorCh <- r.Header
 		}),
 	)
-<<<<<<< HEAD
 	c.sched = scheduler.New(t,
 		scheduler.WithSentry(c.sentry),
 		scheduler.WithID("dapr-scheduler-server-0"),
 		scheduler.WithPlacementEnabled(true),
 	)
-=======
-	c.place = placement.New(t, placement.WithSentry(t, c.sentry))
->>>>>>> upstream/release-1.18
 	c.actorHost = daprd.New(t,
 		daprd.WithSentry(t, c.sentry),
 		daprd.WithInMemoryActorStateStore("mystore"),
 		daprd.WithAppPort(actorApp.Port()),
-<<<<<<< HEAD
 		daprd.WithScheduler(c.sched),
-=======
-		daprd.WithPlacementAddresses(c.place.Address()),
->>>>>>> upstream/release-1.18
 	)
 	c.actorCaller = daprd.New(t,
 		daprd.WithSentry(t, c.sentry),
 		daprd.WithInMemoryActorStateStore("mystore"),
-<<<<<<< HEAD
 		daprd.WithScheduler(c.sched),
 	)
 
 	return []framework.Option{
 		framework.WithProcesses(srv, actorApp, c.sentry, c.sched,
-=======
-		daprd.WithPlacementAddresses(c.place.Address()),
-	)
-
-	return []framework.Option{
-		framework.WithProcesses(srv, actorApp, c.sentry, c.place,
->>>>>>> upstream/release-1.18
 			c.mtlsCaller, c.mtlsCallee, c.plainCaller, c.plainCallee,
 			c.actorHost, c.actorCaller,
 		),
@@ -150,11 +126,7 @@ func (c *callerheaders) Setup(t *testing.T) []framework.Option {
 
 func (c *callerheaders) Run(t *testing.T, ctx context.Context) {
 	c.sentry.WaitUntilRunning(t, ctx)
-<<<<<<< HEAD
 	c.sched.WaitUntilRunning(t, ctx)
-=======
-	c.place.WaitUntilRunning(t, ctx)
->>>>>>> upstream/release-1.18
 	for _, d := range []*daprd.Daprd{c.mtlsCaller, c.mtlsCallee, c.plainCaller, c.plainCallee, c.actorHost, c.actorCaller} {
 		d.WaitUntilRunning(t, ctx)
 	}

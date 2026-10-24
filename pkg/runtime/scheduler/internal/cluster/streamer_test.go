@@ -138,7 +138,6 @@ func Test_handleJob_ErrReminderCanceled_localSentinel(t *testing.T) {
 	}
 }
 
-<<<<<<< HEAD
 func Test_handleJob_invalidTargetMetadata(t *testing.T) {
 	t.Parallel()
 
@@ -221,8 +220,6 @@ func Test_handleJob_invalidTargetMetadata(t *testing.T) {
 	}
 }
 
-=======
->>>>>>> upstream/release-1.18
 func Test_invokeActorReminder_SourceAppID(t *testing.T) {
 	t.Parallel()
 
@@ -235,32 +232,19 @@ func Test_invokeActorReminder_SourceAppID(t *testing.T) {
 	)
 	s := &streamer{actors: actors, wfengine: wfenginefake.New()}
 
-<<<<<<< HEAD
 	actor := &schedulerv1pb.TargetActorReminder{Type: "dapr.internal.default.target.workflow", Id: "instance-1"}
-=======
->>>>>>> upstream/release-1.18
 	job := &schedulerv1pb.WatchJobsResponse{
 		Name: "activity-result-abc",
 		Metadata: &schedulerv1pb.JobMetadata{
 			AppId:     "creator",
 			Namespace: "default",
 			Target: &schedulerv1pb.JobTargetMetadata{
-<<<<<<< HEAD
 				Type: &schedulerv1pb.JobTargetMetadata_Actor{Actor: actor},
-=======
-				Type: &schedulerv1pb.JobTargetMetadata_Actor{
-					Actor: &schedulerv1pb.TargetActorReminder{Type: "dapr.internal.default.target.workflow", Id: "instance-1"},
-				},
->>>>>>> upstream/release-1.18
 			},
 		},
 	}
 
-<<<<<<< HEAD
 	require.NoError(t, s.invokeActorReminder(t.Context(), job, actor))
-=======
-	require.NoError(t, s.invokeActorReminder(t.Context(), job))
->>>>>>> upstream/release-1.18
 	require.NotNil(t, got)
 	assert.Equal(t, "creator", got.SourceAppID)
 	assert.Equal(t, "activity-result-abc", got.Name)

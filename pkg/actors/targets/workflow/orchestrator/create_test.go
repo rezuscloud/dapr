@@ -965,7 +965,6 @@ func Test_createWorkflowInstance_completedDifferentExecutionRecreates(t *testing
 	}
 }
 
-<<<<<<< HEAD
 func Test_createWorkflowInstance_enforceUniqueSameExecutionRetry(t *testing.T) {
 	const instanceID = "test-retry-unique"
 
@@ -997,8 +996,6 @@ func Test_createWorkflowInstance_enforceUniqueSameExecutionRetry(t *testing.T) {
 	})
 }
 
-=======
->>>>>>> upstream/release-1.18
 func Test_createWorkflowInstance_completedChildSameExecutionNotifiesParent(t *testing.T) {
 	const instanceID = "test-retry-child"
 
